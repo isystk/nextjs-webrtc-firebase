@@ -7,13 +7,13 @@ export default class RtcClient {
     const config = {
       iceServers: [{ urls: 'stun:stun.stunprotocol.org' }],
     };
-    this.rtcPeerConnection = new RTCPeerConnection(config);
+    this._setRtcClient = setRtcClient;
     this.firebaseClient = new FirebaseClient();
     this.localPeerName = '';
+    this.mediaStream = null;
     this.remotePeerName = '';
     this.remoteVideoRef = remoteVideoRef;
-    this._setRtcClient = setRtcClient;
-    this.mediaStream = null;
+    this.rtcPeerConnection = new RTCPeerConnection(config);
   }
 
   get initialAudioMuted() {
