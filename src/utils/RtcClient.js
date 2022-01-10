@@ -1,4 +1,4 @@
-import FirebaseSignallingClient from './FirebaseSignallingClient';
+import FirebaseClient from './FirebaseClient';
 
 const INITIAL_AUDIO_ENABLED = false;
 
@@ -8,7 +8,7 @@ export default class RtcClient {
       iceServers: [{ urls: 'stun:stun.stunprotocol.org' }],
     };
     this.rtcPeerConnection = new RTCPeerConnection(config);
-    this.firebaseSignallingClient = new FirebaseSignallingClient();
+    this.firebaseClient = new FirebaseClient();
     this.localPeerName = '';
     this.remotePeerName = '';
     this.remoteVideoRef = remoteVideoRef;
@@ -89,12 +89,12 @@ export default class RtcClient {
   }
 
   async sendOffer() {
-    this.firebaseSignallingClient.setPeerNames(
+    this.firebaseClient.setPeerNames(
       this.localPeerName,
       this.remotePeerName
     );
 
-    await this.firebaseSignallingClient.sendOffer(this.localDescription);
+    await this.firebaseClient.sendOffer(this.localDescription);
   }
 
   setOntrack() {
@@ -136,12 +136,12 @@ export default class RtcClient {
   }
 
   async sendAnswer() {
-    this.firebaseSignallingClient.setPeerNames(
+    this.firebaseClient.setPeerNames(
       this.localPeerName,
       this.remotePeerName
     );
 
-    await this.firebaseSignallingClient.sendAnswer(this.localDescription);
+    await this.firebaseClient.sendAnswer(this.localDescription);
   }
 
   async saveReceivedSessionDescription(sessionDescription) {
@@ -168,7 +168,7 @@ export default class RtcClient {
   setOnicecandidateCallback() {
     this.rtcPeerConnection.onicecandidate = async ({ candidate }) => {
       if (candidate) {
-        await this.firebaseSignallingClient.sendCandidate(candidate.toJSON());
+        await this.firebaseClient.sendCandidate(candidate.toJSON());
       }
     };
   }
@@ -176,8 +176,8 @@ export default class RtcClient {
   async startListening(localPeerName) {
     this.localPeerName = localPeerName;
     this.setRtcClient();
-    await this.firebaseSignallingClient.remove(localPeerName);
-    this.firebaseSignallingClient.database
+    await this.firebaseClient.remove(localPeerName);
+    this.firebaseClient.database
       .ref(localPeerName)
       .on('value', async (snapshot) => {
         const data = snapshot.val();

@@ -1,5 +1,6 @@
-FROM node:14.15.1
+FROM node:14.15.0-alpine3.12
 
-ENV APP_PATH=/app
-RUN mkdir $APP_PATH
-WORKDIR $APP_PATH
+WORKDIR /usr/src
+
+RUN apk update && \
+    apk upgrade

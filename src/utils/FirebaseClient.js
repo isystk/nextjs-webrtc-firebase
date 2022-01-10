@@ -1,7 +1,10 @@
 import firebase from 'firebase/app';
+import 'firebase/auth'
+import 'firebase/firestore'
+import 'firebase/functions'
 import 'firebase/database';
 
-export default class FirebaseSignallingClient {
+export default class FirebaseClient {
   constructor() {
     const {
       REACT_APP_FIREBASE_API_KEY,
@@ -11,7 +14,12 @@ export default class FirebaseSignallingClient {
       REACT_APP_FIREBASE_STORAGE_BUCKET,
       REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
       REACT_APP_FIREBASE_APP_ID,
+      NEXT_PUBLIC_USE_FIREBASE_EMULATOR,
     } = process.env;
+
+    const isEmulator = () => {
+      return !!(NEXT_PUBLIC_USE_FIREBASE_EMULATOR && NEXT_PUBLIC_USE_FIREBASE_EMULATOR === 'true')
+    }
 
     const firebaseConfig = {
       apiKey: REACT_APP_FIREBASE_API_KEY,
@@ -22,8 +30,21 @@ export default class FirebaseSignallingClient {
       messagingSenderId: REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
       appId: REACT_APP_FIREBASE_APP_ID,
     };
-    if (firebase.apps.length === 0) firebase.initializeApp(firebaseConfig);
-    this.database = firebase.database();
+    if (firebase.apps.length === 0) {
+      firebase.initializeApp(firebaseConfig);
+    }
+
+    if (isEmulator()) {
+      this.auth = firebase.auth().useEmulator('http://localhost:9099')
+      this.firestore = firebase.firestore().useEmulator('localhost', 8080)
+      this.functions = firebase.functions().useEmulator('localhost', 5001)
+      this.database = firebase.database().useEmulator('localhost', 9000)
+    } else {
+      this.auth = firebase.auth()
+      this.firestore = firebase.firestore()
+      this.functions = firebase.functions()
+      this.database = firebase.database();
+    }
     this.localPeerName = '';
     this.remotePeerName = '';
   }

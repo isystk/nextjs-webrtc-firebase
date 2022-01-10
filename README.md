@@ -1,41 +1,125 @@
-# React Starter Kit in JavaScript
+🌙 nextjs-webrtc-firebase
+====
 
-## Node のインストール方法
+![GitHub issues](https://img.shields.io/github/issues/isystk/nextjs-webrtc-firebase)
+![GitHub forks](https://img.shields.io/github/forks/isystk/nextjs-webrtc-firebase)
+![GitHub stars](https://img.shields.io/github/stars/isystk/nextjs-webrtc-firebase)
+![GitHub license](https://img.shields.io/github/license/isystk/nextjs-webrtc-firebase)
 
-本アプリケーションは [Node.js](https://nodejs.org/) を前提としています。macOS の場合だと以下の手順で導入できます。Node のバージョンは`.node-version`を参照し、同じものを使用してください。
+## 📗 プロジェクトの概要
 
-    $ wget -P /tmp https://nodejs.org/download/release/v14.15.1/node-v14.15.1.pkg
-    $ sudo installer -pkg /tmp/node-v14.15.1.pkg -target /
-    installer: Package name is Node.js
-    installer: Upgrading at base path /
-    installer: The upgrade was successful.
-    $ node -v
-    v14.15.1
-
-## アプリケーションの起動方法(Docker を使用しない場合)
-
-本プロジェクトは、[create-react-app](https://reactjs.org/docs/create-a-new-react-app.html) により作成したアプリケーションから React の学習に最低限必要な機能のみを厳選し、軽量化したものです。
-以下の手順でアプリケーションを起動できます。
-
-    $ wget https://github.com/DiveIntoHacking/react-starter-kit-in-javascript-with-node-v14.15.1/archive/v1.2.tar.gz
-    $ tar zxvf v1.2.tar.gz
-    $ cd react-starter-kit-in-javascript-with-node-v14.15.1-1.2
-    $ yarn install
-    $ yarn start
-
-## アプリケーションの起動方法(Docker を使用する場合)
-
-    $ wget https://github.com/DiveIntoHacking/react-starter-kit-in-javascript-with-node-v14.15.1/archive/v1.2.tar.gz
-    $ tar zxvf v1.2.tar.gz
-    $ cd react-starter-kit-in-javascript-with-node-v14.15.1-1.2
-    $ touch .bash_history
-    $ docker-compose build
-    $ docker-compose run --rm app yarn install
-    $ docker-compose up
+Next.js ＆ Firebase の学習用サンプルアプリケーションです。
 
 
-<div align='right'>
+## 🌐 Demo
 
-[はむさんのオンラインスクール](https://diveintohacking.com/)
+![投稿一覧画面](./app1.png "投稿一覧画面")
+![投稿画面](./app2.png "投稿画面")
 
-</div>
+- ログイン/ログアウト
+- 会員登録
+- 投稿一覧
+- 投稿詳細
+- マイページ（一覧・登録・更新・削除）
+
+
+## 📦 ディレクトリ構造
+
+```
+.
+├── docker/
+│   ├── apache/ (Webサーバー)
+│   │   └── Dockerfile
+│   ├── app/ (Node.js をDockerで動作させたい場合に利用する)
+│   │   └── Dockerfile
+│   └── firebase/ (Firebase のエミュレータ)
+│       ├── Dockerfile
+│       └── src
+│           └── functions (Cloud functions のソースコード)
+├── public/
+├── src/ (Next.js のソースコード)
+│   ├── auth/
+│   ├── common/
+│   ├── components/
+│   ├── pages/
+│   ├── store/
+│   ├── styles/
+│   └── utilities/
+├── test/
+└── dc.sh （Dockerの起動用スクリプト）
+```
+
+## 🖊️ Docker 操作用シェルスクリプトの使い方
+
+```
+Usage:
+  dc.sh [command] [<options>]
+
+Options:
+  stats|st                 Dockerコンテナの状態を表示します。
+  init                     Dockerコンテナ・イメージ・生成ファイルの状態を初期化します。
+  start                    すべてのDaemonを起動します。
+  stop                     すべてのDaemonを停止します。
+  firebase login           Firebase にログインします。
+  firebase start           Firebase のエミュレータを起動します。
+  firebase build           Cloud Functions をビルドします。
+  firebase deploy          Firebase にデプロイします。
+  --version, -v     バージョンを表示します。
+  --help, -h        ヘルプを表示します。
+```
+
+
+## 💬 使い方
+
+```
+# 下準備
+$ ./dc.sh init
+$ cp .env.example .env
+
+# Dockerを起動する
+$ ./dc.sh start
+
+# 初回のみFirebaseのセットアップ
+./dc.sh firebase login
+./dc.sh firebase init
+
+# Firebaseエミュレータを起動します。
+$ ./dc.sh firebase start
+$ open http://localhost:4000
+
+# Cloud Functions をビルドします。
+docker-compose -f docker/docker-compose.yml exec firebase sh
+cd ./functions
+yarn
+yarn build
+
+# 投稿データをPOST
+curl -X POST -H "Content-Type: application/json" -d @post.json http://localhost:5001/nextjs-typescript-firestore/us-central1/api/posts
+# 投稿データの一覧を取得する
+curl http://localhost:5001/nextjs-typescript-firestore/us-central1/api/posts
+
+# Next.jsアプリを起動します。
+./dc.sh app install
+./dc.sh app dev
+$ open http://localhost:3000
+
+# Dockerを停止する場合
+$ ./dc.sh stop
+```
+
+## 🎨 参考
+
+| プロジェクト| 概要|
+| :---------------------------------------| :-------------------------------|
+| [react-bootstrap](https://react-bootstrap.github.io/components/)| BootstrapのReact用コンポーネント |
+| [今更ながらのNext.js + TypeScript + Firebaseで認証機能を実装する](https://zenn.dev/k_logic24/articles/react-auth-with-firebase)| 今更ながらのNext.js + TypeScript + Firebaseで認証機能を実装する |
+
+
+## 🎫 Licence
+
+[MIT](https://github.com/isystk/nextjs-webrtc-firebase/blob/master/LICENSE)
+
+## 👀 Author
+
+[isystk](https://github.com/isystk)
+

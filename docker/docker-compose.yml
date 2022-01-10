@@ -1,0 +1,53 @@
+version: '3'
+
+services:
+
+#  apache:
+#    image: nextjs-webrtc-firebase/apache
+#    container_name: nextjs-webrtc-firebase-apache
+#    build:
+#      context: "./apache"
+#      dockerfile: "Dockerfile"
+#    ports:
+#      - "80:80"
+#      - "443:443"
+#    restart: always
+#    volumes:
+#      - ./apache/conf.d:/etc/apache2/conf.d
+#      - ./apache/ssl:/etc/apache2/ssl
+#      - ./apache/logs:/var/log/apache2
+#      - ../out:/var/www/html
+
+#  app:
+#     image: nextjs-webrtc-firebase/app
+#     container_name: nextjs-webrtc-firebase-app
+#     build:
+#       context: ./app
+#       dockerfile: Dockerfile
+#     volumes:
+#       - ../:/usr/src
+#     working_dir: /usr/src
+#     ports:
+#       - '3000:3000'
+##     network_mode: "host"
+#     depends_on:
+#       - firebase
+#     tty: true
+
+  firebase:
+    image: nextjs-webrtc-firebase/firebase
+    container_name: nextjs-webrtc-firebase-firebase
+    build:
+      context: ./firebase
+      dockerfile: Dockerfile
+    volumes:
+      - ./firebase/src:/usr/src
+    ports:
+      - '9005:9005' # firebase loginのために必要
+      - '4000:4000' # firebase ui
+      - '5001:5001' # Cloud Functions
+      - '8080:8080' # Cloud Firestore
+      - '9000:9000' # Realtime Database
+      - '9099:9099' # Firebase Auth
+    working_dir: /usr/src
+    tty: true
