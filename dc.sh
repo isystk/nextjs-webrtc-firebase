@@ -40,7 +40,8 @@ case ${1} in
         # 停止＆削除（コンテナ・イメージ・ボリューム）
         pushd $DOCKER_HOME
         docker-compose down --rmi all --volumes
-        rm -Rf $DOCKER_HOME/firebase/src && mkdir $DOCKER_HOME/firebase/src && chmod 777 $DOCKER_HOME/firebase/src
+        rm -Rf firebase/src && mkdir firebase/src && chmod -R 777 firebase/src
+        popd
     ;;
 
     start)

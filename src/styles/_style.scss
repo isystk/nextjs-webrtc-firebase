@@ -1,0 +1,28 @@
+body {
+  margin: 0px;
+}
+
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  marginLeft: '0rem';
+}
+
+.App-header {
+  position: static !important;
+  background-color: #3f51b5;
+  font-size: calc(10px + 1.5vmin);
+  color: white;
+}
+
+.App-footer {
+  background-color: #3f51b5;
+  font-size: calc(4px + 1.5vmin);
+  color: white;
+}
+
+.App-link {
+  color: white;
+}

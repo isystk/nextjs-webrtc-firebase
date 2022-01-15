@@ -1,0 +1,27 @@
+# Common
+.github
+node_modules
+dist
+.nuxt
+coverage
+
+# Internals
+.storybook
+.vscode
+internals
+stories
+tools
+
+# build file 
+out/**
+
+# static file 
+public/**
+
+# config file 
+.eslintrc.js
+next.config.js
+
+# docker
+docker/**
+

@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Footer 1`] = `
+<footer
+  className="main-footer"
+>
+  <strong>
+    Copyright © 2019-2020 
+    <a
+      href="#"
+    >
+      isystk.com
+    </a>
+    .
+  </strong>
+   
+  All rights reserved.
+</footer>
+`;

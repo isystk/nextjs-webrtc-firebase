@@ -3,7 +3,9 @@
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/nextjs-typescript-firebase" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/nextjs-webrtc-sample" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/react-starter-kit-in-javascript-with-node-v14.15.1" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/server/nextjs-webrtc-sample" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/work" vcs="Git" />
   </component>
 </project>
