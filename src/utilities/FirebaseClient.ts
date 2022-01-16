@@ -16,17 +16,6 @@ export default class FirebaseClient {
     const REACT_APP_FIREBASE_APP_ID = process.env.REACT_APP_FIREBASE_APP_ID;
     const USE_FIREBASE_EMULATOR = process.env.USE_FIREBASE_EMULATOR;
 
-
-    console.log(REACT_APP_FIREBASE_API_KEY,
-        REACT_APP_FIREBASE_AUTH_DOMAIN,
-        REACT_APP_FIREBASE_DATABASE_URL,
-        REACT_APP_FIREBASE_PROJECT_ID,
-        REACT_APP_FIREBASE_STORAGE_BUCKET,
-        REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
-        REACT_APP_FIREBASE_APP_ID,
-        USE_FIREBASE_EMULATOR
-    )
-
     const isEmulator = () => {
       return !!(USE_FIREBASE_EMULATOR && USE_FIREBASE_EMULATOR === 'true')
     }
@@ -47,13 +36,12 @@ export default class FirebaseClient {
     this.auth = firebase.auth()
     this.firestore = firebase.firestore()
     this.functions = firebase.functions()
-    this.database = firebase.database();
+    this.database = firebase.database()
     if (isEmulator()) {
       this.auth.useEmulator('http://localhost:9099')
       this.firestore.useEmulator('localhost', 8080)
       this.functions.useEmulator('localhost', 5001)
       this.database.useEmulator('localhost', 9000)
-      console.log(this.auth, this.database)
     }
     this.localPeerName = '';
     this.remotePeerName = '';
@@ -84,6 +72,7 @@ export default class FirebaseClient {
     });
   }
 
+  // candidate(通信経路)を送信する
   async sendCandidate(candidate) {
     await this.targetRef.set({
       type: 'candidate',
@@ -92,6 +81,7 @@ export default class FirebaseClient {
     });
   }
 
+  // 過去のデータを初期化する
   async remove(path) {
     await this.database.ref(path).remove();
   }

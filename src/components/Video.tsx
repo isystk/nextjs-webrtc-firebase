@@ -14,12 +14,13 @@ import useDimensions from './hooks/useDimentions';
 const Video = ({ isLocal, name, rtcClient, videoRef }) => {
   const [muted, setMuted] = useState(rtcClient.initialAudioMuted);
   const refCard = useRef(null);
+  // ブラウザの表示サイズに応じてビデオを表示する幅を取得する
   const dimensionsCard = useDimensions(refCard);
   const refVolumeButton = useRef(null);
   const dimensionsVolumeButton = useDimensions(refVolumeButton);
 
-  if (videoRef.current)
-    console.log({ isLocal, srcObject: videoRef.current.srcObject });
+  // if (videoRef.current)
+  //   console.log({ isLocal, srcObject: videoRef.current.srcObject });
 
   return (
     <Card ref={refCard}>

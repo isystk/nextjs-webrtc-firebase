@@ -13,6 +13,7 @@ export default class RtcClient {
     this.mediaStream = null;
     this.remotePeerName = '';
     this.remoteVideoRef = remoteVideoRef;
+    this.roomName = '';
     this.rtcPeerConnection = new RTCPeerConnection(config);
   }
 
@@ -24,6 +25,7 @@ export default class RtcClient {
     this._setRtcClient(this);
   }
 
+  // ブラウザからオーディオやビデオの使用許可を取得する
   async getUserMedia() {
     try {
       const constraints = { audio: true, video: true };
@@ -39,6 +41,7 @@ export default class RtcClient {
     this.setRtcClient();
   }
 
+  // ピアツーピアで通信相手に対して送信されるオーディオとビデオのトラックを追加する
   addTracks() {
     this.addAudioTrack();
     this.addVideoTrack();
@@ -61,6 +64,7 @@ export default class RtcClient {
     return this.mediaStream.getVideoTracks()[0];
   }
 
+  // 音声のオン・オフを切り替える
   toggleAudio() {
     this.audioTrack.enabled = !this.audioTrack.enabled;
     this.setRtcClient();
@@ -109,6 +113,7 @@ export default class RtcClient {
     this.setRtcClient();
   }
 
+  // シグナリングサーバー経由でofferを受信後にanswerを送信する
   async answer(sender, sessionDescription) {
     try {
       this.remotePeerName = sender;
@@ -125,10 +130,15 @@ export default class RtcClient {
 
   async connect(remotePeerName) {
     this.remotePeerName = remotePeerName;
+    this.roomName = remotePeerName;
     this.setOnicecandidateCallback();
     this.setOntrack();
     await this.offer();
     this.setRtcClient();
+  }
+
+  disconnect() {
+    this.roomName = '';
   }
 
   async setRemoteDescription(sessionDescription) {
@@ -144,6 +154,7 @@ export default class RtcClient {
     await this.firebaseClient.sendAnswer(this.localDescription);
   }
 
+  // シグナリングサーバー経由でanswerを受信する
   async saveReceivedSessionDescription(sessionDescription) {
     try {
       await this.setRemoteDescription(sessionDescription);
@@ -156,6 +167,7 @@ export default class RtcClient {
     return this.rtcPeerConnection.localDescription.toJSON();
   }
 
+  // 相手の通信経路(candidate)を追加する
   async addIceCandidate(candidate) {
     try {
       const iceCandidate = new RTCIceCandidate(candidate);
@@ -168,36 +180,51 @@ export default class RtcClient {
   setOnicecandidateCallback() {
     this.rtcPeerConnection.onicecandidate = async ({ candidate }) => {
       if (candidate) {
+        // remoteへcandidate(通信経路)を通知する
         await this.firebaseClient.sendCandidate(candidate.toJSON());
       }
     };
   }
 
+  // シグナリングサーバーをリスンする処理
   async startListening(localPeerName) {
     this.localPeerName = localPeerName;
     this.setRtcClient();
+    // 過去のデータを初期化する
     await this.firebaseClient.remove(localPeerName);
-    this.firebaseClient.database
+    const connectionRef = this.firebaseClient.database
       .ref(localPeerName)
-      .on('value', async (snapshot) => {
+    connectionRef.on('value', async (snapshot) => {
         const data = snapshot.val();
         if (data === null) return;
 
         const { candidate, sender, sessionDescription, type } = data;
         switch (type) {
           case 'offer':
+            // シグナリングサーバー経由でofferを受信後にanswerを送信する
             await this.answer(sender, sessionDescription);
             break;
           case 'answer':
+            // シグナリングサーバー経由でanswerを受信する
             await this.saveReceivedSessionDescription(sessionDescription);
             break;
           case 'candidate':
+            // シグナリングサーバー経由でcandidateを受信し、相手の通信経路を追加する
             await this.addIceCandidate(candidate);
             break;
           default:
             this.setRtcClient();
             break;
         }
-      });
+      })
+    connectionRef.on("child_removed", (snapshot) => {
+       let remove_connection = snapshot.val();
+       console.log(remove_connection)
+    })
+    // ブラウザを閉じた時に自動で削除する
+    connectionRef.onDisconnect().remove();
+    connectionRef.set({
+      message: "ログインしたよ"
+    });
   }
 }

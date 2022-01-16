@@ -1,6 +1,6 @@
 {
-  "name": "nextjs-webrtc-sample",
-  "description": "Next.js・Web-RTC を利用したサンプルです。",
+  "name": "nextjs-webrtc-firebase",
+  "description": "Next.js ＆ Firebase の学習用サンプルアプリケーションです。",
   "version": "1.0.0",
   "scripts": {
     "dev": "NODE_ENV=development next",

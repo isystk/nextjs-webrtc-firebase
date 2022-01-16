@@ -6,6 +6,7 @@ const useDimensions = (targetRef) => {
   let [dimensions, setDimensions] = useState(defaultDimensions);
   const node = targetRef.current;
 
+  // ビデオの幅を動的に調整する
   const updateDimensions = (node) => {
     return node === null
       ? defaultDimensions

@@ -26,6 +26,7 @@ const VolumeButton = ({
     <IconButton
       aria-label="switch mute"
       onClick={() => {
+        // 音声のオン・オフを切り替える
         setMuted((previousState) => !previousState);
         if (isLocal) rtcClient.toggleAudio();
       }}
