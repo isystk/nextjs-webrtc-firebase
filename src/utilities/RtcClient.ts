@@ -66,10 +66,17 @@ export default class RtcClient {
     this.setRtcClient();
   }
 
-  async offer() {
+  //
+  async offer(remotePeerName) {
+    this.remotePeerName = remotePeerName;
+    this.setRtcClient();
+
+    this.setOnicecandidateCallback();
+    this.setOntrack();
     const sessionDescription = await this.createOffer();
     await this.setLocalDescription(sessionDescription);
     await this.sendOffer();
+    this.setRtcClient();
   }
 
   async createOffer() {
@@ -89,14 +96,17 @@ export default class RtcClient {
   }
 
   async sendOffer() {
+    this.firebaseClient.setPeerNames(
+        this.roomName,
+        this.localPeerName,
+        this.remotePeerName,
+    );
     await this.firebaseClient.sendOffer(this.localDescription);
   }
 
   setOntrack() {
-    console.log("setOntrack", this.remoteVideoRef)
     this.rtcPeerConnection.ontrack = (rtcTrackEvent) => {
-      console.log("setOntrack rtcPeerConnection", this.remoteVideoRef)
-      if (rtcTrackEvent.track.kind !== 'video' || this.remoteVideoRef === null) return;
+      if (rtcTrackEvent.track.kind !== 'video') return;
 
       const remoteMediaStream = rtcTrackEvent.streams[0];
       this.remoteVideoRef.current.srcObject = remoteMediaStream;
@@ -110,6 +120,8 @@ export default class RtcClient {
   async answer(sender, sessionDescription) {
     try {
       this.remotePeerName = sender;
+      this.setRtcClient();
+
       this.setOnicecandidateCallback();
       this.setOntrack();
       await this.setRemoteDescription(sessionDescription);
@@ -125,23 +137,20 @@ export default class RtcClient {
   async join(roomName) {
     console.log('join', roomName)
     this.roomName = roomName;
+    this.firebaseClient.setPeerNames(
+        this.roomName,
+        this.localPeerName,
+        null,
+    );
     await this.startListening(roomName);
     await this.firebaseClient.sendJoin();
   }
 
-  setRemotePeerName(remotePeerName) {
-    this.remotePeerName = remotePeerName;
-    this.setRtcClient();
-  }
-
-  async connect(remoteVideoRef) {
-    console.log('connect', this.remotePeerName, remoteVideoRef)
+  setRemoteVideoRef(remoteVideoRef) {
+    console.log('setRemoteVideoRef', this.remotePeerName)
     this.remoteVideoRef = remoteVideoRef;
     this.setRtcClient();
-    this.setOnicecandidateCallback();
-    this.setOntrack();
-    await this.offer();
-    this.setRtcClient();
+
   }
 
   disconnect() {
@@ -163,8 +172,9 @@ export default class RtcClient {
 
   async sendAnswer() {
     this.firebaseClient.setPeerNames(
+      this.roomName,
       this.localPeerName,
-      this.roomName
+      this.remotePeerName,
     );
 
     await this.firebaseClient.sendAnswer(this.localDescription);
@@ -174,7 +184,7 @@ export default class RtcClient {
   async saveReceivedSessionDescription(sessionDescription) {
     try {
       await this.setRemoteDescription(sessionDescription);
-    } catch (e) {
+   } catch (e) {
       console.error(e);
     }
   }
@@ -217,28 +227,42 @@ export default class RtcClient {
     this.addTracks();
 
     this.setRtcClient();
+
+    await this.firebaseClient.remove(roomName + '/join');
+    const join = this.firebaseClient.database.ref(roomName + '/join')
+    join.on('value', async (snapshot) => {
+      const data = snapshot.val();
+      if (data === null) return;
+
+      const { candidate, sender, sessionDescription, type } = data;
+      switch (type) {
+        case 'join':
+          // 新メンバーがJOINしてきたらofferを送信する
+          if (sender === this.localPeerName) {
+            // ignore self message (自分自身からのメッセージは無視する）
+            return;
+          }
+          console.log("receive join", sender, this.localPeerName)
+          await this.offer(sender);
+          break;
+        default:
+          this.setRtcClient();
+          break;
+      }
+    })
+    join.onDisconnect().remove();
+
     // 過去のデータを初期化する
-    this.firebaseClient.setPeerNames(
-        this.localPeerName,
-        roomName
-    );
-    // await this.firebaseClient.remove(roomName + '/_broadcast_/');
-    const connectionRef = this.firebaseClient.database
-      .ref(roomName + '/_broadcast_/')
-    connectionRef.on('value', async (snapshot) => {
+    await this.firebaseClient.remove(roomName + '/_broadcast_/' + this.localPeerName);
+    const broadcast = this.firebaseClient.database
+      .ref(roomName + '/_broadcast_/' + this.localPeerName)
+    broadcast.on('value', async (snapshot) => {
         const data = snapshot.val();
         if (data === null) return;
 
         const { candidate, sender, sessionDescription, type } = data;
+        console.log("receive", type)
         switch (type) {
-          case 'join':
-            // 新メンバーがJOINしてきたらofferを送信する
-            if (sender === this.localPeerName) {
-              // ignore self message (自分自身からのメッセージは無視する）
-              return;
-            }
-            await this.setRemotePeerName(sender);
-            break;
           case 'offer':
             // 既存メンバーからofferを受信したらanswerを送信する
             await this.answer(sender, sessionDescription);
@@ -256,8 +280,7 @@ export default class RtcClient {
             break;
         }
       })
-    // 切断時にデータベースから自動で削除する
-    connectionRef.onDisconnect().remove();
+    broadcast.onDisconnect().remove();
 
     const direct = this.firebaseClient.database.ref(roomName + "/_direct_/"+this.localPeerName);
     const localPeerName = this.localPeerName;

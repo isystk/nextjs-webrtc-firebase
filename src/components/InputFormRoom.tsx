@@ -39,7 +39,6 @@ export default function SignIn({ rtcClient }) {
   }, [name]);
 
   const initializeRemotePeer = async (e) => {
-    console.log('Room CLick!!')
     await rtcClient.join(name);
     e.preventDefault();
   }

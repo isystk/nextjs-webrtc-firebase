@@ -10,7 +10,7 @@ const VideoRemote = ({ rtcClient }) => {
 
     const connet = async () => {
       // リモートのvideoタグに受信した映像を投影する
-      await rtcClient.connect(videoRef)
+      await rtcClient.setRemoteVideoRef(videoRef)
     };
 
     connet();

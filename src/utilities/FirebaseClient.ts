@@ -44,26 +44,30 @@ export default class FirebaseClient {
       this.database.useEmulator('localhost', 9000)
     }
     this.localPeerName = '';
+    this.remotePeerName = '';
     this.roomName = '';
   }
 
-  setPeerNames(localPeerName, roomName) {
-    this.localPeerName = localPeerName;
+  setPeerNames(roomName, localPeerName, remotePeerName) {
     this.roomName = roomName;
+    this.localPeerName = localPeerName;
+    this.remotePeerName = remotePeerName;
   }
 
   get targetRef() {
-    return this.database.ref(this.roomName + '/_broadcast_/');
+    return this.database.ref(this.roomName + '/_broadcast_/' + this.remotePeerName);
   }
 
   async sendJoin() {
-    await this.targetRef.set({
+    console.log("send join")
+    await this.database.ref(this.roomName + '/join').set({
       type: 'join',
       sender: this.localPeerName,
     });
   }
 
   async sendOffer(sessionDescription) {
+    console.log("send offer", sessionDescription)
     await this.targetRef.set({
       type: 'offer',
       sender: this.localPeerName,
@@ -72,6 +76,7 @@ export default class FirebaseClient {
  }
 
   async sendAnswer(sessionDescription) {
+    console.log("send answer", sessionDescription)
     await this.targetRef.set({
       type: 'answer',
       sender: this.localPeerName,
