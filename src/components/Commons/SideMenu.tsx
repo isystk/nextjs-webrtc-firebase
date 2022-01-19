@@ -1,68 +1,94 @@
-import React, { FC } from 'react'
-import { useDispatch } from 'react-redux'
-import { URL } from '../../common/constants/url'
-import { push } from 'connected-react-router'
+import React, { useContext } from 'react'
+import PropTypes from 'prop-types'
+import {
+    Divider,
+    Drawer,
+    IconButton,
+    List,
+    ListItem,
+    ListItemIcon,
+    ListItemText,
+} from '@material-ui/core'
+import ExitToAppIcon from '@material-ui/icons/ExitToApp'
+import ChevronLeftIcon from '@material-ui/icons/ChevronLeft'
+import CallIcon from '@material-ui/icons/Call'
+import CallEndIcon from '@material-ui/icons/CallEnd'
+import VideocamIcon from '@material-ui/icons/Videocam'
+import VideocamOffIcon from '@material-ui/icons/VideocamOff'
+import FullscreenIcon from '@material-ui/icons/Fullscreen'
+import ScreenShareIcon from '@material-ui/icons/ScreenShare'
+import StopIcon from '@material-ui/icons/Stop'
 
-export const SideMenu: FC = () => {
-  const dispatch = useDispatch()
+const SideMenu = ({isMenuOpen, setMenuOpen, rtcClient}) => {
+    const menu = {
+        'Exit room': [
+            <ExitToAppIcon key={0} />,
+            () => {
+                rtcClient.disconnect()
+            },
+        ],
+        'Stream cam': [<VideocamIcon key={0} />, () => {}],
+        'Stream screen': [<ScreenShareIcon key={0} />, () => {}],
+        'Stop Stream': [<StopIcon key={0} />, () => {}],
+        'Full screen': [<FullscreenIcon key={0} />, () => {}],
+        Mute: [<VideocamOffIcon key={0} />, () => {}],
+        Call: [<CallIcon key={0} />, () => {}],
+        Bye: [<CallEndIcon key={0} />, () =>{}],
+    }
+    const getIcon = (text) => (menu[text] ? menu[text][0] : <div />)
 
-  return (
-    <>
-      <aside className="main-sidebar sidebar-dark-purple elevation-4">
-        <a
-          href="#"
-          onClick={(e) => {
-            e.preventDefault()
-            dispatch(push(URL.HOME))
-          }}
-          className="brand-link"
-        >
-          <img
-            src="/assets/image/github-icon.svg"
-            alt="AdminSample Logo"
-            className="brand-image img-circle elevation-3"
-            style={{ opacity: 0.8 }}
-          />
-          <span className="brand-text font-weight-light">React Sample</span>
-        </a>
-        <div className="sidebar">
-          <nav className="mt-2">
-            <ul
-              className="nav nav-pills nav-sidebar flex-column"
-              data-widget="treeview"
-              role="menu"
-              data-accordion="false"
-            >
-              <li className="nav-item has-treeview">
-                <a href="#" className="nav-link">
-                  <i className="nav-icon fas fa-table"></i>
-                  <p>
-                    Firebase
-                    <i className="fas fa-angle-left right"></i>
-                  </p>
-                </a>
-                <ul className="nav nav-treeview">
-                  <li className="nav-item">
-                    <a
-                      href="#"
-                      onClick={(e) => {
-                        e.preventDefault()
-                        dispatch(push(URL.FCM))
-                      }}
-                      className="nav-link"
-                    >
-                      <i className="fas fa-box-open nav-icon"></i>
-                      <p>FCM(プッシュ通知)</p>
-                    </a>
-                  </li>
-                </ul>
-              </li>
-            </ul>
-          </nav>
-        </div>
-      </aside>
-    </>
-  )
+    const getMethod = (text) => (menu[text] ? menu[text][1] : () => ({}))
+
+    const onClickItem = (text) => {
+        setMenuOpen(!isMenuOpen)
+        getMethod(text).apply()
+    }
+
+    return (
+        <Drawer open={isMenuOpen} onClose={() => setMenuOpen(!isMenuOpen)}>
+            <div style={{ marginLeft: 'auto' }}>
+                <IconButton onClick={() => setMenuOpen(!isMenuOpen)}>
+                    <ChevronLeftIcon />
+                </IconButton>
+            </div>
+            <Divider />
+            <List>
+                {[
+                    'Stream cam',
+                    'Stream screen',
+                    'Stop Stream',
+                    'Full screen',
+                    'Mute',
+                    'Call',
+                    'Bye',
+                ].map((text, index) => (
+                    <ListItem button key={index} onClick={() => onClickItem(text)}>
+                        <ListItemIcon>{getIcon(text)}</ListItemIcon>
+                        <ListItemText primary={text} />
+                    </ListItem>
+                ))}
+            </List>
+            <Divider />
+            <List>
+                {['Exit room'].map((text, index) => (
+                    <ListItem button key={index} onClick={() => onClickItem(text)}>
+                        <ListItemIcon>{getIcon(text)}</ListItemIcon>
+                        <ListItemText primary={text} />
+                    </ListItem>
+                ))}
+            </List>
+        </Drawer>
+    )
+}
+
+SideMenu.propTypes = {
+    onCaptureStart: PropTypes.func,
+    onCameraStart: PropTypes.func,
+    onVideoStop: PropTypes.func,
+    onCall: PropTypes.func,
+    onBye: PropTypes.func,
+    onMute: PropTypes.func,
+    onFullScreen: PropTypes.func,
 }
 
 export default SideMenu

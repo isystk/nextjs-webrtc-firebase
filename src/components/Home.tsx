@@ -4,7 +4,7 @@ import Footer from '@/components/Commons/Footer'
 import InputForms from '@/components/InputForms'
 import VideoArea from '@/components/VideoArea'
 import useRtcClient from './hooks/useRtcClient';
-import Drawer from './CustomDrawer'
+import SideMenu from './Commons/SideMenu'
 
 const Home = () => {
   const rtcClient = useRtcClient();
@@ -25,7 +25,7 @@ const Home = () => {
         <VideoArea rtcClient={rtcClient} />
       </div>
       <Footer />
-      <Drawer isMenuOpen={isMenuOpen} setMenuOpen={setMenuOpen} rtcClient={rtcClient} />
+      <SideMenu isMenuOpen={isMenuOpen} setMenuOpen={setMenuOpen} rtcClient={rtcClient} />
     </>
   )
 }

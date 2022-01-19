@@ -3,18 +3,15 @@ import FirebaseClient from './FirebaseClient';
 const INITIAL_AUDIO_ENABLED = false;
 
 export default class RtcClient {
-  constructor(remoteVideoRef, setRtcClient) {
-    const config = {
-      iceServers: [{ urls: 'stun:stun.stunprotocol.org' }],
-    };
+  constructor(setRtcClient) {
     this._setRtcClient = setRtcClient;
     this.firebaseClient = new FirebaseClient();
-    this.localPeerName = '';
-    this.mediaStream = null;
-    this.remotePeerName = '';
-    this.remoteVideoRef = remoteVideoRef;
     this.roomName = '';
-    this.rtcPeerConnection = new RTCPeerConnection(config);
+    this.localPeerName = '';
+    this.remotePeerName = '';
+    this.remoteVideoRef = null;
+    this.mediaStream = null;
+    this.rtcPeerConnection = null;
   }
 
   get initialAudioMuted() {
@@ -37,7 +34,6 @@ export default class RtcClient {
 
   async setMediaStream() {
     await this.getUserMedia();
-    this.addTracks();
     this.setRtcClient();
   }
 
@@ -93,17 +89,14 @@ export default class RtcClient {
   }
 
   async sendOffer() {
-    this.firebaseClient.setPeerNames(
-      this.localPeerName,
-      this.remotePeerName
-    );
-
     await this.firebaseClient.sendOffer(this.localDescription);
   }
 
   setOntrack() {
+    console.log("setOntrack", this.remoteVideoRef)
     this.rtcPeerConnection.ontrack = (rtcTrackEvent) => {
-      if (rtcTrackEvent.track.kind !== 'video') return;
+      console.log("setOntrack rtcPeerConnection", this.remoteVideoRef)
+      if (rtcTrackEvent.track.kind !== 'video' || this.remoteVideoRef === null) return;
 
       const remoteMediaStream = rtcTrackEvent.streams[0];
       this.remoteVideoRef.current.srcObject = remoteMediaStream;
@@ -113,7 +106,7 @@ export default class RtcClient {
     this.setRtcClient();
   }
 
-  // シグナリングサーバー経由でofferを受信後にanswerを送信する
+  // 既存メンバーからofferを受信したらanswerを送信する
   async answer(sender, sessionDescription) {
     try {
       this.remotePeerName = sender;
@@ -123,14 +116,28 @@ export default class RtcClient {
       const answer = await this.rtcPeerConnection.createAnswer();
       await this.rtcPeerConnection.setLocalDescription(answer);
       await this.sendAnswer();
+      this.setRtcClient();
     } catch (e) {
       console.error(e);
     }
   }
 
-  async connect(remotePeerName) {
+  async join(roomName) {
+    console.log('join', roomName)
+    this.roomName = roomName;
+    await this.startListening(roomName);
+    await this.firebaseClient.sendJoin();
+  }
+
+  setRemotePeerName(remotePeerName) {
     this.remotePeerName = remotePeerName;
-    this.roomName = remotePeerName;
+    this.setRtcClient();
+  }
+
+  async connect(remoteVideoRef) {
+    console.log('connect', this.remotePeerName, remoteVideoRef)
+    this.remoteVideoRef = remoteVideoRef;
+    this.setRtcClient();
     this.setOnicecandidateCallback();
     this.setOntrack();
     await this.offer();
@@ -138,7 +145,16 @@ export default class RtcClient {
   }
 
   disconnect() {
-    this.roomName = '';
+    console.log("disconnect")
+    if (this.rtcPeerConnection) {
+      if (this.rtcPeerConnection !== 'closed') {
+        this.rtcPeerConnection.close()
+        this.rtcPeerConnection = null
+        this.roomName = '';
+        console.log("closed")
+        this.setRtcClient();
+      }
+    }
   }
 
   async setRemoteDescription(sessionDescription) {
@@ -148,7 +164,7 @@ export default class RtcClient {
   async sendAnswer() {
     this.firebaseClient.setPeerNames(
       this.localPeerName,
-      this.remotePeerName
+      this.roomName
     );
 
     await this.firebaseClient.sendAnswer(this.localDescription);
@@ -186,26 +202,49 @@ export default class RtcClient {
     };
   }
 
-  // シグナリングサーバーをリスンする処理
-  async startListening(localPeerName) {
+  setLocalPeerName(localPeerName) {
     this.localPeerName = localPeerName;
     this.setRtcClient();
+  }
+
+  // シグナリングサーバーをリスンする処理
+  async startListening(roomName) {
+
+    const config = {
+      iceServers: [{ urls: 'stun:stun.stunprotocol.org' }],
+    };
+    this.rtcPeerConnection = new RTCPeerConnection(config);
+    this.addTracks();
+
+    this.setRtcClient();
     // 過去のデータを初期化する
-    await this.firebaseClient.remove(localPeerName);
+    this.firebaseClient.setPeerNames(
+        this.localPeerName,
+        roomName
+    );
+    // await this.firebaseClient.remove(roomName + '/_broadcast_/');
     const connectionRef = this.firebaseClient.database
-      .ref(localPeerName)
+      .ref(roomName + '/_broadcast_/')
     connectionRef.on('value', async (snapshot) => {
         const data = snapshot.val();
         if (data === null) return;
 
         const { candidate, sender, sessionDescription, type } = data;
         switch (type) {
+          case 'join':
+            // 新メンバーがJOINしてきたらofferを送信する
+            if (sender === this.localPeerName) {
+              // ignore self message (自分自身からのメッセージは無視する）
+              return;
+            }
+            await this.setRemotePeerName(sender);
+            break;
           case 'offer':
-            // シグナリングサーバー経由でofferを受信後にanswerを送信する
+            // 既存メンバーからofferを受信したらanswerを送信する
             await this.answer(sender, sessionDescription);
             break;
           case 'answer':
-            // シグナリングサーバー経由でanswerを受信する
+            // answerを受信する
             await this.saveReceivedSessionDescription(sessionDescription);
             break;
           case 'candidate':
@@ -217,14 +256,40 @@ export default class RtcClient {
             break;
         }
       })
-    connectionRef.on("child_removed", (snapshot) => {
-       let remove_connection = snapshot.val();
-       console.log(remove_connection)
-    })
-    // ブラウザを閉じた時に自動で削除する
+    // 切断時にデータベースから自動で削除する
     connectionRef.onDisconnect().remove();
-    connectionRef.set({
-      message: "ログインしたよ"
+
+    const direct = this.firebaseClient.database.ref(roomName + "/_direct_/"+this.localPeerName);
+    const localPeerName = this.localPeerName;
+    direct.on('value', function(data) {
+      const { sender, message, type } = data;
+      if (sender === localPeerName) {
+        // ignore self message (自分自身からのメッセージは無視する）
+        return;
+      }
+      switch (type) {
+        case 'call me':
+          break;
+          console.log("child_added", type, data.val());
+        default:
+          console.log("child_added", type, data.val());
+          break;
+      }
+    });
+  }
+
+  async sendAll() {
+    await this.firebaseClient.database.ref(this.roomName + "/_broadcast_").set({
+      type: 'call me',
+      sender: this.localPeerName,
+      message: 'I am ' + this.localPeerName,
+    });
+  }
+  async sendCCC() {
+    await this.firebaseClient.database.ref(this.roomName + "/_direct_/" + "ccc").set({
+      type: 'call me',
+      sender: this.localPeerName,
+      message: 'I am ' + this.localPeerName,
     });
   }
 }

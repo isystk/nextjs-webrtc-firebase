@@ -1,15 +1,15 @@
 import React from 'react';
 
-import InputFormLocal from './InputFormLocal';
-import InputFormRemote from './InputFormRemote';
+import InputFormName from './InputFormName';
+import InputFormRoom from './InputFormRoom';
 
 const InputForms = ({ rtcClient }) => {
   if (rtcClient === null) return <></>;
 
   return (
     <>
-      <InputFormLocal rtcClient={rtcClient} />
-      <InputFormRemote rtcClient={rtcClient} />
+      <InputFormName rtcClient={rtcClient} />
+      <InputFormRoom rtcClient={rtcClient} />
     </>
   );
 };

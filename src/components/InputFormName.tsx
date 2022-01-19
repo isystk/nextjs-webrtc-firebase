@@ -27,7 +27,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function SignIn({ rtcClient }) {
-  const label = '部屋の名前';
+  const label = 'あなたの名前';
   const classes = useStyles();
   const [disabled, setDisabled] = useState(true);
   const [name, setName] = useState('');
@@ -38,16 +38,15 @@ export default function SignIn({ rtcClient }) {
     setDisabled(disabled);
   }, [name]);
 
-  const initializeRemotePeer = useCallback(
+  const initializeLocalPeer = useCallback(
     async (e) => {
-      await rtcClient.connect(name);
+      await rtcClient.setLocalPeerName(name);
       e.preventDefault();
     },
     [name, rtcClient]
   );
 
-  if (rtcClient.localPeerName === '') return <></>;
-  if (rtcClient.remotePeerName !== '') return <></>;
+  if (rtcClient.localPeerName !== '') return <></>;
 
   return (
     <Container component="main" maxWidth="xs">
@@ -69,7 +68,7 @@ export default function SignIn({ rtcClient }) {
             onKeyDown={async (e) => {
               if (isComposed) return;
               if (e.target.value === '') return;
-              if (e.key === 'Enter') await initializeRemotePeer(e);
+              if (e.key === 'Enter') await initializeLocalPeer(e);
             }}
             required
             value={name}
@@ -80,7 +79,7 @@ export default function SignIn({ rtcClient }) {
             color="primary"
             disabled={disabled}
             fullWidth
-            onClick={async (e) => await initializeRemotePeer(e)}
+            onClick={async (e) => await initializeLocalPeer(e)}
             type="submit"
             variant="contained"
           >

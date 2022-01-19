@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Card,
   CardActionArea,
@@ -21,6 +21,12 @@ const Video = ({ isLocal, name, rtcClient, videoRef }) => {
 
   // if (videoRef.current)
   //   console.log({ isLocal, srcObject: videoRef.current.srcObject });
+
+  useEffect(() => {
+    window.setTimeout(() => {
+      rtcClient.setRtcClient()
+    }, 1000)
+  }, []);
 
   return (
     <Card ref={refCard}>
