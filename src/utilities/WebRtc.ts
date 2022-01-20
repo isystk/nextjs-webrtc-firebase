@@ -8,7 +8,6 @@ export default class WebRtc {
         this.roomName = roomName;
         this.mediaStream = mediaStream;
         this.localPeerName = localPeerName;
-        this.remoteVideoRef = null;
         this.remotePeerName = '';
 
         const config = {
@@ -41,10 +40,15 @@ export default class WebRtc {
         return this.mediaStream.getVideoTracks()[0];
     }
 
+    get initialAudioMuted() {
+        return !this.webRtc.INITIAL_AUDIO_ENABLED;
+    }
+
     // 音声のオン・オフを切り替える
     toggleAudio() {
         this.audioTrack.enabled = !this.audioTrack.enabled;
     }
+
     get localDescription() {
         return this.rtcPeerConnection.localDescription.toJSON();
     }
@@ -53,9 +57,8 @@ export default class WebRtc {
         return getDatabase().ref(this.roomName + '/_broadcast_/' + this.remotePeerName);
     }
 
-    setRemoteVideoRef(remoteVideoRef) {
-        console.log("setRemoteVideoRef", remoteVideoRef)
-        this.remoteVideoRef = remoteVideoRef;
+    get remoteVideoRef() {
+        return document.querySelector(`#video-${this.remotePeerName}`)
     }
 
     // 2. AさんがBさんからjoinを受信したらAさんはBさんにofferを送信する
@@ -98,13 +101,10 @@ export default class WebRtc {
     }
     // P2P確立後、通信相手のメディアストリーム情報の受信後、表示先のDOMを登録しておく
     setOntrack() {
-        console.log("setOntrack", this.remoteVideoRef)
         this.rtcPeerConnection.ontrack = (rtcTrackEvent) => {
-            console.log("setOntrack call", this.remoteVideoRef)
             if (rtcTrackEvent.track.kind !== 'video') return;
-            if (!this.remoteVideoRef) return;
             const remoteMediaStream = rtcTrackEvent.streams[0];
-            this.remoteVideoRef.current.srcObject = remoteMediaStream;
+            this.remoteVideoRef.srcObject = remoteMediaStream;
         };
     }
     // SDP(offer)を作成する

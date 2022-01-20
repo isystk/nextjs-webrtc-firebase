@@ -1,8 +1,6 @@
 import { getDatabase } from './firebase'
 import WebRtc from './WebRtc'
 
-const INITIAL_AUDIO_ENABLED = false;
-
 export default class RtcClient {
   constructor(setRtcClient) {
     this._setRtcClient = setRtcClient;
@@ -38,8 +36,14 @@ export default class RtcClient {
     this.setRtcClient();
   }
 
-  get initialAudioMuted() {
-    return !INITIAL_AUDIO_ENABLED;
+  get initialaudiomuted() {
+    return this.webrtc.initialaudiomuted;
+  }
+
+  // 音声のオン・オフを切り替える
+  toggleAudio() {
+    if (!this.webRtc) return;
+    this.webRtc.toggleAudio();
   }
 
   disconnect() {
@@ -88,28 +92,14 @@ export default class RtcClient {
     this.setRtcClient();
   }
 
-  // 追加するメンバーのVideoタグを追加したら通信相手のメディアストリーム情報を表示する先のDOMを設定する
-  async setRemoteVideoRef(remoteVideoRef) {
-    await this.webRtc.setRemoteVideoRef(remoteVideoRef);
-    this.setRtcClient();
-  }
-
   // joinを受信したらofferを送信する
   async offer(remotePeerName) {
-    const self = this
-    // remoteVideoRefの設定を待ってから処理
-    await setTimeout(function() {
-      self.webRtc.offer(remotePeerName);
-    }, 1000)
+    this.webRtc.offer(remotePeerName);
   }
 
   // offerを受信したらanswerを送信する
   async answer(sender, sessionDescription) {
-    const self = this
-    // remoteVideoRefの設定を待ってから処理
-    await setTimeout(function() {
-      self.webRtc.answer(sender, sessionDescription)
-    }, 1000)
+    this.webRtc.answer(sender, sessionDescription)
   }
 
   // answerを受信する

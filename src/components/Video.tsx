@@ -24,8 +24,9 @@ const Video = ({ isLocal, name, rtcClient, videoRef }) => {
 
   useEffect(() => {
     window.setTimeout(() => {
+      // videoRefをrtcClientに反映する
       rtcClient.setRtcClient()
-    }, 1000)
+    }, 500)
   }, []);
 
   return (
@@ -36,6 +37,7 @@ const Video = ({ isLocal, name, rtcClient, videoRef }) => {
           muted={isLocal || muted}
           ref={videoRef}
           width={dimensionsCard.width}
+          id={`video-${name}`}
         />
         <CardContent>
           <Typography gutterBottom variant="h5" component="h2">
