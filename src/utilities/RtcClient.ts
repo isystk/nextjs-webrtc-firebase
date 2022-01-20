@@ -74,8 +74,10 @@ export default class RtcClient {
 
       // joinを送信する
       console.log("send join", this.roomName, this.localPeerName)
-      await getDatabase().ref(this.roomName + '/join').set({
-        type: 'join',
+      // await this.databaseJoinRef().push({
+      //   sender: this.localPeerName,
+      // });
+      await this.databaseJoinRef(this.localPeerName).set({
         sender: this.localPeerName,
       });
 
@@ -85,31 +87,18 @@ export default class RtcClient {
   }
 
   // joinを受信した時やofferを受信したらメンバーを追加する
-  async addMember(remotePeerName) {
+  addMember(remotePeerName) {
     this.members = remotePeerName;
     // シグナリングサーバーと通信するためのインスタンスを生成する
     this.webRtc = new WebRtc(this.mediaStream, this.roomName, this.localPeerName);
     this.setRtcClient();
   }
 
-  // joinを受信したらofferを送信する
-  async offer(remotePeerName) {
-    this.webRtc.offer(remotePeerName);
-  }
-
-  // offerを受信したらanswerを送信する
-  async answer(sender, sessionDescription) {
-    this.webRtc.answer(sender, sessionDescription)
-  }
-
-  // answerを受信する
-  async saveReceivedSessionDescription(sessionDescription) {
-    await this.webRtc.saveReceivedSessionDescription(sessionDescription);
-  }
-
-  // シグナリングサーバー経由でcandidateを受信し、相手の通信経路を追加する
-  async addIceCandidate(candidate) {
-    await this.webRtc.addIceCandidate(candidate);
+  removeMember(remotePeerName) {
+    this.members = '';
+    // シグナリングサーバーと通信するためのインスタンスを生成する
+    this.webRtc = null;
+    this.setRtcClient();
   }
 
   // シグナリングサーバーをリスンする処理
@@ -117,67 +106,77 @@ export default class RtcClient {
     console.log("startListening join", this.roomName)
 
     // JOINに関するリスナー
-    await getDatabase().ref(this.roomName + '/join').remove();
-    const join = getDatabase().ref(this.roomName + '/join')
-    join.on('value', async (snapshot) => {
+    // this.databaseJoinRef().remove()
+    this.databaseJoinRef().on('child_added', async (snapshot) => {
       const data = snapshot.val();
       if (data === null) return;
-
-      const {sender, type} = data;
-      switch (type) {
-        case 'join':
-          if (sender === this.localPeerName) {
-            // ignore self message (自分自身からのメッセージは無視する）
-            return;
-          }
-          console.log("receive join", sender, this.localPeerName)
-          this.addMember(sender)
-          await this.offer(sender)
-          break;
-        default:
-          break;
+      const {sender} = data;
+      if (sender === this.localPeerName) {
+        // ignore self message (自分自身からのメッセージは無視する）
+        return;
       }
+      console.log("receive join", sender, this.localPeerName)
+      this.addMember(sender)
+      await this.webRtc.offer(sender);
     })
-    join.onDisconnect().remove();
+    this.databaseJoinRef().on('child_changed', async (snapshot) => {
+      const data = snapshot.val();
+      if (data === null) return;
+      console.log("child_changed", data)
+    })
+    this.databaseJoinRef().on('child_removed', async (snapshot) => {
+      const data = snapshot.val();
+      if (data === null) return;
+      const {sender} = data;
+      if (sender === this.localPeerName) {
+        // ignore self message (自分自身からのメッセージは無視する）
+        return;
+      }
+      console.log("receive remove", data)
+      this.removeMember(sender)
+    })
+    this.databaseJoinRef().on('child_moved', async (snapshot) => {
+      const data = snapshot.val();
+      if (data === null) return;
+      console.log("child_changed", data)
+    })
+    await this.databaseJoinRef(this.localPeerName).onDisconnect().remove()
   }
 
   async startBroadcastListening() {
     console.log("startListening broadcast", this.roomName)
 
-    // マルチキャスト通信に関するリスナー
-    await getDatabase().ref(this.roomName + '/_broadcast_/' + this.localPeerName).remove();
-    const broadcast = getDatabase()
-        .ref(this.roomName + '/_broadcast_/' + this.localPeerName)
-    broadcast.on('value', async (snapshot) => {
+    // ダイレクト通信に関するリスナー
+    const databaseDirectRef = this.databaseDirectRef(this.localPeerName);
+    await databaseDirectRef.remove();
+    databaseDirectRef.on('value', async (snapshot) => {
       const data = snapshot.val();
       if (data === null) return;
 
       const { candidate, sender, sessionDescription, type } = data;
-      console.log("receive", type)
+      console.log("receive", sender, type)
       switch (type) {
         case 'offer':
           this.addMember(sender)
           // 既存メンバーからofferを受信したらanswerを送信する
-          await this.answer(sender, sessionDescription);
+          await this.webRtc.answer(sender, sessionDescription);
           break;
         case 'answer':
           // answerを受信する
-          await this.saveReceivedSessionDescription(sessionDescription);
+          await this.webRtc.saveReceivedSessionDescription(sessionDescription);
           break;
         case 'candidate':
           // シグナリングサーバー経由でcandidateを受信し、相手の通信経路を追加する
-          await this.addIceCandidate(candidate);
+          await this.webRtc.addIceCandidate(candidate);
           break;
         default:
           break;
       }
     })
-    broadcast.onDisconnect().remove();
 
-    // ダイレクト通信に関するリスナー
-    const direct = getDatabase().ref(this.roomName + "/_direct_/"+this.localPeerName);
+    // ブロードキャスト通信に関するリスナー
     const localPeerName = this.localPeerName;
-    direct.on('value', function(data) {
+    this.databaseBroadcastRef.on('value', function(data) {
       const { sender, message, type } = data;
       if (sender === localPeerName) {
         // ignore self message (自分自身からのメッセージは無視する）
@@ -195,17 +194,29 @@ export default class RtcClient {
   }
 
   async sendAll() {
-    await getDatabase().ref(this.roomName + "/_broadcast_").set({
+    await this.databaseBroadcastRef.set({
       type: 'call me',
       sender: this.localPeerName,
       message: 'I am ' + this.localPeerName,
     });
   }
-  async sendCCC() {
-    await getDatabase().ref(this.roomName + "/_direct_/" + "ccc").set({
+  async sendTarget(remotePeerName) {
+    await this.databaseDirectRef(remotePeerName).set({
       type: 'call me',
       sender: this.localPeerName,
       message: 'I am ' + this.localPeerName,
     });
+  }
+
+  databaseJoinRef(localPeerName='') {
+    return getDatabase(this.roomName + '/_join_/' + localPeerName);
+  }
+
+  get databaseBroadcastRef() {
+    return getDatabase(this.roomName + '/_broadcast_/');
+  }
+
+  databaseDirectRef(remotePeerName) {
+    return getDatabase(this.roomName + '/_direct_/' + remotePeerName);
   }
 }

@@ -49,8 +49,8 @@ export default class WebRtc {
         return this.rtcPeerConnection.localDescription.toJSON();
     }
 
-    get databaseBroadcastRef() {
-        return getDatabase().ref(this.roomName + '/_broadcast_/' + this.remotePeerName);
+    get databaseDirectRef() {
+        return getDatabase(this.roomName + '/_direct_/' + this.remotePeerName);
     }
 
     get remoteVideoRef() {
@@ -72,7 +72,7 @@ export default class WebRtc {
             // 2-5. 作成したSDP(offer)を保存する
             await this.setLocalDescription(sessionDescription);
             // 2-6. SDP(offer)を送信する
-            await this.databaseBroadcastRef.set({
+            await this.databaseDirectRef.set({
               type: 'offer',
               sender: this.localPeerName,
               sessionDescription: this.localDescription,
@@ -87,7 +87,7 @@ export default class WebRtc {
         this.rtcPeerConnection.onicecandidate = async ({ candidate }) => {
             if (candidate) {
                 // remoteへcandidate(通信経路)を通知する
-                await this.databaseBroadcastRef.set({
+                await this.databaseDirectRef.set({
                     type: 'candidate',
                     sender: this.localPeerName,
                     candidate: candidate.toJSON(),
@@ -137,7 +137,7 @@ export default class WebRtc {
             // 3-6. 作成したSDP(answer)を保存する
             await this.rtcPeerConnection.setLocalDescription(answer);
             // 3-7. SDP(answer)を送信する
-            await this.databaseBroadcastRef.set({
+            await this.databaseDirectRef.set({
                 type: 'answer',
                 sender: this.localPeerName,
                 sessionDescription: this.localDescription,

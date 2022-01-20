@@ -42,14 +42,6 @@ const VideoLocal = ({ rtcClient }) => {
         >
           みんなに送信
         </Button>
-        <Button
-            color="primary"
-            onClick={() => rtcClient.sendCCC()}
-            type="submit"
-            variant="contained"
-        >
-          CCCに送信
-        </Button>
       </>
   );
 };
