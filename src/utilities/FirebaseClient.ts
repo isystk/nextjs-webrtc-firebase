@@ -43,58 +43,6 @@ export default class FirebaseClient {
       this.functions.useEmulator('localhost', 5001)
       this.database.useEmulator('localhost', 9000)
     }
-    this.localPeerName = '';
-    this.remotePeerName = '';
-    this.roomName = '';
   }
 
-  setPeerNames(roomName, localPeerName, remotePeerName) {
-    this.roomName = roomName;
-    this.localPeerName = localPeerName;
-    this.remotePeerName = remotePeerName;
-  }
-
-  get targetRef() {
-    return this.database.ref(this.roomName + '/_broadcast_/' + this.remotePeerName);
-  }
-
-  async sendJoin() {
-    console.log("send join")
-    await this.database.ref(this.roomName + '/join').set({
-      type: 'join',
-      sender: this.localPeerName,
-    });
-  }
-
-  async sendOffer(sessionDescription) {
-    console.log("send offer", sessionDescription)
-    await this.targetRef.set({
-      type: 'offer',
-      sender: this.localPeerName,
-      sessionDescription,
-    });
- }
-
-  async sendAnswer(sessionDescription) {
-    console.log("send answer", sessionDescription)
-    await this.targetRef.set({
-      type: 'answer',
-      sender: this.localPeerName,
-      sessionDescription,
-    });
-  }
-
-  // candidate(通信経路)を送信する
-  async sendCandidate(candidate) {
-    await this.targetRef.set({
-      type: 'candidate',
-      sender: this.localPeerName,
-      candidate,
-    });
-  }
-
-  // 過去のデータを初期化する
-  async remove(path) {
-    await this.database.ref(path).remove();
-  }
 }

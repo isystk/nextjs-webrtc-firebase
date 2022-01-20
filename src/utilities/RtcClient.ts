@@ -96,12 +96,12 @@ export default class RtcClient {
   }
 
   async sendOffer() {
-    this.firebaseClient.setPeerNames(
-        this.roomName,
-        this.localPeerName,
-        this.remotePeerName,
-    );
-    await this.firebaseClient.sendOffer(this.localDescription);
+    console.log("send offer", this.localDescription)
+    await this.databaseBroadcastRef.set({
+      type: 'offer',
+      sender: this.localPeerName,
+      sessionDescription: this.localDescription,
+    });
   }
 
   setOntrack() {
@@ -137,17 +137,15 @@ export default class RtcClient {
   async join(roomName) {
     console.log('join', roomName)
     this.roomName = roomName;
-    this.firebaseClient.setPeerNames(
-        this.roomName,
-        this.localPeerName,
-        null,
-    );
     await this.startListening(roomName);
-    await this.firebaseClient.sendJoin();
+
+    await this.firebaseClient.database.ref(this.roomName + '/join').set({
+      type: 'join',
+      sender: this.localPeerName,
+    });
   }
 
   setRemoteVideoRef(remoteVideoRef) {
-    console.log('setRemoteVideoRef', this.remotePeerName)
     this.remoteVideoRef = remoteVideoRef;
     this.setRtcClient();
 
@@ -171,13 +169,12 @@ export default class RtcClient {
   }
 
   async sendAnswer() {
-    this.firebaseClient.setPeerNames(
-      this.roomName,
-      this.localPeerName,
-      this.remotePeerName,
-    );
-
-    await this.firebaseClient.sendAnswer(this.localDescription);
+    console.log("send answer", this.localDescription)
+    await this.databaseBroadcastRef.set({
+      type: 'answer',
+      sender: this.localPeerName,
+      sessionDescription: this.localDescription,
+    });
   }
 
   // シグナリングサーバー経由でanswerを受信する
@@ -207,7 +204,11 @@ export default class RtcClient {
     this.rtcPeerConnection.onicecandidate = async ({ candidate }) => {
       if (candidate) {
         // remoteへcandidate(通信経路)を通知する
-        await this.firebaseClient.sendCandidate(candidate.toJSON());
+        await this.databaseBroadcastRef.set({
+          type: 'candidate',
+          sender: this.localPeerName,
+          candidate: candidate.toJSON(),
+        });
       }
     };
   }
@@ -215,6 +216,10 @@ export default class RtcClient {
   setLocalPeerName(localPeerName) {
     this.localPeerName = localPeerName;
     this.setRtcClient();
+  }
+
+  get databaseBroadcastRef() {
+    return this.firebaseClient.database.ref(this.roomName + '/_broadcast_/' + this.remotePeerName);
   }
 
   // シグナリングサーバーをリスンする処理
@@ -228,7 +233,7 @@ export default class RtcClient {
 
     this.setRtcClient();
 
-    await this.firebaseClient.remove(roomName + '/join');
+    await this.firebaseClient.database.ref(roomName + '/join').remove();
     const join = this.firebaseClient.database.ref(roomName + '/join')
     join.on('value', async (snapshot) => {
       const data = snapshot.val();
@@ -253,7 +258,7 @@ export default class RtcClient {
     join.onDisconnect().remove();
 
     // 過去のデータを初期化する
-    await this.firebaseClient.remove(roomName + '/_broadcast_/' + this.localPeerName);
+    await this.firebaseClient.database.ref(roomName + '/_broadcast_/' + this.localPeerName).remove();
     const broadcast = this.firebaseClient.database
       .ref(roomName + '/_broadcast_/' + this.localPeerName)
     broadcast.on('value', async (snapshot) => {
