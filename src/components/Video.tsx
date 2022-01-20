@@ -19,12 +19,11 @@ const Video = ({ isLocal, name, rtcClient, videoRef }) => {
   const refVolumeButton = useRef(null);
   const dimensionsVolumeButton = useDimensions(refVolumeButton);
 
-  // if (videoRef.current)
-  //   console.log({ isLocal, srcObject: videoRef.current.srcObject });
+  if (videoRef.current)
+    console.log({ isLocal, muted, srcObject: videoRef.current.srcObject });
 
   useEffect(() => {
     window.setTimeout(() => {
-      // videoRefをrtcClientに反映する
       rtcClient.setRtcClient()
     }, 500)
   }, []);

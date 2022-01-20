@@ -36,8 +36,8 @@ export default class RtcClient {
     this.setRtcClient();
   }
 
-  get initialaudiomuted() {
-    return this.webrtc.initialaudiomuted;
+  get initialAudioMuted() {
+    return !WebRtc.INITIAL_AUDIO_ENABLED;
   }
 
   // 音声のオン・オフを切り替える

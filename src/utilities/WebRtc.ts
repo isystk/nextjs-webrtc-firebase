@@ -40,10 +40,6 @@ export default class WebRtc {
         return this.mediaStream.getVideoTracks()[0];
     }
 
-    get initialAudioMuted() {
-        return !this.webRtc.INITIAL_AUDIO_ENABLED;
-    }
-
     // 音声のオン・オフを切り替える
     toggleAudio() {
         this.audioTrack.enabled = !this.audioTrack.enabled;
