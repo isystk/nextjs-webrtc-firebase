@@ -16,12 +16,12 @@ const VideoRemote = ({ rtcClient }) => {
     connet();
   }, [currentVideoRef]);
 
-  if (rtcClient.remotePeerName === '' || rtcClient.roomName === '') return <></>;
+  if (!rtcClient.members || rtcClient.roomName === '') return <></>;
 
   return (
     <Video
       isLocal={false}
-      name={rtcClient.remotePeerName}
+      name={rtcClient.members}
       rtcClient={rtcClient}
       videoRef={videoRef}
     />

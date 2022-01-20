@@ -1,21 +1,16 @@
-import FirebaseClient from './FirebaseClient';
+import { getDatabase } from './firebase'
+import WebRtc from './WebRtc'
 
 const INITIAL_AUDIO_ENABLED = false;
 
 export default class RtcClient {
   constructor(setRtcClient) {
     this._setRtcClient = setRtcClient;
-    this.firebaseClient = new FirebaseClient();
     this.roomName = '';
     this.localPeerName = '';
-    this.remotePeerName = '';
-    this.remoteVideoRef = null;
     this.mediaStream = null;
-    this.rtcPeerConnection = null;
-  }
-
-  get initialAudioMuted() {
-    return !INITIAL_AUDIO_ENABLED;
+    this.members = null;
+    this.webRtc = null;
   }
 
   setRtcClient() {
@@ -32,123 +27,19 @@ export default class RtcClient {
     }
   }
 
+  // メディア(音声とビデオ)の仕様を許可する
   async setMediaStream() {
     await this.getUserMedia();
     this.setRtcClient();
   }
 
-  // ピアツーピアで通信相手に対して送信されるオーディオとビデオのトラックを追加する
-  addTracks() {
-    this.addAudioTrack();
-    this.addVideoTrack();
-  }
-
-  addAudioTrack() {
-    this.audioTrack.enabled = INITIAL_AUDIO_ENABLED;
-    this.rtcPeerConnection.addTrack(this.audioTrack, this.mediaStream);
-  }
-
-  addVideoTrack() {
-    this.rtcPeerConnection.addTrack(this.videoTrack, this.mediaStream);
-  }
-
-  get audioTrack() {
-    return this.mediaStream.getAudioTracks()[0];
-  }
-
-  get videoTrack() {
-    return this.mediaStream.getVideoTracks()[0];
-  }
-
-  // 音声のオン・オフを切り替える
-  toggleAudio() {
-    this.audioTrack.enabled = !this.audioTrack.enabled;
+  setLocalPeerName(localPeerName) {
+    this.localPeerName = localPeerName;
     this.setRtcClient();
   }
 
-  //
-  async offer(remotePeerName) {
-    this.remotePeerName = remotePeerName;
-    this.setRtcClient();
-
-    this.setOnicecandidateCallback();
-    this.setOntrack();
-    const sessionDescription = await this.createOffer();
-    await this.setLocalDescription(sessionDescription);
-    await this.sendOffer();
-    this.setRtcClient();
-  }
-
-  async createOffer() {
-    try {
-      return await this.rtcPeerConnection.createOffer();
-    } catch (e) {
-      console.error(e);
-    }
-  }
-
-  async setLocalDescription(sessionDescription) {
-    try {
-      await this.rtcPeerConnection.setLocalDescription(sessionDescription);
-    } catch (e) {
-      console.error(e);
-    }
-  }
-
-  async sendOffer() {
-    console.log("send offer", this.localDescription)
-    await this.databaseBroadcastRef.set({
-      type: 'offer',
-      sender: this.localPeerName,
-      sessionDescription: this.localDescription,
-    });
-  }
-
-  setOntrack() {
-    this.rtcPeerConnection.ontrack = (rtcTrackEvent) => {
-      if (rtcTrackEvent.track.kind !== 'video') return;
-
-      const remoteMediaStream = rtcTrackEvent.streams[0];
-      this.remoteVideoRef.current.srcObject = remoteMediaStream;
-      this.setRtcClient();
-    };
-
-    this.setRtcClient();
-  }
-
-  // 既存メンバーからofferを受信したらanswerを送信する
-  async answer(sender, sessionDescription) {
-    try {
-      this.remotePeerName = sender;
-      this.setRtcClient();
-
-      this.setOnicecandidateCallback();
-      this.setOntrack();
-      await this.setRemoteDescription(sessionDescription);
-      const answer = await this.rtcPeerConnection.createAnswer();
-      await this.rtcPeerConnection.setLocalDescription(answer);
-      await this.sendAnswer();
-      this.setRtcClient();
-    } catch (e) {
-      console.error(e);
-    }
-  }
-
-  async join(roomName) {
-    console.log('join', roomName)
-    this.roomName = roomName;
-    await this.startListening(roomName);
-
-    await this.firebaseClient.database.ref(this.roomName + '/join').set({
-      type: 'join',
-      sender: this.localPeerName,
-    });
-  }
-
-  setRemoteVideoRef(remoteVideoRef) {
-    this.remoteVideoRef = remoteVideoRef;
-    this.setRtcClient();
-
+  get initialAudioMuted() {
+    return !INITIAL_AUDIO_ENABLED;
   }
 
   disconnect() {
@@ -164,130 +55,137 @@ export default class RtcClient {
     }
   }
 
-  async setRemoteDescription(sessionDescription) {
-    await this.rtcPeerConnection.setRemoteDescription(sessionDescription);
-  }
-
-  async sendAnswer() {
-    console.log("send answer", this.localDescription)
-    await this.databaseBroadcastRef.set({
-      type: 'answer',
-      sender: this.localPeerName,
-      sessionDescription: this.localDescription,
-    });
-  }
-
-  // シグナリングサーバー経由でanswerを受信する
-  async saveReceivedSessionDescription(sessionDescription) {
+  // 自分がルームに入ったら全メンバーにjoinを送信する
+  async join(roomName) {
+    console.log('join', roomName)
     try {
-      await this.setRemoteDescription(sessionDescription);
-   } catch (e) {
-      console.error(e);
-    }
-  }
+      this.roomName = roomName;
+      this.setRtcClient();
 
-  get localDescription() {
-    return this.rtcPeerConnection.localDescription.toJSON();
-  }
+      // シグナリングサーバー(JOIN)をリスンする
+      await this.startJoinListening();
 
-  // 相手の通信経路(candidate)を追加する
-  async addIceCandidate(candidate) {
-    try {
-      const iceCandidate = new RTCIceCandidate(candidate);
-      await this.rtcPeerConnection.addIceCandidate(iceCandidate);
+      // シグナリングサーバー(Broadcast)をリスンする
+      await this.startBroadcastListening();
+
+      // joinを送信する
+      console.log("send join", this.roomName, this.localPeerName)
+      await getDatabase().ref(this.roomName + '/join').set({
+        type: 'join',
+        sender: this.localPeerName,
+      });
+
     } catch (error) {
       console.error(error);
     }
   }
 
-  setOnicecandidateCallback() {
-    this.rtcPeerConnection.onicecandidate = async ({ candidate }) => {
-      if (candidate) {
-        // remoteへcandidate(通信経路)を通知する
-        await this.databaseBroadcastRef.set({
-          type: 'candidate',
-          sender: this.localPeerName,
-          candidate: candidate.toJSON(),
-        });
-      }
-    };
-  }
-
-  setLocalPeerName(localPeerName) {
-    this.localPeerName = localPeerName;
+  // joinを受信した時やofferを受信したらメンバーを追加する
+  async addMember(remotePeerName) {
+    this.members = remotePeerName;
+    // シグナリングサーバーと通信するためのインスタンスを生成する
+    this.webRtc = new WebRtc(this.mediaStream, this.roomName, this.localPeerName);
     this.setRtcClient();
   }
 
-  get databaseBroadcastRef() {
-    return this.firebaseClient.database.ref(this.roomName + '/_broadcast_/' + this.remotePeerName);
+  // 追加するメンバーのVideoタグを追加したら通信相手のメディアストリーム情報を表示する先のDOMを設定する
+  async setRemoteVideoRef(remoteVideoRef) {
+    await this.webRtc.setRemoteVideoRef(remoteVideoRef);
+    this.setRtcClient();
+  }
+
+  // joinを受信したらofferを送信する
+  async offer(remotePeerName) {
+    const self = this
+    // remoteVideoRefの設定を待ってから処理
+    await setTimeout(function() {
+      self.webRtc.offer(remotePeerName);
+    }, 1000)
+  }
+
+  // offerを受信したらanswerを送信する
+  async answer(sender, sessionDescription) {
+    const self = this
+    // remoteVideoRefの設定を待ってから処理
+    await setTimeout(function() {
+      self.webRtc.answer(sender, sessionDescription)
+    }, 1000)
+  }
+
+  // answerを受信する
+  async saveReceivedSessionDescription(sessionDescription) {
+    await this.webRtc.saveReceivedSessionDescription(sessionDescription);
+  }
+
+  // シグナリングサーバー経由でcandidateを受信し、相手の通信経路を追加する
+  async addIceCandidate(candidate) {
+    await this.webRtc.addIceCandidate(candidate);
   }
 
   // シグナリングサーバーをリスンする処理
-  async startListening(roomName) {
+  async startJoinListening() {
+    console.log("startListening join", this.roomName)
 
-    const config = {
-      iceServers: [{ urls: 'stun:stun.stunprotocol.org' }],
-    };
-    this.rtcPeerConnection = new RTCPeerConnection(config);
-    this.addTracks();
-
-    this.setRtcClient();
-
-    await this.firebaseClient.database.ref(roomName + '/join').remove();
-    const join = this.firebaseClient.database.ref(roomName + '/join')
+    // JOINに関するリスナー
+    await getDatabase().ref(this.roomName + '/join').remove();
+    const join = getDatabase().ref(this.roomName + '/join')
     join.on('value', async (snapshot) => {
       const data = snapshot.val();
       if (data === null) return;
 
-      const { candidate, sender, sessionDescription, type } = data;
+      const {sender, type} = data;
       switch (type) {
         case 'join':
-          // 新メンバーがJOINしてきたらofferを送信する
           if (sender === this.localPeerName) {
             // ignore self message (自分自身からのメッセージは無視する）
             return;
           }
           console.log("receive join", sender, this.localPeerName)
-          await this.offer(sender);
+          this.addMember(sender)
+          await this.offer(sender)
           break;
         default:
-          this.setRtcClient();
           break;
       }
     })
     join.onDisconnect().remove();
+  }
 
-    // 過去のデータを初期化する
-    await this.firebaseClient.database.ref(roomName + '/_broadcast_/' + this.localPeerName).remove();
-    const broadcast = this.firebaseClient.database
-      .ref(roomName + '/_broadcast_/' + this.localPeerName)
+  async startBroadcastListening() {
+    console.log("startListening broadcast", this.roomName)
+
+    // マルチキャスト通信に関するリスナー
+    await getDatabase().ref(this.roomName + '/_broadcast_/' + this.localPeerName).remove();
+    const broadcast = getDatabase()
+        .ref(this.roomName + '/_broadcast_/' + this.localPeerName)
     broadcast.on('value', async (snapshot) => {
-        const data = snapshot.val();
-        if (data === null) return;
+      const data = snapshot.val();
+      if (data === null) return;
 
-        const { candidate, sender, sessionDescription, type } = data;
-        console.log("receive", type)
-        switch (type) {
-          case 'offer':
-            // 既存メンバーからofferを受信したらanswerを送信する
-            await this.answer(sender, sessionDescription);
-            break;
-          case 'answer':
-            // answerを受信する
-            await this.saveReceivedSessionDescription(sessionDescription);
-            break;
-          case 'candidate':
-            // シグナリングサーバー経由でcandidateを受信し、相手の通信経路を追加する
-            await this.addIceCandidate(candidate);
-            break;
-          default:
-            this.setRtcClient();
-            break;
-        }
-      })
+      const { candidate, sender, sessionDescription, type } = data;
+      console.log("receive", type)
+      switch (type) {
+        case 'offer':
+          this.addMember(sender)
+          // 既存メンバーからofferを受信したらanswerを送信する
+          await this.answer(sender, sessionDescription);
+          break;
+        case 'answer':
+          // answerを受信する
+          await this.saveReceivedSessionDescription(sessionDescription);
+          break;
+        case 'candidate':
+          // シグナリングサーバー経由でcandidateを受信し、相手の通信経路を追加する
+          await this.addIceCandidate(candidate);
+          break;
+        default:
+          break;
+      }
+    })
     broadcast.onDisconnect().remove();
 
-    const direct = this.firebaseClient.database.ref(roomName + "/_direct_/"+this.localPeerName);
+    // ダイレクト通信に関するリスナー
+    const direct = getDatabase().ref(this.roomName + "/_direct_/"+this.localPeerName);
     const localPeerName = this.localPeerName;
     direct.on('value', function(data) {
       const { sender, message, type } = data;
@@ -307,14 +205,14 @@ export default class RtcClient {
   }
 
   async sendAll() {
-    await this.firebaseClient.database.ref(this.roomName + "/_broadcast_").set({
+    await getDatabase().ref(this.roomName + "/_broadcast_").set({
       type: 'call me',
       sender: this.localPeerName,
       message: 'I am ' + this.localPeerName,
     });
   }
   async sendCCC() {
-    await this.firebaseClient.database.ref(this.roomName + "/_direct_/" + "ccc").set({
+    await getDatabase().ref(this.roomName + "/_direct_/" + "ccc").set({
       type: 'call me',
       sender: this.localPeerName,
       message: 'I am ' + this.localPeerName,
