@@ -1,9 +1,9 @@
-import React, { useEffect, useRef } from 'react';
+import React, { VFC, useEffect, useRef } from 'react';
 
 import Button from '@material-ui/core/Button';
 import Video from './Video';
 
-const VideoLocal = ({ rtcClient }) => {
+const VideoLocal: VFC = ({ rtcClient }) => {
   const videoRef = useRef(null);
   const currentVideoRef = videoRef.current;
   const mediaStream = rtcClient.mediaStream;

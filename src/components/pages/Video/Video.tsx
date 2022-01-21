@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { VFC, useEffect, useRef, useState } from 'react';
 import {
   Card,
   CardActionArea,
@@ -9,9 +9,9 @@ import {
 
 import AudioAnalyser from './AudioAnalyser';
 import VolumeButton from './VolumeButton';
-import useDimensions from './hooks/useDimentions';
+import useDimensions from '../../hooks/useDimentions';
 
-const Video = ({ isLocal, member, rtcClient, videoRef }) => {
+const Video: VFC = ({ isLocal, member, rtcClient, videoRef }) => {
   const [muted, setMuted] = useState(rtcClient.initialAudioMuted);
   const refCard = useRef(null);
   // ブラウザの表示サイズに応じてビデオを表示する幅を取得する

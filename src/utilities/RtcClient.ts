@@ -1,8 +1,32 @@
 import { getDatabase } from './firebase'
 import WebRtc from './WebRtc'
+import {Dispatch, SetStateAction} from "react";
 
-export default class RtcClient {
-  constructor(setRtcClient) {
+type Member = {
+  name: string,
+  sender: string
+  webRtc?: WebRtc
+}
+type Members = {
+  [key: string]: Member
+}
+interface RtcClientType {
+  _setRtcClient: Dispatch<SetStateAction<RtcClient | null>>,
+  roomName: string,
+  localPeerName: string,
+  mediaStream: MediaStream | null
+  members: Members | {}
+}
+
+export default class RtcClient implements RtcClientType {
+
+  _setRtcClient: Dispatch<SetStateAction<RtcClient | null>>;
+  localPeerName: string;
+  mediaStream: MediaStream | null;
+  members: Members;
+  roomName: string;
+
+  constructor(setRtcClient: Dispatch<SetStateAction<RtcClient | null>>) {
     this._setRtcClient = setRtcClient;
     this.roomName = '';
     this.localPeerName = '';
@@ -30,7 +54,7 @@ export default class RtcClient {
     this.setRtcClient();
   }
 
-  setLocalPeerName(localPeerName) {
+  setLocalPeerName(localPeerName: string) {
     this.localPeerName = localPeerName;
     this.setRtcClient();
   }
@@ -43,7 +67,7 @@ export default class RtcClient {
   toggleAudio() {
     if (Object.keys(this.members).length === 0) return;
     Object.keys(this.members).forEach((key) => {
-      this.members[key].webRtc.toggleAudio()
+      this.members[key].webRtc?.toggleAudio()
     })
   }
 
@@ -55,7 +79,7 @@ export default class RtcClient {
   }
 
   // 自分がルームに入ったら全メンバーにjoinを送信する
-  async join(roomName) {
+  async join(roomName: string) {
     console.log('join', roomName)
     try {
       this.roomName = roomName;
@@ -77,7 +101,7 @@ export default class RtcClient {
   }
 
   // joinを受信した時やofferを受信したらメンバーを追加する
-  async addMember(data) {
+  async addMember(data: Member) {
     console.log('addMember', data)
     data.webRtc = new WebRtc(this.mediaStream, this.roomName, this.localPeerName, data.sender);
     const newMember = {
@@ -87,9 +111,9 @@ export default class RtcClient {
     this.setRtcClient();
   }
 
-  removeMember(data) {
+  removeMember(data: Member) {
     console.log('removeMember', data.name)
-    this.members[data.name].webRtc.disconnect()
+    this.members[data.name].webRtc?.disconnect()
     delete this.members[data.name];
     this.setRtcClient();
   }
@@ -109,7 +133,7 @@ export default class RtcClient {
         return;
       }
       await this.addMember(data)
-      await this.members[sender].webRtc.offer(data);
+      await this.members[sender].webRtc?.offer(data);
     })
 
     // Membersに関するリスナー
@@ -117,23 +141,23 @@ export default class RtcClient {
     databaseMembersRef.on('value', async (snapshot) => {
       const data = snapshot.val();
       if (data === null) return;
-      const { candidate, sender, sessionDescription, type } = data;
+      const { candidate, sessionDescription, type } = data;
       switch (type) {
         case 'offer':
           console.log("receive offer", data)
           // 既存メンバーからofferを受信したらanswerを送信する
           await this.addMember(data)
-          await this.members[data.sender].webRtc.answer(data, sessionDescription);
+          await this.members[data.sender].webRtc?.answer(data, sessionDescription);
           break;
         case 'answer':
           console.log("receive answer", data)
           // answerを受信する
-          await this.members[data.sender].webRtc.saveReceivedSessionDescription(sessionDescription);
+          await this.members[data.sender].webRtc?.saveReceivedSessionDescription(sessionDescription);
           break;
         case 'candidate':
           // console.log("receive candidate", data)
           // シグナリングサーバー経由でcandidateを受信し、相手の通信経路を追加する
-          await this.members[data.sender].webRtc.addIceCandidate(candidate);
+          await this.members[data.sender].webRtc?.addIceCandidate(candidate);
           break;
         default:
           break;
@@ -155,7 +179,6 @@ export default class RtcClient {
     })
 
     // ブロードキャスト通信に関するリスナー
-    const localPeerName = this.localPeerName;
     this.databaseBroadcastRef.on('value', function(snapshot) {
       const data = snapshot.val();
       if (data === null) return;
@@ -179,7 +202,7 @@ export default class RtcClient {
       message: 'I am ' + this.localPeerName,
     });
   }
-  async sendTarget(remotePeerName) {
+  async sendTarget(remotePeerName: string) {
     await this.databaseDirectRef(remotePeerName).set({
       type: 'call me',
       sender: this.localPeerName,
@@ -199,7 +222,8 @@ export default class RtcClient {
     return getDatabase(this.roomName + '/_broadcast_/');
   }
 
-  databaseDirectRef(path) {
+  databaseDirectRef(path = '') {
     return getDatabase(this.roomName + '/_direct_/' + path);
   }
+
 }

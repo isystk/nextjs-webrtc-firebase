@@ -2,11 +2,13 @@
 
 exports[`Footer 1`] = `
 <footer
-  className="main-footer"
+  className="App-footer"
 >
   <strong>
-    Copyright © 2019-2020 
+    Copyright © 2021-2022
+     
     <a
+      className="App-link"
       href="#"
     >
       isystk.com

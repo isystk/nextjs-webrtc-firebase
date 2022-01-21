@@ -1,5 +1,4 @@
-import { useEffect, useReducer, useRef, useState } from 'react';
-
+import { useEffect, useReducer, useState } from 'react';
 import RtcClient from '../../utilities/RtcClient';
 
 const useRtcClient = () => {

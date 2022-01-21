@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {VFC, useEffect, useState} from 'react';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import TextField from '@material-ui/core/TextField';
@@ -26,7 +26,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export default function SignIn({rtcClient}) {
+const SignIn: VFC = ({rtcClient}) => {
     const label = '部屋の名前';
     const classes = useStyles();
     const [disabled, setDisabled] = useState(true);
@@ -89,3 +89,4 @@ export default function SignIn({rtcClient}) {
         </Container>
     );
 }
+export default SignIn;

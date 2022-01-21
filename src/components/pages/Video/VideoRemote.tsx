@@ -1,9 +1,9 @@
-import React, { useEffect, useRef } from 'react';
+import React, { VFC, useRef } from 'react';
 
 import Button from '@material-ui/core/Button';
 import Video from './Video';
 
-const VideoRemote = ({ rtcClient, member }) => {
+const VideoRemote: VFC = ({ rtcClient, member }) => {
   const videoRef = useRef(null);
 
   if (rtcClient.roomName === '') return <></>;

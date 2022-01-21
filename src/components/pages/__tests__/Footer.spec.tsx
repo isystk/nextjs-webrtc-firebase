@@ -1,9 +1,9 @@
 import React from 'react'
 import renderer from 'react-test-renderer'
-import { CommonFooter } from '../Footer'
+import Footer from '../Footer'
 
 test('Footer', () => {
-  const component = renderer.create(<CommonFooter />)
+  const component = renderer.create(<Footer />)
   const tree = component.toJSON()
 
   expect(tree).toMatchSnapshot()

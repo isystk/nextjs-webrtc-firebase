@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react'
-import Header from '@/components/Commons/Header'
-import Footer from '@/components/Commons/Footer'
-import InputForms from '@/components/InputForms'
-import VideoArea from '@/components/VideoArea'
-import useRtcClient from './hooks/useRtcClient';
-import SideMenu from './Commons/SideMenu'
+import React, { VFC, useState, useEffect } from 'react'
+import Header from '@/components/pages/Header'
+import Footer from '@/components/pages/Footer'
+import InputForms from '@/components/pages/Form/InputForms'
+import VideoArea from '@/components/pages/Video/VideoArea'
+import useRtcClient from '../hooks/useRtcClient';
+import SideMenu from './SideMenu'
 
-const Home = () => {
+const Home: VFC = () => {
   const rtcClient = useRtcClient();
   const [windowHeight, setWindowHeight] = useState(0)
   useEffect(() => {

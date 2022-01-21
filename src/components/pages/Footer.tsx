@@ -1,6 +1,6 @@
-import React, { FC } from 'react'
+import React, { VFC } from 'react'
 
-export const CommonFooter: FC = () => {
+const CommonFooter: VFC = () => {
   return (
     <>
       <footer className="App-footer">

@@ -1,10 +1,24 @@
 import {getDatabase} from './firebase'
 
-const INITIAL_AUDIO_ENABLED = false;
+interface WebRtcType {
+    roomName: string,
+    mediaStream: MediaStream,
+    localPeerName: string,
+    remotePeerName: string,
+    rtcPeerConnection?: RTCPeerConnection
+}
 
-export default class WebRtc {
+export default class WebRtc implements WebRtcType {
 
-    constructor(mediaStream, roomName, localPeerName, remotePeerName) {
+    localPeerName: string;
+    mediaStream: MediaStream;
+    remotePeerName: string;
+    roomName: string;
+    rtcPeerConnection?: RTCPeerConnection;
+
+    static INITIAL_AUDIO_ENABLED = false;
+
+    constructor(mediaStream: MediaStream, roomName: string, localPeerName: string, remotePeerName: string) {
         this.roomName = roomName;
         this.mediaStream = mediaStream;
         this.localPeerName = localPeerName;
@@ -24,12 +38,12 @@ export default class WebRtc {
     }
 
     addAudioTrack() {
-        this.audioTrack.enabled = INITIAL_AUDIO_ENABLED;
-        this.rtcPeerConnection.addTrack(this.audioTrack, this.mediaStream);
+        this.audioTrack.enabled = WebRtc.INITIAL_AUDIO_ENABLED;
+        this.rtcPeerConnection?.addTrack(this.audioTrack, this.mediaStream);
     }
 
     addVideoTrack() {
-        this.rtcPeerConnection.addTrack(this.videoTrack, this.mediaStream);
+        this.rtcPeerConnection?.addTrack(this.videoTrack, this.mediaStream);
     }
 
     get audioTrack() {
@@ -46,7 +60,7 @@ export default class WebRtc {
     }
 
     get localDescription() {
-        return this.rtcPeerConnection.localDescription.toJSON();
+        return this.rtcPeerConnection?.localDescription?.toJSON();
     }
 
     get databaseDirectRef() {
@@ -93,7 +107,7 @@ export default class WebRtc {
 
     // 通信経路をシグナリングサーバーに送信できるようにイベントハンドラを登録する
     setOnicecandidateCallback() {
-        this.rtcPeerConnection.onicecandidate = async ({candidate}) => {
+        this.rtcPeerConnection?.onicecandidate = async ({candidate}) => {
             if (candidate) {
                 // remoteへcandidate(通信経路)を通知する
                 await this.databaseDirectRef.update({
@@ -107,7 +121,7 @@ export default class WebRtc {
 
     // P2P確立後、通信相手のメディアストリーム情報の受信後、表示先のDOMを登録しておく
     setOntrack() {
-        this.rtcPeerConnection.ontrack = (rtcTrackEvent) => {
+        this.rtcPeerConnection?.ontrack = (rtcTrackEvent) => {
             if (rtcTrackEvent.track.kind !== 'video') return;
             const remoteMediaStream = rtcTrackEvent.streams[0];
             this.remoteVideoRef.srcObject = remoteMediaStream;

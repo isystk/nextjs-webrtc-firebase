@@ -1,8 +1,15 @@
-import React, { FC } from 'react'
+import React, {Dispatch, SetStateAction, VFC} from 'react'
 import { AppBar, Toolbar, IconButton } from '@material-ui/core'
 import MenuIcon from '@material-ui/icons/Menu'
+import RtcClient from '../../utilities/RtcClient';
 
-const CommonHeader: FC = ({ isMenuOpen, setMenuOpen, rtcClient }) => {
+type Props = {
+  isMenuOpen: boolean,
+  setMenuOpen: Dispatch<SetStateAction<boolean>>
+  rtcClient: RtcClient
+}
+
+const CommonHeader: VFC<Props> = ({ isMenuOpen, setMenuOpen, rtcClient }) => {
   const DEAULT_TITLE = process.env.APP_NAME
   return (
     <>
