@@ -4,11 +4,11 @@ const INITIAL_AUDIO_ENABLED = false;
 
 export default class WebRtc {
 
-    constructor(mediaStream, roomName, localPeerName) {
+    constructor(mediaStream, roomName, localPeerName, remotePeerName) {
         this.roomName = roomName;
         this.mediaStream = mediaStream;
         this.localPeerName = localPeerName;
-        this.remotePeerName = '';
+        this.remotePeerName = remotePeerName;
 
         const config = {
             iceServers: [{ urls: 'stun:stun.stunprotocol.org' }],
@@ -50,7 +50,7 @@ export default class WebRtc {
     }
 
     get databaseDirectRef() {
-        return getDatabase(this.roomName + '/_direct_/' + this.remotePeerName);
+        return getDatabase(this.roomName + '/_members_/' + this.remotePeerName);
     }
 
     get remoteVideoRef() {
@@ -58,11 +58,8 @@ export default class WebRtc {
     }
 
     // 2. AさんがBさんからjoinを受信したらAさんはBさんにofferを送信する
-    async offer(remotePeerName) {
-        console.log("send offer")
+    async offer(member) {
         try {
-            // 2-1. 相手の名前をアプリケーションに登録する
-            this.remotePeerName = remotePeerName;
             // 2-2. 通信経路をシグナリングサーバーに送信できるようにイベントハンドラを登録する
             this.setOnicecandidateCallback();
             // 2-3. P2P確立後、通信相手のメディアストリーム情報の受信後、表示先のDOMを登録しておく
@@ -72,11 +69,14 @@ export default class WebRtc {
             // 2-5. 作成したSDP(offer)を保存する
             await this.setLocalDescription(sessionDescription);
             // 2-6. SDP(offer)を送信する
-            await this.databaseDirectRef.set({
+            const data = {
+              ...member,
               type: 'offer',
               sender: this.localPeerName,
               sessionDescription: this.localDescription,
-            });
+            }
+            console.log("send offer", data)
+            await this.databaseDirectRef.set(data);
         } catch (e) {
             console.error(e);
         }
@@ -87,7 +87,7 @@ export default class WebRtc {
         this.rtcPeerConnection.onicecandidate = async ({ candidate }) => {
             if (candidate) {
                 // remoteへcandidate(通信経路)を通知する
-                await this.databaseDirectRef.set({
+                await this.databaseDirectRef.update({
                     type: 'candidate',
                     sender: this.localPeerName,
                     candidate: candidate.toJSON(),
@@ -121,11 +121,8 @@ export default class WebRtc {
     }
 
     // 3. BさんがAさんからofferを受信したらBさんはAさんにanswerを送信する
-    async answer(sender, sessionDescription) {
-        console.log("send answer")
+    async answer(member, sessionDescription) {
         try {
-            // 3-1. 相手の名前をアプリケーションに登録する
-            this.remotePeerName = sender;
             // 3-2. 通信経路をシグナリングサーバーに送信できるようにイベントハンドラを登録する
             this.setOnicecandidateCallback();
             // 3-3. P2P確立後、通信相手のメディアストリーム情報の受信後、表示先のDOMを登録しておく
@@ -137,11 +134,13 @@ export default class WebRtc {
             // 3-6. 作成したSDP(answer)を保存する
             await this.rtcPeerConnection.setLocalDescription(answer);
             // 3-7. SDP(answer)を送信する
-            await this.databaseDirectRef.set({
+           const data = {
                 type: 'answer',
                 sender: this.localPeerName,
                 sessionDescription: this.localDescription,
-            });
+            }
+            console.log("send answer", data)
+            await this.databaseDirectRef.update(data);
         } catch (e) {
             console.error(e);
         }
@@ -170,5 +169,8 @@ export default class WebRtc {
         } catch (error) {
             console.error(error);
         }
+    }
+
+    startListening() {
     }
 }

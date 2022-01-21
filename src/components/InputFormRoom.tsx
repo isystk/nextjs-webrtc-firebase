@@ -39,6 +39,7 @@ export default function SignIn({ rtcClient }) {
   }, [name]);
 
   const initializeRemotePeer = async (e) => {
+    e.persist()
     await rtcClient.join(name);
     e.preventDefault();
   }

@@ -30,7 +30,7 @@ const VideoLocal = ({ rtcClient }) => {
       <>
         <Video
             isLocal={true}
-            name={rtcClient.localPeerName}
+            member={{sender: rtcClient.localPeerName}}
             rtcClient={rtcClient}
             videoRef={videoRef}
         />

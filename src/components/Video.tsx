@@ -11,7 +11,7 @@ import AudioAnalyser from './AudioAnalyser';
 import VolumeButton from './VolumeButton';
 import useDimensions from './hooks/useDimentions';
 
-const Video = ({ isLocal, name, rtcClient, videoRef }) => {
+const Video = ({ isLocal, member, rtcClient, videoRef }) => {
   const [muted, setMuted] = useState(rtcClient.initialAudioMuted);
   const refCard = useRef(null);
   // ブラウザの表示サイズに応じてビデオを表示する幅を取得する
@@ -19,8 +19,8 @@ const Video = ({ isLocal, name, rtcClient, videoRef }) => {
   const refVolumeButton = useRef(null);
   const dimensionsVolumeButton = useDimensions(refVolumeButton);
 
-  if (videoRef.current)
-    console.log({ isLocal, muted, srcObject: videoRef.current.srcObject });
+  // if (videoRef.current)
+  //   console.log({ isLocal, muted, srcObject: videoRef.current.srcObject });
 
   useEffect(() => {
     window.setTimeout(() => {
@@ -36,11 +36,11 @@ const Video = ({ isLocal, name, rtcClient, videoRef }) => {
           muted={isLocal || muted}
           ref={videoRef}
           width={dimensionsCard.width}
-          id={`video-${name}`}
+          id={`video-${member.sender}`}
         />
         <CardContent>
           <Typography gutterBottom variant="h5" component="h2">
-            {name}
+            {member.sender}
           </Typography>
         </CardContent>
       </CardActionArea>
