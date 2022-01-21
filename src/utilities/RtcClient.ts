@@ -41,23 +41,17 @@ export default class RtcClient {
 
   // 音声のオン・オフを切り替える
   toggleAudio() {
-    if (Object.keys(rtcClient.members).length === 0) return;
-    Object.keys(rtcClient.members).forEach((member) => {
-      member.webRtc.toggleAudio();
+    if (Object.keys(this.members).length === 0) return;
+    Object.keys(this.members).forEach((key) => {
+      this.members[key].webRtc.toggleAudio()
     })
   }
 
-  disconnect() {
-    console.log("disconnect")
-    if (this.rtcPeerConnection) {
-      if (this.rtcPeerConnection !== 'closed') {
-        this.rtcPeerConnection.close()
-        this.rtcPeerConnection = null
-        this.roomName = '';
-        console.log("closed")
-        this.setRtcClient();
-      }
-    }
+  async disconnect() {
+    console.log("disconnect", this.localPeerName)
+    await this.databaseMembersRef(this.localPeerName).remove();
+    this.roomName = '';
+    this.setRtcClient();
   }
 
   // 自分がルームに入ったら全メンバーにjoinを送信する
@@ -72,7 +66,7 @@ export default class RtcClient {
 
       // joinを送信する
       console.log("send join", this.roomName, this.localPeerName)
-      await this.databaseJoin.push({
+      await this.databaseJoinRef.push({
         name: this.localPeerName,
         sender: this.localPeerName,
       });
@@ -95,6 +89,7 @@ export default class RtcClient {
 
   removeMember(data) {
     console.log('removeMember', data.name)
+    this.members[data.name].webRtc.disconnect()
     delete this.members[data.name];
     this.setRtcClient();
   }
@@ -104,8 +99,8 @@ export default class RtcClient {
     console.log("startListening")
 
     // Joinに関するリスナー
-    await this.databaseJoin.remove();
-    this.databaseJoin.on('child_added', async (snapshot) => {
+    await this.databaseJoinRef.remove();
+    this.databaseJoinRef.on('child_added', async (snapshot) => {
       const data = snapshot.val();
       if (data === null) return;
       const {sender} = data;
@@ -192,7 +187,7 @@ export default class RtcClient {
     });
   }
 
-  get databaseJoin() {
+  get databaseJoinRef() {
     return getDatabase(this.roomName + '/_join_/');
   }
 

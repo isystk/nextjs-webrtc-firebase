@@ -10,6 +10,7 @@ const CommonHeader: FC = ({ isMenuOpen, setMenuOpen, rtcClient }) => {
         <Toolbar>
           <IconButton
             color="inherit"
+            disabled={!rtcClient.roomName}
             onClick={() => setMenuOpen(!isMenuOpen)}
           >
             <MenuIcon />

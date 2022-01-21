@@ -57,6 +57,15 @@ export default class WebRtc {
         return document.querySelector(`#video-${this.remotePeerName}`)
     }
 
+    disconnect() {
+        if (this.rtcPeerConnection) {
+            if (this.rtcPeerConnection !== 'closed') {
+                this.rtcPeerConnection.close()
+                this.rtcPeerConnection = null
+            }
+        }
+    }
+
     // 2. AさんがBさんからjoinを受信したらAさんはBさんにofferを送信する
     async offer(member) {
         try {

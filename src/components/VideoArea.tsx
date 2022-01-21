@@ -21,15 +21,33 @@ const VideoArea = ({ rtcClient }) => {
 
   if (rtcClient === null) return <></>;
 
+  const grids = {
+    0: { xs:12, sm:6, md:6},
+    1: { xs:12, sm:6, md:6},
+    2: { xs:12, sm:6, md:6},
+    3: { xs:12, sm:6, md:6},
+    4: { xs:12, sm:4, md:4},
+    5: { xs:12, sm:4, md:4},
+    6: { xs:12, sm:3, md:3},
+    7: { xs:12, sm:3, md:3},
+  }
+  const grid = grids[Math.min(Object.keys(rtcClient.members).length, 7)];
+
   return (
     <div className={classes.root}>
       <Grid container spacing={0}>
-        <Grid item xs={12} sm={6}>
+        <Grid item {...grid}>
           <VideoLocal rtcClient={rtcClient} />
         </Grid>
-        <Grid item xs={12} sm={6}>
-          <VideoRemote rtcClient={rtcClient} />
-        </Grid>
+          {
+            Object.keys(rtcClient.members).map(function(key, idx) {
+            return (
+              <Grid item {...grid} key={idx}>
+                <VideoRemote rtcClient={rtcClient} member={rtcClient.members[key]} />
+              </Grid>
+            )
+            })
+          }
       </Grid>
     </div>
   );

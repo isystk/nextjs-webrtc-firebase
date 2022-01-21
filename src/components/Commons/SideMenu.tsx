@@ -11,10 +11,7 @@ import {
 } from '@material-ui/core'
 import ExitToAppIcon from '@material-ui/icons/ExitToApp'
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft'
-import CallIcon from '@material-ui/icons/Call'
-import CallEndIcon from '@material-ui/icons/CallEnd'
 import VideocamIcon from '@material-ui/icons/Videocam'
-import VideocamOffIcon from '@material-ui/icons/VideocamOff'
 import FullscreenIcon from '@material-ui/icons/Fullscreen'
 import ScreenShareIcon from '@material-ui/icons/ScreenShare'
 import StopIcon from '@material-ui/icons/Stop'
@@ -31,9 +28,6 @@ const SideMenu = ({isMenuOpen, setMenuOpen, rtcClient}) => {
         'Stream screen': [<ScreenShareIcon key={0} />, () => {}],
         'Stop Stream': [<StopIcon key={0} />, () => {}],
         'Full screen': [<FullscreenIcon key={0} />, () => {}],
-        Mute: [<VideocamOffIcon key={0} />, () => {}],
-        Call: [<CallIcon key={0} />, () => {}],
-        Bye: [<CallEndIcon key={0} />, () =>{}],
     }
     const getIcon = (text) => (menu[text] ? menu[text][0] : <div />)
 
@@ -58,9 +52,6 @@ const SideMenu = ({isMenuOpen, setMenuOpen, rtcClient}) => {
                     'Stream screen',
                     'Stop Stream',
                     'Full screen',
-                    'Mute',
-                    'Call',
-                    'Bye',
                 ].map((text, index) => (
                     <ListItem button key={index} onClick={() => onClickItem(text)}>
                         <ListItemIcon>{getIcon(text)}</ListItemIcon>
