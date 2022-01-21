@@ -1,4 +1,4 @@
-import { getDatabase } from './firebase'
+import {getDatabase} from './firebase'
 
 const INITIAL_AUDIO_ENABLED = false;
 
@@ -11,7 +11,7 @@ export default class WebRtc {
         this.remotePeerName = remotePeerName;
 
         const config = {
-            iceServers: [{ urls: 'stun:stun.stunprotocol.org' }],
+            iceServers: [{urls: 'stun:stun.stunprotocol.org'}],
         };
         this.rtcPeerConnection = new RTCPeerConnection(config);
         this.addTracks();
@@ -70,10 +70,10 @@ export default class WebRtc {
             await this.setLocalDescription(sessionDescription);
             // 2-6. SDP(offer)を送信する
             const data = {
-              ...member,
-              type: 'offer',
-              sender: this.localPeerName,
-              sessionDescription: this.localDescription,
+                ...member,
+                type: 'offer',
+                sender: this.localPeerName,
+                sessionDescription: this.localDescription,
             }
             console.log("send offer", data)
             await this.databaseDirectRef.set(data);
@@ -84,7 +84,7 @@ export default class WebRtc {
 
     // 通信経路をシグナリングサーバーに送信できるようにイベントハンドラを登録する
     setOnicecandidateCallback() {
-        this.rtcPeerConnection.onicecandidate = async ({ candidate }) => {
+        this.rtcPeerConnection.onicecandidate = async ({candidate}) => {
             if (candidate) {
                 // remoteへcandidate(通信経路)を通知する
                 await this.databaseDirectRef.update({
@@ -95,6 +95,7 @@ export default class WebRtc {
             }
         };
     }
+
     // P2P確立後、通信相手のメディアストリーム情報の受信後、表示先のDOMを登録しておく
     setOntrack() {
         this.rtcPeerConnection.ontrack = (rtcTrackEvent) => {
@@ -103,6 +104,7 @@ export default class WebRtc {
             this.remoteVideoRef.srcObject = remoteMediaStream;
         };
     }
+
     // SDP(offer)を作成する
     async createOffer() {
         try {
@@ -111,6 +113,7 @@ export default class WebRtc {
             console.error(e);
         }
     }
+
     // 作成したSDP(offer)を保存する
     async setLocalDescription(sessionDescription) {
         try {
@@ -134,7 +137,7 @@ export default class WebRtc {
             // 3-6. 作成したSDP(answer)を保存する
             await this.rtcPeerConnection.setLocalDescription(answer);
             // 3-7. SDP(answer)を送信する
-           const data = {
+            const data = {
                 type: 'answer',
                 sender: this.localPeerName,
                 sessionDescription: this.localDescription,
@@ -171,6 +174,4 @@ export default class WebRtc {
         }
     }
 
-    startListening() {
-    }
 }

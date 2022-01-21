@@ -8,7 +8,6 @@ export default class RtcClient {
     this.localPeerName = '';
     this.mediaStream = null;
     this.members = {};
-    this.webRtc = null;
   }
 
   setRtcClient() {
@@ -42,8 +41,10 @@ export default class RtcClient {
 
   // 音声のオン・オフを切り替える
   toggleAudio() {
-    if (!this.webRtc) return;
-    this.webRtc.toggleAudio();
+    if (Object.keys(rtcClient.members).length === 0) return;
+    Object.keys(rtcClient.members).forEach((member) => {
+      member.webRtc.toggleAudio();
+    })
   }
 
   disconnect() {
@@ -84,21 +85,17 @@ export default class RtcClient {
   // joinを受信した時やofferを受信したらメンバーを追加する
   async addMember(data) {
     console.log('addMember', data)
+    data.webRtc = new WebRtc(this.mediaStream, this.roomName, this.localPeerName, data.sender);
     const newMember = {
       [data.sender]: data
     }
     this.members = {...this.members, ...newMember};
-    // シグナリングサーバーと通信するためのインスタンスを生成する
-    this.webRtc = new WebRtc(this.mediaStream, this.roomName, this.localPeerName, data.sender);
-    await this.webRtc.startListening();
     this.setRtcClient();
   }
 
   removeMember(data) {
     console.log('removeMember', data.name)
     delete this.members[data.name];
-    // シグナリングサーバーと通信するためのインスタンスを生成する
-    this.webRtc = null;
     this.setRtcClient();
   }
 
@@ -117,7 +114,7 @@ export default class RtcClient {
         return;
       }
       await this.addMember(data)
-      await this.webRtc.offer(data);
+      await this.members[sender].webRtc.offer(data);
     })
 
     // Membersに関するリスナー
@@ -131,17 +128,17 @@ export default class RtcClient {
           console.log("receive offer", data)
           // 既存メンバーからofferを受信したらanswerを送信する
           await this.addMember(data)
-          await this.webRtc.answer(data, sessionDescription);
+          await this.members[data.sender].webRtc.answer(data, sessionDescription);
           break;
         case 'answer':
           console.log("receive answer", data)
           // answerを受信する
-          await this.webRtc.saveReceivedSessionDescription(sessionDescription);
+          await this.members[data.sender].webRtc.saveReceivedSessionDescription(sessionDescription);
           break;
         case 'candidate':
           // console.log("receive candidate", data)
           // シグナリングサーバー経由でcandidateを受信し、相手の通信経路を追加する
-          await this.webRtc.addIceCandidate(candidate);
+          await this.members[data.sender].webRtc.addIceCandidate(candidate);
           break;
         default:
           break;
