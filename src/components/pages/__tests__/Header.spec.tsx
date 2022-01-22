@@ -1,14 +1,21 @@
-import React, {useState} from 'react'
+import React, { useState } from 'react'
 import renderer from 'react-test-renderer'
 import Header from '../Header'
-import RtcClient from '../../../utilities/RtcClient';
+import '@testing-library/jest-dom/extend-expect'
+import { renderHook } from '@testing-library/react-hooks'
+import RtcClient from "@/utilities/RtcClient";
 
-test('Header', () => {
-  const [, _setRtcClient] = useState<RtcClient | null>(null);
-  const rtcClient = new RtcClient(_setRtcClient);
-  const [isMenuOpen, setMenuOpen] = useState(false)
-  const component = renderer.create(<Header isMenuOpen={isMenuOpen} setMenuOpen={setMenuOpen} rtcClient={rtcClient} />)
-  const tree = component.toJSON()
+describe('Header', () => {
+  it('Match Snapshot', () => {
+    const stateRtcClient = renderHook( () => useState<RtcClient | null>(null));
+    const [, setRtcClient] = stateRtcClient.result.current;
+    const rtcClient = new RtcClient(setRtcClient);
+    const stateMenuOpen = renderHook( () => useState<boolean>(false));
+    const [isMenuOpen, setMenuOpen] = stateMenuOpen.result.current;
+    if (rtcClient === null) return;
+    const component = renderer.create(<Header isMenuOpen={isMenuOpen} setMenuOpen={setMenuOpen} rtcClient={rtcClient} />)
+    const tree = component.toJSON()
 
-  expect(tree).toMatchSnapshot()
+    expect(tree).toMatchSnapshot()
+  })
 })

@@ -2,10 +2,10 @@ import { useEffect, useReducer, useState } from 'react';
 import RtcClient from '../../utilities/RtcClient';
 
 const useRtcClient = () => {
-  const [rtcClient, _setRtcClient] = useState(null);
+  const [rtcClient, _setRtcClient] = useState<RtcClient | null>(null);
   const [, forceRender] = useReducer((boolean) => !boolean, false);
 
-  const setRtcClient = (rtcClient) => {
+  const setRtcClient = (rtcClient: RtcClient) => {
     _setRtcClient(rtcClient);
     forceRender();
   };

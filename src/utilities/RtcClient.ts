@@ -1,8 +1,7 @@
 import { getDatabase } from './firebase'
 import WebRtc from './WebRtc'
-import {Dispatch, SetStateAction} from "react";
 
-type Member = {
+export type Member = {
   name: string,
   sender: string
   webRtc?: WebRtc
@@ -11,7 +10,7 @@ type Members = {
   [key: string]: Member
 }
 interface RtcClientType {
-  _setRtcClient: Dispatch<SetStateAction<RtcClient | null>>,
+  _setRtcClient: (rtcClient: RtcClient)=> void,
   roomName: string,
   localPeerName: string,
   mediaStream: MediaStream | null
@@ -20,13 +19,13 @@ interface RtcClientType {
 
 export default class RtcClient implements RtcClientType {
 
-  _setRtcClient: Dispatch<SetStateAction<RtcClient | null>>;
+  _setRtcClient: (rtcClient: RtcClient)=> void;
   localPeerName: string;
   mediaStream: MediaStream | null;
   members: Members;
   roomName: string;
 
-  constructor(setRtcClient: Dispatch<SetStateAction<RtcClient | null>>) {
+  constructor(setRtcClient: (rtcClient: RtcClient)=> void) {
     this._setRtcClient = setRtcClient;
     this.roomName = '';
     this.localPeerName = '';
@@ -103,7 +102,11 @@ export default class RtcClient implements RtcClientType {
   // joinを受信した時やofferを受信したらメンバーを追加する
   async addMember(data: Member) {
     console.log('addMember', data)
-    data.webRtc = new WebRtc(this.mediaStream, this.roomName, this.localPeerName, data.sender);
+    if (this.mediaStream) {
+      data.webRtc = new WebRtc(this.mediaStream, this.roomName, this.localPeerName, data.sender);
+    } else {
+      console.error('no mediaStream')
+    }
     const newMember = {
       [data.sender]: data
     }
@@ -147,7 +150,7 @@ export default class RtcClient implements RtcClientType {
           console.log("receive offer", data)
           // 既存メンバーからofferを受信したらanswerを送信する
           await this.addMember(data)
-          await this.members[data.sender].webRtc?.answer(data, sessionDescription);
+          await this.members[data.sender].webRtc?.answer(sessionDescription);
           break;
         case 'answer':
           console.log("receive answer", data)
