@@ -7,11 +7,16 @@ import {
   Typography,
 } from '@material-ui/core';
 
+import RtcClient from "@/utilities/RtcClient";
 import AudioAnalyser from './AudioAnalyser';
 import VolumeButton from './VolumeButton';
-import useDimensions from '../../hooks/useDimentions';
+import useDimensions from '@/hooks/useDimentions';
 
-const Video: VFC = ({ isLocal, member, rtcClient, videoRef }) => {
+type Props = {
+  rtcClient: RtcClient,
+}
+
+const Video: VFC<Props> = ({ isLocal, member, rtcClient, videoRef }) => {
   const [muted, setMuted] = useState(rtcClient.initialAudioMuted);
   const refCard = useRef(null);
   // ブラウザの表示サイズに応じてビデオを表示する幅を取得する

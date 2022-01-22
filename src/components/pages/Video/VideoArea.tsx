@@ -2,6 +2,7 @@ import React, { VFC} from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 
+import RtcClient from "@/utilities/RtcClient";
 import VideoLocal from './VideoLocal';
 import VideoRemote from './VideoRemote';
 
@@ -16,7 +17,11 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const VideoArea: VFC = ({ rtcClient }) => {
+type Props = {
+  rtcClient: RtcClient,
+}
+
+const VideoArea: VFC<Props> = ({ rtcClient }) => {
   const classes = useStyles();
 
   if (rtcClient === null) return <></>;

@@ -1,10 +1,15 @@
-import React from 'react';
+import React, {VFC} from 'react';
 import Grid from '@material-ui/core/Grid';
 
 import InputFormName from './InputFormName';
 import InputFormRoom from './InputFormRoom';
+import RtcClient from "@/utilities/RtcClient";
 
-const InputForms = ({ rtcClient }) => {
+type Props = {
+    rtcClient: RtcClient,
+}
+
+const InputForms: VFC<Props> = ({ rtcClient }) => {
   if (rtcClient === null || rtcClient.roomName !== '') return <></>;
 
   return (

@@ -1,10 +1,11 @@
-import React, { VFC, useCallback, useEffect, useState } from 'react';
-import Button from '@material-ui/core/Button';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import TextField from '@material-ui/core/TextField';
-import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
+import Typography from '@material-ui/core/Typography';
+import TextField from '@material-ui/core/TextField';
+import RtcClient from "@/utilities/RtcClient";
+import React, { VFC, useCallback, useEffect, useState } from 'react';
+import CssBaseline from '@material-ui/core/CssBaseline';
 import Container from '@material-ui/core/Container';
+import Button from '@material-ui/core/Button';
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -26,7 +27,11 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const SignIn: VFC = ({ rtcClient }) => {
+type Props = {
+    rtcClient: RtcClient,
+}
+
+const SignIn: VFC<Props> = ({ rtcClient }) => {
   const label = 'あなたの名前';
   const classes = useStyles();
   const [disabled, setDisabled] = useState(true);

@@ -5,6 +5,7 @@ import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import {makeStyles} from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
+import RtcClient from "@/utilities/RtcClient";
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -26,7 +27,11 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-const SignIn: VFC = ({rtcClient}) => {
+
+type Props = {
+    rtcClient: RtcClient,
+}
+const SignIn: VFC<Props> = ({rtcClient}) => {
     const label = '部屋の名前';
     const classes = useStyles();
     const [disabled, setDisabled] = useState(true);
@@ -38,7 +43,7 @@ const SignIn: VFC = ({rtcClient}) => {
         setDisabled(disabled);
     }, [name]);
 
-    const initializeRemotePeer = async (e) => {
+    const initializeRemotePeer = async (e: React.KeyboardEvent<HTMLDivElement> | React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.persist()
         await rtcClient.join(name);
         e.preventDefault();

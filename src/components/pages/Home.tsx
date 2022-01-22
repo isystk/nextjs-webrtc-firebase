@@ -3,7 +3,7 @@ import Header from '@/components/pages/Header'
 import Footer from '@/components/pages/Footer'
 import InputForms from '@/components/pages/Form/InputForms'
 import VideoArea from '@/components/pages/Video/VideoArea'
-import useRtcClient from '../hooks/useRtcClient';
+import useRtcClient from '@/hooks/useRtcClient';
 import SideMenu from './SideMenu'
 
 const Home: VFC = () => {

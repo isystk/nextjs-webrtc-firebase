@@ -4,7 +4,7 @@ import WebRtc from './WebRtc'
 export type Member = {
   name: string,
   sender: string
-  webRtc?: WebRtc
+  webRtc: WebRtc | null
 }
 type Members = {
   [key: string]: Member
@@ -116,7 +116,9 @@ export default class RtcClient implements RtcClientType {
 
   removeMember(data: Member) {
     console.log('removeMember', data.name)
-    this.members[data.name].webRtc?.disconnect()
+    if (this.members[data.name]) {
+      this.members[data.name].webRtc?.disconnect()
+    }
     delete this.members[data.name];
     this.setRtcClient();
   }

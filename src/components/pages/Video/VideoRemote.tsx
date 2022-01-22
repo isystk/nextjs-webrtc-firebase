@@ -2,8 +2,13 @@ import React, { VFC, useRef } from 'react';
 
 import Button from '@material-ui/core/Button';
 import Video from './Video';
+import RtcClient from "@/utilities/RtcClient";
 
-const VideoRemote: VFC = ({ rtcClient, member }) => {
+type Props = {
+    rtcClient: RtcClient,
+}
+
+const VideoRemote: VFC<Props> = ({ rtcClient, member }) => {
   const videoRef = useRef(null);
 
   if (rtcClient.roomName === '') return <></>;
