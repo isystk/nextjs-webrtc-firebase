@@ -1,28 +1,31 @@
-import React, { VFC, useEffect, useRef, useState } from 'react';
+import React, { VFC, useEffect, useRef, useState } from 'react'
 import {
   Card,
   CardActionArea,
   CardActions,
   CardContent,
   Typography,
-} from '@material-ui/core';
+} from '@material-ui/core'
 
-import RtcClient from "@/utilities/RtcClient";
-import AudioAnalyser from './AudioAnalyser';
-import VolumeButton from './VolumeButton';
-import useDimensions from '@/hooks/useDimentions';
+import RtcClient, { Member } from '@/utilities/RtcClient'
+import AudioAnalyser from './AudioAnalyser'
+import VolumeButton from './VolumeButton'
+import useDimensions from '@/hooks/useDimentions'
 
 type Props = {
-  rtcClient: RtcClient,
+  isLocal: boolean
+  member: Member
+  rtcClient: RtcClient
+  videoRef
 }
 
 const Video: VFC<Props> = ({ isLocal, member, rtcClient, videoRef }) => {
-  const [muted, setMuted] = useState(rtcClient.initialAudioMuted);
-  const refCard = useRef(null);
+  const [muted, setMuted] = useState(rtcClient.initialAudioMuted)
+  const refCard = useRef(null)
   // ブラウザの表示サイズに応じてビデオを表示する幅を取得する
-  const dimensionsCard = useDimensions(refCard);
-  const refVolumeButton = useRef(null);
-  const dimensionsVolumeButton = useDimensions(refVolumeButton);
+  const dimensionsCard = useDimensions(refCard)
+  const refVolumeButton = useRef(null)
+  const dimensionsVolumeButton = useDimensions(refVolumeButton)
 
   // if (videoRef.current)
   //   console.log({ isLocal, muted, srcObject: videoRef.current.srcObject });
@@ -31,7 +34,7 @@ const Video: VFC<Props> = ({ isLocal, member, rtcClient, videoRef }) => {
     window.setTimeout(() => {
       rtcClient.setRtcClient()
     }, 500)
-  }, []);
+  }, [])
 
   return (
     <Card ref={refCard}>
@@ -65,7 +68,7 @@ const Video: VFC<Props> = ({ isLocal, member, rtcClient, videoRef }) => {
         )}
       </CardActions>
     </Card>
-  );
-};
+  )
+}
 
-export default Video;
+export default Video

@@ -3,11 +3,11 @@ import Header from '@/components/pages/Header'
 import Footer from '@/components/pages/Footer'
 import InputForms from '@/components/pages/Form/InputForms'
 import VideoArea from '@/components/pages/Video/VideoArea'
-import useRtcClient from '@/hooks/useRtcClient';
+import useRtcClient from '@/hooks/useRtcClient'
 import SideMenu from './SideMenu'
 
 const Home: VFC = () => {
-  const rtcClient = useRtcClient();
+  const rtcClient = useRtcClient()
   const [windowHeight, setWindowHeight] = useState(0)
   useEffect(() => {
     setWindowHeight(window.innerHeight)
@@ -15,17 +15,25 @@ const Home: VFC = () => {
 
   const [isMenuOpen, setMenuOpen] = useState(false)
 
-  if (rtcClient === null) return <></>;
+  if (rtcClient === null) return <></>
 
   return (
     <>
-      <Header isMenuOpen={isMenuOpen} setMenuOpen={setMenuOpen} rtcClient={rtcClient} />
+      <Header
+        isMenuOpen={isMenuOpen}
+        setMenuOpen={setMenuOpen}
+        rtcClient={rtcClient}
+      />
       <div style={appStyle(windowHeight)}>
         <InputForms rtcClient={rtcClient} />
         <VideoArea rtcClient={rtcClient} />
       </div>
       <Footer />
-      <SideMenu isMenuOpen={isMenuOpen} setMenuOpen={setMenuOpen} rtcClient={rtcClient} />
+      <SideMenu
+        isMenuOpen={isMenuOpen}
+        setMenuOpen={setMenuOpen}
+        rtcClient={rtcClient}
+      />
     </>
   )
 }

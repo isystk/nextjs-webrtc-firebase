@@ -1,11 +1,11 @@
-import { makeStyles } from '@material-ui/core/styles';
-import Typography from '@material-ui/core/Typography';
-import TextField from '@material-ui/core/TextField';
-import RtcClient from "@/utilities/RtcClient";
-import React, { VFC, useCallback, useEffect, useState } from 'react';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import Container from '@material-ui/core/Container';
-import Button from '@material-ui/core/Button';
+import { makeStyles } from '@material-ui/core/styles'
+import Typography from '@material-ui/core/Typography'
+import TextField from '@material-ui/core/TextField'
+import RtcClient from '@/utilities/RtcClient'
+import React, { VFC, useCallback, useEffect, useState } from 'react'
+import CssBaseline from '@material-ui/core/CssBaseline'
+import Container from '@material-ui/core/Container'
+import Button from '@material-ui/core/Button'
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -25,34 +25,34 @@ const useStyles = makeStyles((theme) => ({
   submit: {
     margin: theme.spacing(3, 0, 2),
   },
-}));
+}))
 
 type Props = {
-    rtcClient: RtcClient,
+  rtcClient: RtcClient
 }
 
 const SignIn: VFC<Props> = ({ rtcClient }) => {
-  const label = 'あなたの名前';
-  const classes = useStyles();
-  const [disabled, setDisabled] = useState(true);
-  const [name, setName] = useState('');
-  const [isComposed, setIsComposed] = useState(false);
+  const label = 'あなたの名前'
+  const classes = useStyles()
+  const [disabled, setDisabled] = useState(true)
+  const [name, setName] = useState('')
+  const [isComposed, setIsComposed] = useState(false)
 
   useEffect(() => {
-    const disabled = name === '';
-    setDisabled(disabled);
-  }, [name]);
+    const disabled = name === ''
+    setDisabled(disabled)
+  }, [name])
 
   const initializeLocalPeer = useCallback(
     async (e) => {
       e.persist()
-      await rtcClient.setLocalPeerName(name);
-      e.preventDefault();
+      await rtcClient.setLocalPeerName(name)
+      e.preventDefault()
     },
     [name, rtcClient]
-  );
+  )
 
-  if (rtcClient.localPeerName !== '') return <></>;
+  if (rtcClient.localPeerName !== '') return <></>
 
   return (
     <Container component="main" maxWidth="xs">
@@ -72,9 +72,9 @@ const SignIn: VFC<Props> = ({ rtcClient }) => {
             onCompositionEnd={() => setIsComposed(false)}
             onCompositionStart={() => setIsComposed(true)}
             onKeyDown={async (e) => {
-              if (isComposed) return;
-              if (e.target.value === '') return;
-              if (e.key === 'Enter') await initializeLocalPeer(e);
+              if (isComposed) return
+              if (e.target.value === '') return
+              if (e.key === 'Enter') await initializeLocalPeer(e)
             }}
             required
             value={name}
@@ -94,7 +94,7 @@ const SignIn: VFC<Props> = ({ rtcClient }) => {
         </form>
       </div>
     </Container>
-  );
+  )
 }
 
-export default SignIn;
+export default SignIn

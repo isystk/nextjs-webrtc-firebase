@@ -2,7 +2,7 @@ import firebase from 'firebase/app'
 import 'firebase/auth'
 import 'firebase/firestore'
 import 'firebase/functions'
-import 'firebase/database';
+import 'firebase/database'
 
 const isEmulator = () => {
   const useEmulator = process.env.USE_FIREBASE_EMULATOR
@@ -49,6 +49,8 @@ export const getFunctions = () => {
 }
 
 export const getDatabase = (path: string) => {
-   const databaseRoot = 'app/multi/';
-   return getApp().database().ref(databaseRoot + path)
+  const databaseRoot = 'app/multi/'
+  return getApp()
+    .database()
+    .ref(databaseRoot + path)
 }

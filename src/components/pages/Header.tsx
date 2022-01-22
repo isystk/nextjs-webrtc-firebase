@@ -1,10 +1,10 @@
-import React, {Dispatch, SetStateAction, VFC} from 'react'
+import React, { Dispatch, SetStateAction, VFC } from 'react'
 import { AppBar, Toolbar, IconButton } from '@material-ui/core'
 import MenuIcon from '@material-ui/icons/Menu'
-import RtcClient from '../../utilities/RtcClient';
+import RtcClient from '../../utilities/RtcClient'
 
 type Props = {
-  isMenuOpen: boolean,
+  isMenuOpen: boolean
   setMenuOpen: Dispatch<SetStateAction<boolean>>
   rtcClient: RtcClient
 }
