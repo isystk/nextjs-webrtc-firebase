@@ -91,9 +91,14 @@ export default class RtcClient implements RtcClientType {
 
       // joinを送信する
       console.log('send join', this.roomName, this.localPeerName)
-      await this.databaseJoinRef(this.localPeerName).set({
-        type: 'join',
+      await this.databaseMembersRef(this.localPeerName).set({
+        clientId: this.localPeerName,
         name: this.localPeerName,
+      })
+
+      // joinを送信する
+      console.log('send join', this.roomName, this.localPeerName)
+      await this.databaseJoinRef(this.localPeerName).set({
         sender: this.localPeerName,
       })
     } catch (error) {
@@ -147,9 +152,7 @@ export default class RtcClient implements RtcClientType {
       console.log('receive join', data)
       await this.addMember(data)
       const send_data = {
-        ...data,
         type: 'hello',
-        name: this.localPeerName,
         sender: this.localPeerName,
       }
       console.log('send hello', sender,send_data)
@@ -165,14 +168,14 @@ export default class RtcClient implements RtcClientType {
         case 'hello':
           console.log('receive hello', data)
           await this.addMember(data)
-          await this.members[sender].webRtc?.offer(data)
+          await this.members[sender].webRtc?.offer()
           break
         default:
           break
       }
     })
 
-    // Firebaseから削除されたらMembersから削除
+    // Firebaseからメンバーが削除されたらローカルのMembersから削除
     this.databaseMembersRef().on('child_removed', async (snapshot) => {
       const data = snapshot.val()
       console.log('receive remove', data)
@@ -184,6 +187,8 @@ export default class RtcClient implements RtcClientType {
       }
       this.removeMember(data)
     })
+    // 自分の通信が切断されたらFirebaseから自分を削除
+    await this.databaseMembersRef(this.localPeerName).onDisconnect().remove()
 
     // ブロードキャスト通信に関するリスナー
     this.databaseBroadcastRef.on('value', function (snapshot) {

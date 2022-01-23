@@ -89,7 +89,7 @@ export default class WebRtc implements WebRtcType {
   }
 
   // 2. AさんがBさんからjoinを受信したらAさんはBさんにofferを送信する
-  async offer(member: Member): Promise<void> {
+  async offer(): Promise<void> {
     try {
       // 2-2. 通信経路をシグナリングサーバーに送信できるようにイベントハンドラを登録する
       this.setOnicecandidateCallback()
@@ -103,13 +103,11 @@ export default class WebRtc implements WebRtcType {
       }
       // 2-6. SDP(offer)を送信する
       const data = {
-        ...member,
         type: 'offer',
-        name: this.localPeerName,
         sender: this.localPeerName,
         sessionDescription: this.localDescription,
       }
-      const databaseMembersRef = this.databaseMembersRef(this.remotePeerName+'/'+this.localPeerName)
+      const databaseMembersRef = this.databaseMembersRef(this.remotePeerName+'/connections/'+this.localPeerName)
       console.log('send offer', data)
       await databaseMembersRef.set(data)
     } catch (e) {
@@ -123,7 +121,7 @@ export default class WebRtc implements WebRtcType {
       this.rtcPeerConnection.onicecandidate = async ({ candidate }) => {
         if (candidate) {
           // remoteへcandidate(通信経路)を通知する
-          await this.databaseMembersRef(this.remotePeerName+'/'+this.localPeerName).update({
+          await this.databaseMembersRef(this.remotePeerName+'/connections/'+this.localPeerName).update({
             type: 'candidate',
             sender: this.localPeerName,
             candidate: candidate.toJSON(),
@@ -191,7 +189,7 @@ export default class WebRtc implements WebRtcType {
         sender: this.localPeerName,
         sessionDescription: this.localDescription,
       }
-      const databaseMembersRef = this.databaseMembersRef(this.remotePeerName+'/'+this.localPeerName)
+      const databaseMembersRef = this.databaseMembersRef(this.remotePeerName+'/connections/'+this.localPeerName)
       console.log('send answer', databaseMembersRef, data)
       await databaseMembersRef.update(data)
     } catch (e) {
@@ -235,8 +233,8 @@ export default class WebRtc implements WebRtcType {
   // シグナリングサーバーをリスンする処理
   async startListening() {
 
-    const databaseMembersRef = this.databaseMembersRef(this.localPeerName+'/'+this.remotePeerName)
-    console.log('startListening', this.localPeerName+'/'+this.remotePeerName)
+    const databaseMembersRef = this.databaseMembersRef(this.localPeerName+'/connections/'+this.remotePeerName)
+    console.log('startListening', this.localPeerName+'/connections/'+this.remotePeerName)
     databaseMembersRef.on('value', async (snapshot) => {
       const data = snapshot.val()
       if (data === null) return
