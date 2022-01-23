@@ -75,7 +75,7 @@ export default class RtcClient implements RtcClientType {
 
   async disconnect() {
     console.log('disconnect', this.self)
-    await this.databaseMembersRef(this.self.clientId).remove()
+    await this.databaseJoinRef(this.self.clientId).remove()
     this.roomName = ''
     this.setRtcClient()
   }
@@ -87,24 +87,24 @@ export default class RtcClient implements RtcClientType {
       this.setRtcClient()
 
       // joinを初期化する
-      await this.databaseJoinRef().remove()
+      await this.databaseBroadcastRef.remove()
 
       // メンバーに自分を追加する
-      const key = await this.databaseMembersRef().push({
+      const key = await this.databaseJoinRef().push({
         name: this.self.name,
       }).key
       this.self = {
         clientId: key+'',
         name: this.self.name,
       }
-      await this.databaseMembersRef(this.self.clientId).update(this.self)
+      await this.databaseJoinRef(this.self.clientId).update(this.self)
 
       // シグナリングサーバーをリスンする
       await this.startListening()
 
       // joinを送信する
       console.log('send join', this.roomName, this.self)
-      await this.databaseJoinRef(this.self.clientId).set({
+      await this.databaseBroadcastRef.set({
         ...this.self,
         type: 'join',
         clientId: this.self.clientId
@@ -150,43 +150,8 @@ export default class RtcClient implements RtcClientType {
   async startListening() {
     console.log('startListening', this.self)
 
-    // Joinに関するリスナー
-    this.databaseJoinRef().on('child_added', async (snapshot) => {
-      const data = snapshot.val()
-      if (data === null) return
-      const { clientId } = data
-      if (clientId === this.self.clientId) {
-        // 自分自身は無視する
-        return
-      }
-      console.log('receive join', data)
-      await this.addMember(data)
-
-      await this.databaseJoinRef(clientId).set({
-        type: 'hello',
-        clientId: this.self.clientId,
-        name: this.self.name
-      })
-    })
-    await this.databaseJoinRef(this.self.clientId).onDisconnect().remove()
-
-    this.databaseJoinRef(this.self.clientId).on('value', async (snapshot) => {
-      const data = snapshot.val()
-      if (data === null) return
-      const { type, clientId } = data
-      switch (type) {
-        case 'hello':
-          console.log('receive hello', data)
-          await this.addMember(data)
-          await this.members[clientId].webRtc?.offer()
-          break
-        default:
-          break
-      }
-    })
-
     // Firebaseからメンバーが削除されたらローカルのMembersから削除
-    this.databaseMembersRef().on('child_removed', async (snapshot) => {
+    this.databaseJoinRef().on('child_removed', async (snapshot) => {
       const data = snapshot.val()
       console.log('receive remove', data)
       if (data === null) return
@@ -198,26 +163,50 @@ export default class RtcClient implements RtcClientType {
       this.removeMember(data)
     })
     // 自分の通信が切断されたらFirebaseから自分を削除
-    await this.databaseMembersRef(this.self.clientId).onDisconnect().remove()
+    await this.databaseJoinRef(this.self.clientId).onDisconnect().remove()
 
     // ブロードキャスト通信に関するリスナー
-    this.databaseBroadcastRef.on('value',  (snapshot) => {
+    this.databaseBroadcastRef.on('value',  async (snapshot) => {
       const data = snapshot.val()
       if (data === null) return
-      const { clientId } = data
+      const { type, clientId } = data
       if (clientId === this.self.clientId) {
         // ignore self message (自分自身からのメッセージは無視する）
         return
       }
-      console.log('databaseBroadcastRef', data)
+      switch (type) {
+        case 'join':
+          console.log('receive join', data)
+          await this.addMember(data)
+
+          await this.databaseDirectRef(clientId).set({
+            type: 'hello',
+            clientId: this.self.clientId,
+            name: this.self.name
+          })
+          break
+        default:
+          console.log('databaseBroadcastRef', data)
+          break
+      }
     })
 
     // ダイレクト通信に関するリスナー
     const databaseDirectRef = this.databaseDirectRef(this.self.clientId)
-    databaseDirectRef.on('value',  (snapshot) => {
+    databaseDirectRef.on('value',  async (snapshot) => {
       const data = snapshot.val()
       if (data === null) return
-      console.log('databaseDirectRef', data)
+      const { type, clientId } = data
+      switch (type) {
+        case 'hello':
+          console.log('receive hello', data)
+          await this.addMember(data)
+          await this.members[clientId].webRtc?.offer()
+          break
+        default:
+          console.log('databaseDirectRef', data)
+          break
+      }
     })
   }
 
@@ -238,10 +227,6 @@ export default class RtcClient implements RtcClientType {
 
   databaseJoinRef(path = '') {
     return getDatabase(this.roomName + '/_join_/' + path)
-  }
-
-  databaseMembersRef(path = '') {
-    return getDatabase(this.roomName + '/_members_/' + path)
   }
 
   get databaseBroadcastRef() {

@@ -69,8 +69,8 @@ export default class WebRtc implements WebRtcType {
     }
   }
 
-  databaseMembersRef(path = '') {
-    return getDatabase(this.roomName + '/_members_/' + path)
+  databaseJoinRef(path = '') {
+    return getDatabase(this.roomName + '/_join_/' + path)
   }
 
   get remoteVideoRef(): HTMLVideoElement {
@@ -105,9 +105,9 @@ export default class WebRtc implements WebRtcType {
         sender: this.localClientId,
         sessionDescription: this.localDescription,
       }
-      const databaseMembersRef = this.databaseMembersRef(this.remoteClientId+'/connections/'+this.localClientId)
+      const databaseJoinRef = this.databaseJoinRef(this.remoteClientId+'/connections/'+this.localClientId)
       console.log('send offer', data)
-      await databaseMembersRef.set(data)
+      await databaseJoinRef.set(data)
     } catch (e) {
       console.error(e)
     }
@@ -119,7 +119,7 @@ export default class WebRtc implements WebRtcType {
       this.rtcPeerConnection.onicecandidate = async ({ candidate }) => {
         if (candidate) {
           // remoteへcandidate(通信経路)を通知する
-          await this.databaseMembersRef(this.remoteClientId+'/connections/'+this.localClientId).update({
+          await this.databaseJoinRef(this.remoteClientId+'/connections/'+this.localClientId).update({
             type: 'candidate',
             sender: this.localClientId,
             candidate: candidate.toJSON(),
@@ -187,9 +187,9 @@ export default class WebRtc implements WebRtcType {
         sender: this.localClientId,
         sessionDescription: this.localDescription,
       }
-      const databaseMembersRef = this.databaseMembersRef(this.remoteClientId+'/connections/'+this.localClientId)
-      console.log('send answer', databaseMembersRef, data)
-      await databaseMembersRef.update(data)
+      const databaseJoinRef = this.databaseJoinRef(this.remoteClientId+'/connections/'+this.localClientId)
+      console.log('send answer', databaseJoinRef, data)
+      await databaseJoinRef.update(data)
     } catch (e) {
       console.error(e)
     }
@@ -232,8 +232,8 @@ export default class WebRtc implements WebRtcType {
   async startListening() {
     console.log('startListening', this.localClientId+'/connections/'+this.remoteClientId)
 
-    const databaseMembersRef = this.databaseMembersRef(this.localClientId+'/connections/'+this.remoteClientId)
-    databaseMembersRef.on('value', async (snapshot) => {
+    const databaseJoinRef = this.databaseJoinRef(this.localClientId+'/connections/'+this.remoteClientId)
+    databaseJoinRef.on('value', async (snapshot) => {
       const data = snapshot.val()
       if (data === null) return
       const { candidate, sessionDescription, type } = data
@@ -258,7 +258,7 @@ export default class WebRtc implements WebRtcType {
       }
     })
     // メンバーが離脱した場合にFirebaseから削除
-    await databaseMembersRef.onDisconnect().remove()
+    await databaseJoinRef.onDisconnect().remove()
 
   }
 
