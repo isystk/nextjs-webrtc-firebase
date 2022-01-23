@@ -52,7 +52,7 @@ const SignIn: VFC<Props> = ({ rtcClient }) => {
     [name, rtcClient]
   )
 
-  if (rtcClient.localPeerName !== '') return <></>
+  if (rtcClient.self.name !== '') return <></>
 
   return (
     <Container component="main" maxWidth="xs">

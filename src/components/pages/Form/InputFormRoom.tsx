@@ -52,7 +52,7 @@ const SignIn: VFC<Props> = ({ rtcClient }) => {
     e.preventDefault()
   }
 
-  if (rtcClient.localPeerName === '') return <></>
+  if (rtcClient.self.name === '') return <></>
   if (rtcClient.roomName !== '') return <></>
 
   return (

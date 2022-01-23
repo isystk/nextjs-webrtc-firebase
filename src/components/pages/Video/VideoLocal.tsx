@@ -28,13 +28,13 @@ const VideoLocal: VFC<Props> = ({ rtcClient }) => {
     getMedia()
   }, [currentVideoRef, mediaStream])
 
-  if (rtcClient.localPeerName === '' || rtcClient.roomName === '') return <></>
+  if (rtcClient.self.name === '' || rtcClient.roomName === '') return <></>
 
   return (
     <>
       <Video
         isLocal={true}
-        member={{ sender: rtcClient.localPeerName }}
+        member={rtcClient.self}
         rtcClient={rtcClient}
         videoRef={videoRef}
       />

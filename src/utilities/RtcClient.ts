@@ -1,9 +1,13 @@
 import { getDatabase } from './firebase'
 import WebRtc from './WebRtc'
 
-export type Member = {
+export type self = {
+  clientId?: string
   name: string
-  sender: string
+}
+export type Member = {
+  clientId: string
+  name: string
   webRtc: WebRtc | null
 }
 type Members = {
@@ -12,23 +16,23 @@ type Members = {
 interface RtcClientType {
   _setRtcClient: (rtcClient: RtcClient) => void
   roomName: string
-  localPeerName: string
   mediaStream: MediaStream | null
+  self: self
   members: Members
 }
 
 export default class RtcClient implements RtcClientType {
   _setRtcClient: (rtcClient: RtcClient) => void
-  localPeerName: string
   mediaStream: MediaStream | null
+  self: self
   members: Members
   roomName: string
 
   constructor(setRtcClient: (rtcClient: RtcClient) => void) {
     this._setRtcClient = setRtcClient
     this.roomName = ''
-    this.localPeerName = ''
     this.mediaStream = null
+    this.self = {clientId: undefined, name: ''}
     this.members = {}
   }
 
@@ -53,7 +57,7 @@ export default class RtcClient implements RtcClientType {
   }
 
   setLocalPeerName(localPeerName: string) {
-    this.localPeerName = localPeerName
+    this.self.name = localPeerName
     this.setRtcClient()
   }
 
@@ -70,15 +74,14 @@ export default class RtcClient implements RtcClientType {
   }
 
   async disconnect() {
-    console.log('disconnect', this.localPeerName)
-    await this.databaseMembersRef(this.localPeerName).remove()
+    console.log('disconnect', this.self)
+    await this.databaseMembersRef(this.self.clientId).remove()
     this.roomName = ''
     this.setRtcClient()
   }
 
   // 自分がルームに入ったら全メンバーにjoinを送信する
   async join(roomName: string) {
-    console.log('join', roomName)
     try {
       this.roomName = roomName
       this.setRtcClient()
@@ -86,21 +89,28 @@ export default class RtcClient implements RtcClientType {
       // joinを初期化する
       await this.databaseJoinRef().remove()
 
+      // メンバーに自分を追加する
+      const key = await this.databaseMembersRef().push({
+        name: this.self.name,
+      }).key
+      this.self = {
+        clientId: key+'',
+        name: this.self.name,
+      }
+      await this.databaseMembersRef(this.self.clientId).update(this.self)
+
       // シグナリングサーバーをリスンする
       await this.startListening()
 
       // joinを送信する
-      console.log('send join', this.roomName, this.localPeerName)
-      await this.databaseMembersRef(this.localPeerName).set({
-        clientId: this.localPeerName,
-        name: this.localPeerName,
+      console.log('send join', this.roomName, this.self)
+      await this.databaseJoinRef(this.self.clientId).set({
+        ...this.self,
+        type: 'join',
+        clientId: this.self.clientId
       })
 
-      // joinを送信する
-      console.log('send join', this.roomName, this.localPeerName)
-      await this.databaseJoinRef(this.localPeerName).set({
-        sender: this.localPeerName,
-      })
+      this.setRtcClient()
     } catch (error) {
       console.error(error)
     }
@@ -109,66 +119,66 @@ export default class RtcClient implements RtcClientType {
   // joinを受信した時やofferを受信したらメンバーを追加する
   async addMember(data: Member) {
     console.log('addMember', data)
-    if (this.mediaStream) {
+    if (this.mediaStream && this.self.clientId) {
       data.webRtc = new WebRtc(
         this.mediaStream,
         this.roomName,
-        this.localPeerName,
-        data.sender
+        this.self.clientId,
+        data.clientId
       )
       await data.webRtc.startListening();
     } else {
       console.error('no mediaStream')
     }
     const newMember = {
-      [data.sender]: data,
+      [data.clientId]: data,
     }
     this.members = { ...this.members, ...newMember }
     this.setRtcClient()
   }
 
   removeMember(data: Member) {
-    console.log('removeMember', data.name)
-    if (this.members[data.name]) {
-      this.members[data.name].webRtc?.disconnect()
+    console.log('removeMember', data)
+    if (this.members[data.clientId]) {
+      this.members[data.clientId].webRtc?.disconnect()
     }
-    delete this.members[data.name]
+    delete this.members[data.clientId]
     this.setRtcClient()
   }
 
   // シグナリングサーバーをリスンする処理
   async startListening() {
-    console.log('startListening', this.localPeerName)
+    console.log('startListening', this.self)
 
     // Joinに関するリスナー
     this.databaseJoinRef().on('child_added', async (snapshot) => {
       const data = snapshot.val()
       if (data === null) return
-      const { sender } = data
-      if (sender === this.localPeerName) {
+      const { clientId } = data
+      if (clientId === this.self.clientId) {
         // 自分自身は無視する
         return
       }
       console.log('receive join', data)
       await this.addMember(data)
-      const send_data = {
-        type: 'hello',
-        sender: this.localPeerName,
-      }
-      console.log('send hello', sender,send_data)
-      await this.databaseJoinRef(sender).set(send_data)
-    })
-    await this.databaseJoinRef(this.localPeerName).onDisconnect().remove()
 
-    this.databaseJoinRef(this.localPeerName).on('value', async (snapshot) => {
+      await this.databaseJoinRef(clientId).set({
+        type: 'hello',
+        clientId: this.self.clientId,
+        name: this.self.name
+      })
+    })
+    await this.databaseJoinRef(this.self.clientId).onDisconnect().remove()
+
+    this.databaseJoinRef(this.self.clientId).on('value', async (snapshot) => {
       const data = snapshot.val()
       if (data === null) return
-      const { type, sender } = data
+      const { type, clientId } = data
       switch (type) {
         case 'hello':
           console.log('receive hello', data)
           await this.addMember(data)
-          await this.members[sender].webRtc?.offer()
+          await this.members[clientId].webRtc?.offer()
           break
         default:
           break
@@ -180,26 +190,31 @@ export default class RtcClient implements RtcClientType {
       const data = snapshot.val()
       console.log('receive remove', data)
       if (data === null) return
-      const { name } = data
-      if (name === this.localPeerName) {
+      const { clientId } = data
+      if (clientId === this.self.clientId) {
         // ignore self message (自分自身からのメッセージは無視する）
         return
       }
       this.removeMember(data)
     })
     // 自分の通信が切断されたらFirebaseから自分を削除
-    await this.databaseMembersRef(this.localPeerName).onDisconnect().remove()
+    await this.databaseMembersRef(this.self.clientId).onDisconnect().remove()
 
     // ブロードキャスト通信に関するリスナー
-    this.databaseBroadcastRef.on('value', function (snapshot) {
+    this.databaseBroadcastRef.on('value',  (snapshot) => {
       const data = snapshot.val()
       if (data === null) return
+      const { clientId } = data
+      if (clientId === this.self.clientId) {
+        // ignore self message (自分自身からのメッセージは無視する）
+        return
+      }
       console.log('databaseBroadcastRef', data)
     })
 
     // ダイレクト通信に関するリスナー
-    const databaseDirectRef = this.databaseDirectRef(this.localPeerName)
-    databaseDirectRef.on('value', function (snapshot) {
+    const databaseDirectRef = this.databaseDirectRef(this.self.clientId)
+    databaseDirectRef.on('value',  (snapshot) => {
       const data = snapshot.val()
       if (data === null) return
       console.log('databaseDirectRef', data)
@@ -209,15 +224,15 @@ export default class RtcClient implements RtcClientType {
   async sendAll() {
     await this.databaseBroadcastRef.set({
       type: 'call me',
-      sender: this.localPeerName,
-      message: 'I am ' + this.localPeerName,
+      clientId: this.self.clientId,
+      message: 'I am ' + this.self.name,
     })
   }
   async sendTarget(remotePeerName: string) {
     await this.databaseDirectRef(remotePeerName).set({
       type: 'call me',
-      sender: this.localPeerName,
-      message: 'I am ' + this.localPeerName,
+      clientId: this.self.clientId,
+      message: 'I am ' + this.self.name,
     })
   }
 

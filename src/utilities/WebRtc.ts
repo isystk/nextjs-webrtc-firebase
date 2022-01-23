@@ -1,19 +1,17 @@
 import { getDatabase } from './firebase'
-import { Member } from './RtcClient'
-import firebase from 'firebase/app'
 
 interface WebRtcType {
   roomName: string
   mediaStream: MediaStream
-  localPeerName: string
-  remotePeerName: string
+  localClientId: string
+  remoteClientId: string
   rtcPeerConnection: RTCPeerConnection | null
 }
 
 export default class WebRtc implements WebRtcType {
-  localPeerName: string
+  localClientId: string
   mediaStream: MediaStream
-  remotePeerName: string
+  remoteClientId: string
   roomName: string
   rtcPeerConnection: RTCPeerConnection | null
 
@@ -22,13 +20,13 @@ export default class WebRtc implements WebRtcType {
   constructor(
     mediaStream: MediaStream,
     roomName: string,
-    localPeerName: string,
-    remotePeerName: string
+    localClientId: string,
+    remoteClientId: string
   ) {
     this.roomName = roomName
     this.mediaStream = mediaStream
-    this.localPeerName = localPeerName
-    this.remotePeerName = remotePeerName
+    this.localClientId = localClientId
+    this.remoteClientId = remoteClientId
 
     const config = {
       iceServers: [{ urls: 'stun:stun.stunprotocol.org' }],
@@ -77,7 +75,7 @@ export default class WebRtc implements WebRtcType {
 
   get remoteVideoRef(): HTMLVideoElement {
     return <HTMLVideoElement>(
-      document.querySelector(`#video-${this.remotePeerName}`)
+      document.querySelector(`#video-${this.remoteClientId}`)
     )
   }
 
@@ -104,10 +102,10 @@ export default class WebRtc implements WebRtcType {
       // 2-6. SDP(offer)を送信する
       const data = {
         type: 'offer',
-        sender: this.localPeerName,
+        sender: this.localClientId,
         sessionDescription: this.localDescription,
       }
-      const databaseMembersRef = this.databaseMembersRef(this.remotePeerName+'/connections/'+this.localPeerName)
+      const databaseMembersRef = this.databaseMembersRef(this.remoteClientId+'/connections/'+this.localClientId)
       console.log('send offer', data)
       await databaseMembersRef.set(data)
     } catch (e) {
@@ -121,9 +119,9 @@ export default class WebRtc implements WebRtcType {
       this.rtcPeerConnection.onicecandidate = async ({ candidate }) => {
         if (candidate) {
           // remoteへcandidate(通信経路)を通知する
-          await this.databaseMembersRef(this.remotePeerName+'/connections/'+this.localPeerName).update({
+          await this.databaseMembersRef(this.remoteClientId+'/connections/'+this.localClientId).update({
             type: 'candidate',
-            sender: this.localPeerName,
+            sender: this.localClientId,
             candidate: candidate.toJSON(),
           })
         }
@@ -186,10 +184,10 @@ export default class WebRtc implements WebRtcType {
       // 3-7. SDP(answer)を送信する
       const data = {
         type: 'answer',
-        sender: this.localPeerName,
+        sender: this.localClientId,
         sessionDescription: this.localDescription,
       }
-      const databaseMembersRef = this.databaseMembersRef(this.remotePeerName+'/connections/'+this.localPeerName)
+      const databaseMembersRef = this.databaseMembersRef(this.remoteClientId+'/connections/'+this.localClientId)
       console.log('send answer', databaseMembersRef, data)
       await databaseMembersRef.update(data)
     } catch (e) {
@@ -232,9 +230,9 @@ export default class WebRtc implements WebRtcType {
 
   // シグナリングサーバーをリスンする処理
   async startListening() {
+    console.log('startListening', this.localClientId+'/connections/'+this.remoteClientId)
 
-    const databaseMembersRef = this.databaseMembersRef(this.localPeerName+'/connections/'+this.remotePeerName)
-    console.log('startListening', this.localPeerName+'/connections/'+this.remotePeerName)
+    const databaseMembersRef = this.databaseMembersRef(this.localClientId+'/connections/'+this.remoteClientId)
     databaseMembersRef.on('value', async (snapshot) => {
       const data = snapshot.val()
       if (data === null) return

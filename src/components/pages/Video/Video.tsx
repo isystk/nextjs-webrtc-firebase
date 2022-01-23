@@ -44,11 +44,11 @@ const Video: VFC<Props> = ({ isLocal, member, rtcClient, videoRef }) => {
           muted={isLocal || muted}
           ref={videoRef}
           width={dimensionsCard.width}
-          id={`video-${member.sender}`}
+          id={`video-${member.clientId}`}
         />
         <CardContent>
           <Typography gutterBottom variant="h5" component="h2">
-            {member.sender}
+            {member.name}
           </Typography>
         </CardContent>
       </CardActionArea>
