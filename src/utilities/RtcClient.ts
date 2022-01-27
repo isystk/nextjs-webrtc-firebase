@@ -56,11 +56,6 @@ export default class RtcClient implements RtcClientType {
     this.setRtcClient()
   }
 
-  setLocalPeerName(localPeerName: string) {
-    this.self.name = localPeerName
-    this.setRtcClient()
-  }
-
   get initialAudioMuted() {
     return !WebRtc.INITIAL_AUDIO_ENABLED
   }
@@ -81,8 +76,9 @@ export default class RtcClient implements RtcClientType {
   }
 
   // 自分がルームに入ったら全メンバーにjoinを送信する
-  async join(roomName: string) {
+  async join(roomName: string, name: string) {
     try {
+      this.self.name = name
       this.roomName = roomName
       this.setRtcClient()
 

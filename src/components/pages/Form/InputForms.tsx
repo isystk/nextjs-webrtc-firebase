@@ -1,22 +1,23 @@
 import React, { VFC } from 'react'
 import Grid from '@material-ui/core/Grid'
-
 import InputFormName from './InputFormName'
 import InputFormRoom from './InputFormRoom'
-import RtcClient from '@/utilities/RtcClient'
+import { useSelector } from 'react-redux'
+import { Client } from '@/store/StoreTypes'
 
 type Props = {
-  rtcClient: RtcClient
+  client: Client
 }
 
-const InputForms: VFC<Props> = ({ rtcClient }) => {
-  if (rtcClient === null || rtcClient.roomName !== '') return <></>
+const InputForms: VFC<Props> = () => {
+  const { client } = useSelector((state: {client: Client}) => state.client)
+  if (!client || client.roomName !== '') return <></>
 
   return (
     <Grid container spacing={0}>
       <Grid item xs={12}>
-        <InputFormName rtcClient={rtcClient} />
-        <InputFormRoom rtcClient={rtcClient} />
+        <InputFormName />
+        <InputFormRoom />
       </Grid>
     </Grid>
   )

@@ -1,15 +1,10 @@
 import React, { VFC } from 'react'
 import InputForms from '@/components/pages/Form/InputForms'
-import VideoArea from '@/components/pages/Video/VideoArea'
 
-const Home: VFC = ({rtcClient}) => {
-
-  if (rtcClient === null) return <></>
-
+const Home: VFC = () => {
   return (
     <>
-      <InputForms rtcClient={rtcClient} />
-      <VideoArea rtcClient={rtcClient} />
+      <InputForms />
     </>
   )
 }

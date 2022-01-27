@@ -5,8 +5,9 @@ import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import { makeStyles } from '@material-ui/core/styles'
 import Container from '@material-ui/core/Container'
-import RtcClient from '@/utilities/RtcClient'
 import { useRouter } from 'next/router'
+import { useSelector } from 'react-redux'
+import { Client } from '@/store/StoreTypes'
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -29,9 +30,10 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 type Props = {
-  rtcClient: RtcClient
+  client: Client
 }
-const SignIn: VFC<Props> = ({ rtcClient }) => {
+const SignIn: VFC<Props> = () => {
+  const { client } = useSelector((state: {client: Client}) => state.client)
   const label = '部屋の名前'
   const classes = useStyles()
   const [disabled, setDisabled] = useState(true)
@@ -55,8 +57,8 @@ const SignIn: VFC<Props> = ({ rtcClient }) => {
     e.preventDefault()
   }
 
-  if (rtcClient.self.name === '') return <></>
-  if (rtcClient.roomName !== '') return <></>
+  if (client.name === '') return <></>
+  if (client.roomName !== '') return <></>
 
   return (
     <Container component="main" maxWidth="xs">

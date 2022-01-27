@@ -3,14 +3,14 @@ import PropTypes from 'prop-types'
 import Header from '@/components/pages/Header'
 import Footer from '@/components/pages/Footer'
 import SideMenu from '@/components/pages/SideMenu'
-import useRtcClient from '@/hooks/useRtcClient'
+import { useSelector } from 'react-redux'
+import { Client } from '@/store/StoreTypes'
 
 type Props = {
   children: React.ReactElement;
 }
 
 const Layout: FC<Props> = ({children}) => {
-  const rtcClient = useRtcClient()
   const [windowHeight, setWindowHeight] = useState(0)
   useEffect(() => {
     setWindowHeight(window.innerHeight)
@@ -18,9 +18,10 @@ const Layout: FC<Props> = ({children}) => {
 
   const [isMenuOpen, setMenuOpen] = useState(false)
 
-    console.log(rtcClient)
-  if (rtcClient === null) return <></>
-  const newProps = { children , rtcClient: rtcClient}
+  const { client } = useSelector((state: {client: Client}) => state.client)
+
+  if (!client) return <></>
+  const newProps = { children , client}
   const childrenWithProps = React.Children.map(children, (child: React.ReactElement) => React.cloneElement(child, { ...newProps }));
 
   return (
@@ -28,7 +29,7 @@ const Layout: FC<Props> = ({children}) => {
         <Header
             isMenuOpen={isMenuOpen}
             setMenuOpen={setMenuOpen}
-            rtcClient={rtcClient}
+            client={client}
         />
         <div style={appStyle(windowHeight)}>
           {childrenWithProps}
@@ -37,7 +38,7 @@ const Layout: FC<Props> = ({children}) => {
         <SideMenu
             isMenuOpen={isMenuOpen}
             setMenuOpen={setMenuOpen}
-            rtcClient={rtcClient}
+            client={client}
         />
       </>
   )

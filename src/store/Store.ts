@@ -1,8 +1,6 @@
 import { combineReducers } from 'redux'
-import posts from './slice/posts'
-import memberPosts from './slice/memberPosts'
+import client from './slice/client'
 
 export default combineReducers({
-  posts,
-  memberPosts,
+  client,
 })

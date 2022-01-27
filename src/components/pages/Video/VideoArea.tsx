@@ -1,11 +1,13 @@
 import React, { VFC, useState, useEffect } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
 import { useRouter } from 'next/router'
 import { makeStyles } from '@material-ui/core/styles'
 import Grid from '@material-ui/core/Grid'
-
-import RtcClient from '@/utilities/RtcClient'
 import VideoLocal from './VideoLocal'
 import VideoRemote from './VideoRemote'
+import { Client } from '@/store/StoreTypes'
+import { setClient } from '@/store/slice/client'
+import useRtcClient from "@/hooks/useRtcClient";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -19,10 +21,13 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 type Props = {
-  rtcClient: RtcClient
+  client: Client
 }
 
-const VideoArea: VFC<Props> = ({ rtcClient }) => {
+const VideoArea: VFC<Props> = () => {
+  const dispatch = useDispatch()
+  const { client } = useSelector((state: {client: Client}) => state.client)
+  const rtcClient = useRtcClient()
   const classes = useStyles()
   const router = useRouter()
   const [roomId, setRoomId] = useState('')
@@ -37,10 +42,11 @@ const VideoArea: VFC<Props> = ({ rtcClient }) => {
   useEffect(() => {
       if (roomId && rtcClient) {
           (async () => {
-              await rtcClient.join(roomId)
+              await dispatch(setClient({roomName: roomId}))
+              await rtcClient.join(roomId, client.name)
           })()
       }
-  }, [roomId])
+  }, [roomId, rtcClient])
 
   if (rtcClient === null) return <></>
 

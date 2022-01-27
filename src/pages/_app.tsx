@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { VFC } from 'react'
 import App, { Container, AppProps } from 'next/app'
 // 全体に適応する外部 CSS を読み込む
 import '../styles/app.scss'
@@ -23,9 +23,16 @@ const enhancer =
     : applyMiddleware(thunk)
 const store = createStore(reducers, enhancer)
 
-class MyApp extends App {
-  render(): JSX.Element {
-    const { Component, pageProps }: AppProps = this.props
+const MyApp: VFC<AppProps> = (props) => {
+    const { Component, pageProps } = props
+
+    React.useEffect(() => {
+      // Remove the server-side injected CSS.
+      const jssStyles = document.querySelector('#jss-server-side');
+      if (jssStyles) {
+        jssStyles.parentElement.removeChild(jssStyles);
+      }
+    }, []);
 
     return (
       <MuiThemeProvider>
@@ -37,6 +44,5 @@ class MyApp extends App {
       </MuiThemeProvider>
     )
   }
-}
 
 export default MyApp

@@ -15,13 +15,14 @@ import VideocamIcon from '@material-ui/icons/Videocam'
 import FullscreenIcon from '@material-ui/icons/Fullscreen'
 import ScreenShareIcon from '@material-ui/icons/ScreenShare'
 import StopIcon from '@material-ui/icons/Stop'
+import { Client } from '@/store/StoreTypes'
 
-const SideMenu = ({ isMenuOpen, setMenuOpen, rtcClient }) => {
+const SideMenu = ({ isMenuOpen, setMenuOpen, client }) => {
   const menu = {
     'Exit room': [
       <ExitToAppIcon key={0} />,
       () => {
-        rtcClient.disconnect()
+        // client.disconnect()
       },
     ],
     'Stream cam': [<VideocamIcon key={0} />, () => {}],

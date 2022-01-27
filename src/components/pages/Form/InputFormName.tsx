@@ -1,11 +1,13 @@
-import { makeStyles } from '@material-ui/core/styles'
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
+import { useSelector, useDispatch } from 'react-redux'
 import Typography from '@material-ui/core/Typography'
 import TextField from '@material-ui/core/TextField'
-import RtcClient from '@/utilities/RtcClient'
 import React, { VFC, useCallback, useEffect, useState } from 'react'
 import CssBaseline from '@material-ui/core/CssBaseline'
 import Container from '@material-ui/core/Container'
 import Button from '@material-ui/core/Button'
+import { Client } from '@/store/StoreTypes'
+import { setClient } from '@/store/slice/client'
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -28,12 +30,14 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 type Props = {
-  rtcClient: RtcClient
+  client: Client
 }
 
-const SignIn: VFC<Props> = ({ rtcClient }) => {
+const SignIn: VFC<Props> = () => {
+  const dispatch = useDispatch()
+  const { client } = useSelector((state: {client: Client}) => state.client)
   const label = 'あなたの名前'
-  const classes = useStyles()
+  const classes = useStyles({})
   const [disabled, setDisabled] = useState(true)
   const [name, setName] = useState('')
   const [isComposed, setIsComposed] = useState(false)
@@ -46,13 +50,13 @@ const SignIn: VFC<Props> = ({ rtcClient }) => {
   const initializeLocalPeer = useCallback(
     async (e) => {
       e.persist()
-      await rtcClient.setLocalPeerName(name)
+      await dispatch(setClient({name}))
       e.preventDefault()
     },
-    [name, rtcClient]
+    [name, client]
   )
 
-  if (rtcClient.self.name !== '') return <></>
+  if (client.name !== '') return <></>
 
   return (
     <Container component="main" maxWidth="xs">
