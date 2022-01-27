@@ -26,10 +26,8 @@ export const {
 
 // 外部からはこの関数を呼んでもらう
 export const setRtcClient = (rtcClient: RtcClientType) => async (dispatch) => {
+  console.log(rtcClient);
   dispatch(fetchRtcClient(rtcClient))
 }
-
-// Selectors
-export const selectRtcClient = ({ rtcClient }) => rtcClient
 
 export default RtcClientSlice.reducer

@@ -6,6 +6,7 @@ import Typography from '@material-ui/core/Typography'
 import { makeStyles } from '@material-ui/core/styles'
 import Container from '@material-ui/core/Container'
 import RtcClient from '@/utilities/RtcClient'
+import { useRouter } from 'next/router'
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -36,6 +37,7 @@ const SignIn: VFC<Props> = ({ rtcClient }) => {
   const [disabled, setDisabled] = useState(true)
   const [name, setName] = useState('')
   const [isComposed, setIsComposed] = useState(false)
+  const router = useRouter()
 
   useEffect(() => {
     const disabled = name === ''
@@ -48,7 +50,8 @@ const SignIn: VFC<Props> = ({ rtcClient }) => {
       | React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
     e.persist()
-    await rtcClient.join(name)
+    // await rtcClient.join(name)
+    router.push(name)
     e.preventDefault()
   }
 

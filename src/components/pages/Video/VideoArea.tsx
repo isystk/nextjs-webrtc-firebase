@@ -1,4 +1,5 @@
-import React, { VFC } from 'react'
+import React, { VFC, useState, useEffect } from 'react'
+import { useRouter } from 'next/router'
 import { makeStyles } from '@material-ui/core/styles'
 import Grid from '@material-ui/core/Grid'
 
@@ -23,6 +24,23 @@ type Props = {
 
 const VideoArea: VFC<Props> = ({ rtcClient }) => {
   const classes = useStyles()
+  const router = useRouter()
+  const [roomId, setRoomId] = useState('')
+
+  useEffect(() => {
+      // idがqueryで利用可能になったら処理される
+      if (router.asPath !== router.route) {
+          setRoomId(router.query.id)
+      }
+  }, [router])
+
+  useEffect(() => {
+      if (roomId && rtcClient) {
+          (async () => {
+              await rtcClient.join(roomId)
+          })()
+      }
+  }, [roomId])
 
   if (rtcClient === null) return <></>
 
