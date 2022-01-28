@@ -15,7 +15,7 @@ const Home: VFC = () => {
 
   const [isMenuOpen, setMenuOpen] = useState(false)
 
-  if (rtcClient === null) return <></>
+  if (!rtcClient) return <></>
 
   return (
     <>

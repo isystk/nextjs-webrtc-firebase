@@ -1,23 +1,29 @@
-import { useEffect, useReducer, useState } from 'react'
+import { useEffect, useReducer } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
 import RtcClient from '@/utilities/RtcClient'
+import { setRtcClient } from '@/store/slice/client'
 
 const useRtcClient = () => {
-  const [rtcClient, _setRtcClient] = useState<RtcClient | null>(null)
+  const dispatch = useDispatch()
+  const { rtcClient } = useSelector((state) => state.client)
   const [, forceRender] = useReducer((boolean) => !boolean, false)
 
-  const setRtcClient = (rtcClient: RtcClient) => {
-    _setRtcClient(rtcClient)
+  const _setRtcClient = async (rtcClient: RtcClient) => {
+    await dispatch(setRtcClient(rtcClient))
     forceRender()
   }
 
   useEffect(() => {
     const init = async () => {
-      const client = new RtcClient(setRtcClient)
-      await client.setMediaStream()
+      const rtcClient = new RtcClient(_setRtcClient)
+      await rtcClient.setMediaStream()
+      await dispatch(setRtcClient(rtcClient))
     }
 
     init()
   }, [])
+
+  console.log(rtcClient)
 
   return rtcClient
 }
