@@ -1,8 +1,13 @@
 import React, { FC } from 'react'
 import Home from '@/components/pages/Home'
+import Layout from "@/components/Layout";
 
 const Index: FC = () => {
-  return <Home />
+  return (
+      <Layout>
+        <Home />
+      </Layout>
+  )
 }
 
 export default Index

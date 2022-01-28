@@ -5,7 +5,7 @@ import { setRtcClient } from '@/store/slice/client'
 
 const useRtcClient = () => {
   const dispatch = useDispatch()
-  const { rtcClient } = useSelector((state) => state.client)
+  const { rtcClient } = useSelector((state: {client}) => state.client)
   const [, forceRender] = useReducer((boolean) => !boolean, false)
 
   const _setRtcClient = async (rtcClient: RtcClient) => {
@@ -22,8 +22,6 @@ const useRtcClient = () => {
 
     init()
   }, [])
-
-  console.log(rtcClient)
 
   return rtcClient
 }
