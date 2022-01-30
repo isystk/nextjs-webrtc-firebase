@@ -17,12 +17,12 @@ const CommonHeader: VFC<Props> = ({ isMenuOpen, setMenuOpen, rtcClient }) => {
         <Toolbar>
           <IconButton
             color="inherit"
-            disabled={!rtcClient.roomName}
+            disabled={rtcClient.self.name === '' || rtcClient.room.name === ''}
             onClick={() => setMenuOpen(!isMenuOpen)}
           >
             <MenuIcon />
           </IconButton>
-          <div className="App-logo">{rtcClient.roomName || DEAULT_TITLE}</div>
+          <div className="App-logo">{rtcClient.room.name || DEAULT_TITLE}</div>
         </Toolbar>
       </AppBar>
     </>

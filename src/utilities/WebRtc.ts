@@ -1,7 +1,7 @@
 import { getDatabase } from './firebase'
 
 interface WebRtcType {
-  roomName: string
+  roomId: string
   mediaStream: MediaStream
   localClientId: string
   remoteClientId: string
@@ -12,18 +12,18 @@ export default class WebRtc implements WebRtcType {
   localClientId: string
   mediaStream: MediaStream
   remoteClientId: string
-  roomName: string
+  roomId: string
   rtcPeerConnection: RTCPeerConnection | null
 
   static INITIAL_AUDIO_ENABLED = false
 
   constructor(
     mediaStream: MediaStream,
-    roomName: string,
+    roomId: string,
     localClientId: string,
     remoteClientId: string
   ) {
-    this.roomName = roomName
+    this.roomId = roomId
     this.mediaStream = mediaStream
     this.localClientId = localClientId
     this.remoteClientId = remoteClientId
@@ -70,7 +70,7 @@ export default class WebRtc implements WebRtcType {
   }
 
   databaseMembersRef(path = '') {
-    return getDatabase(this.roomName + '/_members_/' + path)
+    return getDatabase(this.roomId + '/_members_/' + path)
   }
 
   get remoteVideoRef(): HTMLVideoElement {

@@ -9,7 +9,6 @@ type Props = {
 }
 
 const InputForms: VFC<Props> = ({ rtcClient }) => {
-  // console.log('InputForm Render', rtcClient )
   return (
     <Grid container spacing={0}>
       <Grid item xs={12}>

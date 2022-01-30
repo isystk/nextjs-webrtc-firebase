@@ -1,8 +1,12 @@
-import { getDatabase } from './firebase'
-import WebRtc from './WebRtc'
+import { getDatabase } from '@/utilities/firebase'
+import WebRtc from '@/utilities/WebRtc'
 
-export type self = {
+export type Self = {
   clientId?: string
+  name: string
+}
+export type Room = {
+  roomId?: string
   name: string
 }
 export type Member = {
@@ -15,23 +19,23 @@ type Members = {
 }
 interface RtcClientType {
   _setRtcClient: (rtcClient: RtcClient) => void
-  roomName: string
+  room: Room
   mediaStream: MediaStream | null
-  self: self
+  self: Self
   members: Members
 }
 
 export default class RtcClient implements RtcClientType {
   _setRtcClient: (rtcClient: RtcClient) => void
   mediaStream: MediaStream | null
-  self: self
+  self: Self
   members: Members
-  roomName: string
+  room: Room
 
   constructor(setRtcClient: (rtcClient: RtcClient) => void) {
     console.log('Initial RtcClient')
     this._setRtcClient = setRtcClient
-    this.roomName = ''
+    this.room = { roomId: undefined, name: ''}
     this.mediaStream = null
     this.self = { clientId: undefined, name: '' }
     this.members = {}
@@ -62,9 +66,33 @@ export default class RtcClient implements RtcClientType {
     this.setRtcClient()
   }
 
-  setRoomName(roomName: string) {
-    this.roomName = roomName
+  async setRoomName(roomName: string) {
+    console.log('this.room 0', roomName)
+    const key = await getDatabase().push({
+      name: roomName,
+    }).key
+    this.room = {
+      roomId: key+'',
+      name: roomName
+    }
+    console.log('this.room 1', this.room)
+    await getDatabase(this.room.roomId).update(this.room)
+    console.log('this.room 2', this.room)
     this.setRtcClient()
+  }
+
+  async setRoomId(roomId: string) {
+    await getDatabase(roomId).once('value', (snapshot) => {
+      const data = snapshot.val()
+      if (data === null) return
+      const { roomId, name } = data
+      console.log('room', roomId,  data)
+      this.room = {
+        roomId,
+        name
+      }
+      this.setRtcClient()
+    })
   }
 
   get initialAudioMuted() {
@@ -82,7 +110,7 @@ export default class RtcClient implements RtcClientType {
   async disconnect() {
     console.log('disconnect', this.self)
     await this.databaseMembersRef(this.self.clientId).remove()
-    this.roomName = ''
+    this.room = { roomId:undefined, name: ''}
     this.setRtcClient()
   }
 
@@ -106,7 +134,7 @@ export default class RtcClient implements RtcClientType {
       await this.startListening()
 
       // joinを送信する
-      console.log('send join', this.roomName, this.self)
+      console.log('send join', this.room.roomId, this.self)
       await this.databaseJoinRef(this.self.clientId).set({
         ...this.self,
         type: 'join',
@@ -122,10 +150,10 @@ export default class RtcClient implements RtcClientType {
   // joinを受信した時やofferを受信したらメンバーを追加する
   async addMember(data: Member) {
     console.log('addMember', data)
-    if (this.mediaStream && this.self.clientId) {
+    if (this.mediaStream && this.self.clientId && this.room.roomId) {
       data.webRtc = new WebRtc(
         this.mediaStream,
-        this.roomName,
+        this.room.roomId,
         this.self.clientId,
         data.clientId
       )
@@ -240,18 +268,18 @@ export default class RtcClient implements RtcClientType {
   }
 
   databaseJoinRef(path = '') {
-    return getDatabase(this.roomName + '/_join_/' + path)
+    return getDatabase(this.room.roomId + '/_join_/' + path)
   }
 
   databaseMembersRef(path = '') {
-    return getDatabase(this.roomName + '/_members_/' + path)
+    return getDatabase(this.room.roomId + '/_members_/' + path)
   }
 
   get databaseBroadcastRef() {
-    return getDatabase(this.roomName + '/_broadcast_/')
+    return getDatabase(this.room.roomId + '/_broadcast_/')
   }
 
   databaseDirectRef(path = '') {
-    return getDatabase(this.roomName + '/_direct_/' + path)
+    return getDatabase(this.room.roomId + '/_direct_/' + path)
   }
 }

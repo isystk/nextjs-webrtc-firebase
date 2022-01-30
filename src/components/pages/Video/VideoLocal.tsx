@@ -28,7 +28,7 @@ const VideoLocal: VFC<Props> = ({ rtcClient }) => {
     getMedia()
   }, [currentVideoRef, mediaStream])
 
-  if (rtcClient.self.name === '' || rtcClient.roomName === '') return <></>
+  if (rtcClient.self.name === '' || rtcClient.room.name === '') return <></>
 
   return (
     <>

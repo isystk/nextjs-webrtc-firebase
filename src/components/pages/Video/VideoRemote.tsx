@@ -12,7 +12,7 @@ type Props = {
 const VideoRemote: VFC<Props> = ({ rtcClient, member }) => {
   const videoRef = useRef(null)
 
-  if (rtcClient.roomName === '') return <></>
+  if (rtcClient.room.name === '') return <></>
 
   return (
     <>

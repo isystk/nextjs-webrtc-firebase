@@ -50,17 +50,23 @@ const SignIn: VFC<Props> = ({ rtcClient }) => {
       | React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
     e.persist()
-    // await rtcClient.join(name)
 
     if (name !== '') {
-      router.push(name)
+      await rtcClient.setRoomName(name)
     }
 
     e.preventDefault()
   }
 
+  useEffect(() => {
+    if (rtcClient.room.roomId) {
+      console.log(rtcClient.room)
+      // router.push(rtcClient.room.roomId)
+    }
+  }, [rtcClient.room.roomId])
+
   if (rtcClient.self.name === '') return <></>
-  if (rtcClient.roomName !== '') return <></>
+  if (rtcClient.room.name !== '') return <></>
 
   return (
     <Container component="main" maxWidth="xs">

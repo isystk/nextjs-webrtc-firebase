@@ -22,7 +22,6 @@ type Props = {
 }
 
 const VideoArea: VFC<Props> = ({ rtcClient }) => {
-  // console.log('VideoArea Render', rtcClient )
   const router = useRouter()
   const classes = useStyles()
 
@@ -30,12 +29,12 @@ const VideoArea: VFC<Props> = ({ rtcClient }) => {
   useEffect(() => {
     // idがqueryで利用可能になったら処理される
     if (router.asPath !== router.route) {
-      rtcClient.setRoomName(router.query.id + '')
+      rtcClient.setRoomId(router.query.id + '')
     }
   }, [router])
 
   useEffect(() => {
-    if (rtcClient.roomName !== '') {
+    if (rtcClient.room.name !== '') {
       if (rtcClient.self.name === '') {
         router.push('/')
       } else {
@@ -45,7 +44,7 @@ const VideoArea: VFC<Props> = ({ rtcClient }) => {
         })()
       }
     }
-  }, [rtcClient.roomName])
+  }, [rtcClient.room.name])
 
   const grids = {
     0: { xs: 12, sm: 6, md: 6 },

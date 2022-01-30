@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, {Dispatch, SetStateAction, VFC} from 'react'
 import PropTypes from 'prop-types'
 import {
   Divider,
@@ -16,8 +16,15 @@ import FullscreenIcon from '@material-ui/icons/Fullscreen'
 import ScreenShareIcon from '@material-ui/icons/ScreenShare'
 import StopIcon from '@material-ui/icons/Stop'
 import { useRouter } from 'next/router'
+import RtcClient from "@/utilities/RtcClient";
 
-const SideMenu = ({ isMenuOpen, setMenuOpen, rtcClient }) => {
+type Props = {
+  isMenuOpen: boolean
+  setMenuOpen: Dispatch<SetStateAction<boolean>>
+  rtcClient: RtcClient
+}
+
+const SideMenu: VFC<Props> = ({ isMenuOpen, setMenuOpen, rtcClient }) => {
   const router = useRouter()
   const menu = {
     'Exit room': [
