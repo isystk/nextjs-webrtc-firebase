@@ -29,6 +29,7 @@ export default class RtcClient implements RtcClientType {
   roomName: string
 
   constructor(setRtcClient: (rtcClient: RtcClient) => void) {
+    console.log("Initial RtcClient")
     this._setRtcClient = setRtcClient
     this.roomName = ''
     this.mediaStream = null
@@ -61,6 +62,11 @@ export default class RtcClient implements RtcClientType {
     this.setRtcClient()
   }
 
+  setRoomName(roomName: string) {
+    this.roomName = roomName
+    this.setRtcClient()
+  }
+
   get initialAudioMuted() {
     return !WebRtc.INITIAL_AUDIO_ENABLED
   }
@@ -81,11 +87,8 @@ export default class RtcClient implements RtcClientType {
   }
 
   // 自分がルームに入ったら全メンバーにjoinを送信する
-  async join(roomName: string) {
+  async join() {
     try {
-      this.roomName = roomName
-      this.setRtcClient()
-
       // joinを初期化する
       await this.databaseJoinRef().remove()
 

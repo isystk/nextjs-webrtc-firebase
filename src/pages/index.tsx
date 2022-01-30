@@ -1,11 +1,11 @@
 import React, { FC } from 'react'
-import Home from '@/components/pages/Home'
 import Layout from "@/components/Layout";
+import InputForms from "@/components/pages/Form/InputForms";
 
 const Index: FC = () => {
   return (
       <Layout>
-        <Home />
+        <InputForms  />
       </Layout>
   )
 }

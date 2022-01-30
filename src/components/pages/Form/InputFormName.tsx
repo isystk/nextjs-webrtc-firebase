@@ -6,6 +6,7 @@ import React, { VFC, useCallback, useEffect, useState } from 'react'
 import CssBaseline from '@material-ui/core/CssBaseline'
 import Container from '@material-ui/core/Container'
 import Button from '@material-ui/core/Button'
+import {useRouter} from "next/router";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -32,6 +33,7 @@ type Props = {
 }
 
 const SignIn: VFC<Props> = ({ rtcClient }) => {
+  const router = useRouter()
   const label = 'あなたの名前'
   const classes = useStyles()
   const [disabled, setDisabled] = useState(true)
@@ -47,6 +49,11 @@ const SignIn: VFC<Props> = ({ rtcClient }) => {
     async (e) => {
       e.persist()
       await rtcClient.setLocalPeerName(name)
+
+      if (rtcClient.roomName !== '') {
+        router.push(rtcClient.roomName)
+      }
+
       e.preventDefault()
     },
     [name, rtcClient]

@@ -16,6 +16,8 @@ const Layout: FC = ({children}) => {
 
   if (!rtcClient) return <></>
 
+  console.log('Layout Render', rtcClient )
+
   const newProps = { children , rtcClient}
   const childrenWithProps = React.Children.map(children, (child: React.ReactElement) => React.cloneElement(child, { ...newProps }));
 

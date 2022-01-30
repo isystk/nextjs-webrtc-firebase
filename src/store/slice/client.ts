@@ -8,7 +8,7 @@ export const ClientSlice = createSlice({
   },
   reducers: {
     fetchRtcClient(state?, action?) {
-      state.rtcClient = action.payload;
+        state.rtcClient = action.payload;
     },
   },
 })

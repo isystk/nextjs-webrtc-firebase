@@ -6,7 +6,6 @@ import {
   CardContent,
   Typography,
 } from '@material-ui/core'
-
 import RtcClient, { Member } from '@/utilities/RtcClient'
 import AudioAnalyser from './AudioAnalyser'
 import VolumeButton from './VolumeButton'

@@ -6,6 +6,7 @@ import Typography from '@material-ui/core/Typography'
 import { makeStyles } from '@material-ui/core/styles'
 import Container from '@material-ui/core/Container'
 import RtcClient from '@/utilities/RtcClient'
+import {useRouter} from "next/router";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -31,6 +32,7 @@ type Props = {
   rtcClient: RtcClient
 }
 const SignIn: VFC<Props> = ({ rtcClient }) => {
+  const router = useRouter()
   const label = '部屋の名前'
   const classes = useStyles()
   const [disabled, setDisabled] = useState(true)
@@ -48,7 +50,12 @@ const SignIn: VFC<Props> = ({ rtcClient }) => {
       | React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
     e.persist()
-    await rtcClient.join(name)
+    // await rtcClient.join(name)
+
+    if (name !== '') {
+      router.push(name)
+    }
+
     e.preventDefault()
   }
 

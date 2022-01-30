@@ -1,6 +1,8 @@
 import { combineReducers } from 'redux'
-import client from './slice/client'
+import render from "@/store/slice/render";
+import client from "@/store/slice/client";
 
 export default combineReducers({
+  render,
   client,
 })
