@@ -6,9 +6,9 @@ import { forceRender } from '@/store/slice/render'
 
 const useRtcClient = () => {
   const dispatch = useDispatch()
-  const { rtcClient } = useSelector((state: {client}) => state.client)
+  const { rtcClient } = useSelector((state: { client }) => state.client)
   // const [, forceRender] = useReducer((boolean) => !boolean, false)
-  const { render } = useSelector((state: {render}) => state.render)
+  const { render } = useSelector((state: { render }) => state.render)
 
   const _setRtcClient = async (rtcClient: RtcClient) => {
     await dispatch(setRtcClient(rtcClient))

@@ -4,22 +4,22 @@ import { RtcClient } from '@/store/StoreTypes'
 export const ClientSlice = createSlice({
   name: 'client',
   initialState: {
-    rtcClient: null
+    rtcClient: null,
   },
   reducers: {
     fetchRtcClient(state?, action?) {
-        state.rtcClient = action.payload;
+      state.rtcClient = action.payload
     },
   },
 })
 
 // Actions
-export const {
-  fetchRtcClient,
-} = ClientSlice.actions
+export const { fetchRtcClient } = ClientSlice.actions
 
 // 外部からはこの関数を呼んでもらう
-export const setRtcClient = (rtcClient: Partial<RtcClient>) => async (dispatch) => {
+export const setRtcClient = (rtcClient: Partial<RtcClient>) => async (
+  dispatch
+) => {
   dispatch(fetchRtcClient(rtcClient))
 }
 

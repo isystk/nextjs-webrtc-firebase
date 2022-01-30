@@ -1,11 +1,11 @@
-import React, {FC, useEffect, useState} from 'react'
+import React, { FC, useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
-import useRtcClient from "@/hooks/useRtcClient";
-import Header from "@/components/pages/Header";
-import Footer from "@/components/pages/Footer";
-import SideMenu from "@/components/pages/SideMenu";
+import useRtcClient from '@/hooks/useRtcClient'
+import Header from '@/components/pages/Header'
+import Footer from '@/components/pages/Footer'
+import SideMenu from '@/components/pages/SideMenu'
 
-const Layout: FC = ({children}) => {
+const Layout: FC = ({ children }) => {
   const rtcClient = useRtcClient()
   const [isMenuOpen, setMenuOpen] = useState(false)
   const [windowHeight, setWindowHeight] = useState(0)
@@ -16,28 +16,29 @@ const Layout: FC = ({children}) => {
 
   if (!rtcClient) return <></>
 
-  console.log('Layout Render', rtcClient )
+  console.log('Layout Render', rtcClient)
 
-  const newProps = { children , rtcClient}
-  const childrenWithProps = React.Children.map(children, (child: React.ReactElement) => React.cloneElement(child, { ...newProps }));
+  const newProps = { children, rtcClient }
+  const childrenWithProps = React.Children.map(
+    children,
+    (child: React.ReactElement) => React.cloneElement(child, { ...newProps })
+  )
 
   return (
-      <>
-        <Header
-            isMenuOpen={isMenuOpen}
-            setMenuOpen={setMenuOpen}
-            rtcClient={rtcClient}
-        />
-        <div style={appStyle(windowHeight)}>
-          {childrenWithProps}
-        </div>
-        <Footer />
-        <SideMenu
-            isMenuOpen={isMenuOpen}
-            setMenuOpen={setMenuOpen}
-            rtcClient={rtcClient}
-        />
-      </>
+    <>
+      <Header
+        isMenuOpen={isMenuOpen}
+        setMenuOpen={setMenuOpen}
+        rtcClient={rtcClient}
+      />
+      <div style={appStyle(windowHeight)}>{childrenWithProps}</div>
+      <Footer />
+      <SideMenu
+        isMenuOpen={isMenuOpen}
+        setMenuOpen={setMenuOpen}
+        rtcClient={rtcClient}
+      />
+    </>
   )
 }
 
@@ -45,7 +46,6 @@ Layout.propTypes = {
   children: PropTypes.oneOfType([PropTypes.string, PropTypes.element])
     .isRequired,
 }
-
 
 const appStyle = (vh) => {
   return {

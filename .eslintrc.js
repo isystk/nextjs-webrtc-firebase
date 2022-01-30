@@ -23,6 +23,7 @@ module.exports = {
   },
   rules: {
     // 必要に応じてルールを追加
-    '@typescript-eslint/no-empty-interface': 'off', // 空のインターフェースは許可
+    "@typescript-eslint/no-empty-interface": "off", // 空のインターフェースは許可
+    "react/prop-types": "off", // 'xxxx' is missing in props validation
   },
 }

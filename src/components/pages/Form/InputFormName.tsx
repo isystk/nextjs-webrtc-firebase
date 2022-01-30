@@ -6,7 +6,7 @@ import React, { VFC, useCallback, useEffect, useState } from 'react'
 import CssBaseline from '@material-ui/core/CssBaseline'
 import Container from '@material-ui/core/Container'
 import Button from '@material-ui/core/Button'
-import {useRouter} from "next/router";
+import { useRouter } from 'next/router'
 
 const useStyles = makeStyles((theme) => ({
   paper: {

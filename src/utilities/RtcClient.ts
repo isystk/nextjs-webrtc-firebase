@@ -29,11 +29,11 @@ export default class RtcClient implements RtcClientType {
   roomName: string
 
   constructor(setRtcClient: (rtcClient: RtcClient) => void) {
-    console.log("Initial RtcClient")
+    console.log('Initial RtcClient')
     this._setRtcClient = setRtcClient
     this.roomName = ''
     this.mediaStream = null
-    this.self = {clientId: undefined, name: ''}
+    this.self = { clientId: undefined, name: '' }
     this.members = {}
   }
 
@@ -97,7 +97,7 @@ export default class RtcClient implements RtcClientType {
         name: this.self.name,
       }).key
       this.self = {
-        clientId: key+'',
+        clientId: key + '',
         name: this.self.name,
       }
       await this.databaseMembersRef(this.self.clientId).update(this.self)
@@ -110,7 +110,7 @@ export default class RtcClient implements RtcClientType {
       await this.databaseJoinRef(this.self.clientId).set({
         ...this.self,
         type: 'join',
-        clientId: this.self.clientId
+        clientId: this.self.clientId,
       })
 
       this.setRtcClient()
@@ -129,7 +129,7 @@ export default class RtcClient implements RtcClientType {
         this.self.clientId,
         data.clientId
       )
-      await data.webRtc.startListening();
+      await data.webRtc.startListening()
     } else {
       console.error('no mediaStream')
     }
@@ -168,7 +168,7 @@ export default class RtcClient implements RtcClientType {
       await this.databaseJoinRef(clientId).set({
         type: 'hello',
         clientId: this.self.clientId,
-        name: this.self.name
+        name: this.self.name,
       })
     })
     await this.databaseJoinRef(this.self.clientId).onDisconnect().remove()
@@ -204,7 +204,7 @@ export default class RtcClient implements RtcClientType {
     await this.databaseMembersRef(this.self.clientId).onDisconnect().remove()
 
     // ブロードキャスト通信に関するリスナー
-    this.databaseBroadcastRef.on('value',  (snapshot) => {
+    this.databaseBroadcastRef.on('value', (snapshot) => {
       const data = snapshot.val()
       if (data === null) return
       const { clientId } = data
@@ -217,7 +217,7 @@ export default class RtcClient implements RtcClientType {
 
     // ダイレクト通信に関するリスナー
     const databaseDirectRef = this.databaseDirectRef(this.self.clientId)
-    databaseDirectRef.on('value',  (snapshot) => {
+    databaseDirectRef.on('value', (snapshot) => {
       const data = snapshot.val()
       if (data === null) return
       console.log('databaseDirectRef', data)

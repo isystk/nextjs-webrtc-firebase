@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 const defaultDimensions = { width: 0, height: 0 }
 
 const useDimensions = (targetRef: React.MutableRefObject<null>) => {
-  let [dimensions, setDimensions] = useState(defaultDimensions)
+  const [, setDimensions] = useState(defaultDimensions)
   const node = targetRef.current
 
   // ビデオの幅を動的に調整する
@@ -15,7 +15,7 @@ const useDimensions = (targetRef: React.MutableRefObject<null>) => {
           height: node.offsetHeight,
         }
   }
-  dimensions = updateDimensions(node)
+  const dimensions = updateDimensions(node)
 
   useEffect(() => {
     const resizeDimensions = () => {

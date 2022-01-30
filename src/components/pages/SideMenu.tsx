@@ -15,7 +15,7 @@ import VideocamIcon from '@material-ui/icons/Videocam'
 import FullscreenIcon from '@material-ui/icons/Fullscreen'
 import ScreenShareIcon from '@material-ui/icons/ScreenShare'
 import StopIcon from '@material-ui/icons/Stop'
-import {useRouter} from "next/router";
+import { useRouter } from 'next/router'
 
 const SideMenu = ({ isMenuOpen, setMenuOpen, rtcClient }) => {
   const router = useRouter()
@@ -27,10 +27,10 @@ const SideMenu = ({ isMenuOpen, setMenuOpen, rtcClient }) => {
         router.push('/')
       },
     ],
-    'Stream cam': [<VideocamIcon key={0} />, () => {}],
-    'Stream screen': [<ScreenShareIcon key={0} />, () => {}],
-    'Stop Stream': [<StopIcon key={0} />, () => {}],
-    'Full screen': [<FullscreenIcon key={0} />, () => {}],
+    'Stream cam': [<VideocamIcon key={0} />, () => ({})],
+    'Stream screen': [<ScreenShareIcon key={0} />, () => ({})],
+    'Stop Stream': [<StopIcon key={0} />, () => ({})],
+    'Full screen': [<FullscreenIcon key={0} />, () => ({})],
   }
   const getIcon = (text) => (menu[text] ? menu[text][0] : <div />)
 

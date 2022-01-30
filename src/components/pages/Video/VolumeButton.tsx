@@ -1,9 +1,12 @@
-import React, { VFC } from 'react'
+import React, { MutableRefObject, VFC } from 'react'
 
 import { makeStyles } from '@material-ui/core/styles'
 import IconButton from '@material-ui/core/IconButton'
 import VolumeOffIcon from '@material-ui/icons/VolumeOff'
 import VolumeUpIcon from '@material-ui/icons/VolumeUp'
+import { OverridableComponent } from '@material-ui/core/OverridableComponent'
+import { SvgIconTypeMap } from '@material-ui/core'
+import RtcClient from '@/utilities/RtcClient'
 
 const useStyles = makeStyles({
   icon: {
@@ -12,7 +15,15 @@ const useStyles = makeStyles({
   },
 })
 
-const VolumeButton: VFC = ({
+type Props = {
+  isLocal: boolean
+  muted: OverridableComponent<SvgIconTypeMap>
+  refVolumeButton: MutableRefObject<null>
+  rtcClient: RtcClient
+  setMuted: (value: ((prevState: boolean) => boolean) | boolean) => void
+}
+
+const VolumeButton: VFC<Props> = ({
   isLocal,
   muted,
   refVolumeButton,

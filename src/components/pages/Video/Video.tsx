@@ -1,4 +1,10 @@
-import React, { VFC, useEffect, useRef, useState } from 'react'
+import React, {
+  VFC,
+  useEffect,
+  useRef,
+  useState,
+  MutableRefObject,
+} from 'react'
 import {
   Card,
   CardActionArea,
@@ -15,7 +21,7 @@ type Props = {
   isLocal: boolean
   member: Member
   rtcClient: RtcClient
-  videoRef
+  videoRef: MutableRefObject<null>
 }
 
 const Video: VFC<Props> = ({ isLocal, member, rtcClient, videoRef }) => {

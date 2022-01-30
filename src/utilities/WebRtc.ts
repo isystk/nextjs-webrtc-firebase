@@ -65,7 +65,7 @@ export default class WebRtc implements WebRtcType {
 
   get localDescription(): (() => any) | undefined {
     if (this.rtcPeerConnection !== null) {
-      return this.rtcPeerConnection.localDescription?.toJSON();
+      return this.rtcPeerConnection.localDescription?.toJSON()
     }
   }
 
@@ -105,7 +105,9 @@ export default class WebRtc implements WebRtcType {
         sender: this.localClientId,
         sessionDescription: this.localDescription,
       }
-      const databaseMembersRef = this.databaseMembersRef(this.remoteClientId+'/connections/'+this.localClientId)
+      const databaseMembersRef = this.databaseMembersRef(
+        this.remoteClientId + '/connections/' + this.localClientId
+      )
       console.log('send offer', data)
       await databaseMembersRef.set(data)
     } catch (e) {
@@ -119,7 +121,9 @@ export default class WebRtc implements WebRtcType {
       this.rtcPeerConnection.onicecandidate = async ({ candidate }) => {
         if (candidate) {
           // remoteへcandidate(通信経路)を通知する
-          await this.databaseMembersRef(this.remoteClientId+'/connections/'+this.localClientId).update({
+          await this.databaseMembersRef(
+            this.remoteClientId + '/connections/' + this.localClientId
+          ).update({
             type: 'candidate',
             sender: this.localClientId,
             candidate: candidate.toJSON(),
@@ -187,7 +191,9 @@ export default class WebRtc implements WebRtcType {
         sender: this.localClientId,
         sessionDescription: this.localDescription,
       }
-      const databaseMembersRef = this.databaseMembersRef(this.remoteClientId+'/connections/'+this.localClientId)
+      const databaseMembersRef = this.databaseMembersRef(
+        this.remoteClientId + '/connections/' + this.localClientId
+      )
       console.log('send answer', databaseMembersRef, data)
       await databaseMembersRef.update(data)
     } catch (e) {
@@ -230,9 +236,14 @@ export default class WebRtc implements WebRtcType {
 
   // シグナリングサーバーをリスンする処理
   async startListening() {
-    console.log('startListening', this.localClientId+'/connections/'+this.remoteClientId)
+    console.log(
+      'startListening',
+      this.localClientId + '/connections/' + this.remoteClientId
+    )
 
-    const databaseMembersRef = this.databaseMembersRef(this.localClientId+'/connections/'+this.remoteClientId)
+    const databaseMembersRef = this.databaseMembersRef(
+      this.localClientId + '/connections/' + this.remoteClientId
+    )
     databaseMembersRef.on('value', async (snapshot) => {
       const data = snapshot.val()
       if (data === null) return
@@ -259,7 +270,5 @@ export default class WebRtc implements WebRtcType {
     })
     // メンバーが離脱した場合にFirebaseから削除
     await databaseMembersRef.onDisconnect().remove()
-
   }
-
 }

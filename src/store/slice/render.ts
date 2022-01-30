@@ -3,19 +3,17 @@ import { createSlice } from '@reduxjs/toolkit'
 export const RenderSlice = createSlice({
   name: 'render',
   initialState: {
-    bool: false
+    bool: false,
   },
   reducers: {
     toggleState(state?, action?) {
-        state.bool = !state.bool;
+      state.bool = !state.bool
     },
   },
 })
 
 // Actions
-export const {
-  toggleState,
-} = RenderSlice.actions
+export const { toggleState } = RenderSlice.actions
 
 // 外部からはこの関数を呼んでもらう
 export const forceRender = () => async (dispatch) => {

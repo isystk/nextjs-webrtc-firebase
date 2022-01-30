@@ -1,10 +1,10 @@
 import Grid from '@material-ui/core/Grid'
-import React, {useEffect, useState, VFC} from 'react'
+import React, { useEffect, useState, VFC } from 'react'
 import RtcClient from '@/utilities/RtcClient'
 import VideoLocal from './VideoLocal'
 import VideoRemote from './VideoRemote'
 import { makeStyles } from '@material-ui/core/styles'
-import {useRouter} from "next/router";
+import { useRouter } from 'next/router'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -30,7 +30,7 @@ const VideoArea: VFC<Props> = ({ rtcClient }) => {
   useEffect(() => {
     // idがqueryで利用可能になったら処理される
     if (router.asPath !== router.route) {
-      rtcClient.setRoomName(router.query.id+'')
+      rtcClient.setRoomName(router.query.id + '')
     }
   }, [router])
 
@@ -39,7 +39,7 @@ const VideoArea: VFC<Props> = ({ rtcClient }) => {
       if (rtcClient.self.name === '') {
         router.push('/')
       } else {
-        (async () => {
+        ;(async () => {
           await rtcClient.setMediaStream()
           await rtcClient.join()
         })()
