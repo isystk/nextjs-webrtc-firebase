@@ -48,7 +48,7 @@ export const getFunctions = () => {
   return getApp().functions()
 }
 
-export const getDatabase = (path: string = '') => {
+export const getDatabase = (path='') => {
   const databaseRoot = 'app/multi/'
   return getApp()
     .database()

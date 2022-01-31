@@ -33,7 +33,6 @@ type Props = {
 }
 
 const SignIn: VFC<Props> = ({ rtcClient }) => {
-  const router = useRouter()
   const label = 'あなたの名前'
   const classes = useStyles()
   const [disabled, setDisabled] = useState(true)
@@ -49,8 +48,6 @@ const SignIn: VFC<Props> = ({ rtcClient }) => {
     async (e) => {
       e.persist()
       await rtcClient.setLocalPeerName(name)
-
-
       e.preventDefault()
     },
     [name, rtcClient]

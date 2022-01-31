@@ -32,7 +32,6 @@ type Props = {
   rtcClient: RtcClient
 }
 const SignIn: VFC<Props> = ({ rtcClient }) => {
-  const router = useRouter()
   const label = '部屋の名前'
   const classes = useStyles()
   const [disabled, setDisabled] = useState(true)
@@ -57,13 +56,6 @@ const SignIn: VFC<Props> = ({ rtcClient }) => {
 
     e.preventDefault()
   }
-
-  useEffect(() => {
-    if (rtcClient.room.roomId) {
-      console.log(rtcClient.room)
-      // router.push(rtcClient.room.roomId)
-    }
-  }, [rtcClient.room.roomId])
 
   if (rtcClient.self.name === '') return <></>
   if (rtcClient.room.name !== '') return <></>

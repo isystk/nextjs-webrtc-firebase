@@ -238,6 +238,7 @@ export default class WebRtc implements WebRtcType {
   async startListening() {
     console.log(
       'startListening',
+      this.roomId + '/_members_/' +
       this.localClientId + '/connections/' + this.remoteClientId
     )
 

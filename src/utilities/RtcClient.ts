@@ -41,8 +41,8 @@ export default class RtcClient implements RtcClientType {
     this.members = {}
   }
 
-  setRtcClient() {
-    this._setRtcClient(this)
+  async setRtcClient() {
+    await this._setRtcClient(this)
   }
 
   // ブラウザからオーディオやビデオの使用許可を取得する
@@ -58,41 +58,37 @@ export default class RtcClient implements RtcClientType {
   // メディア(音声とビデオ)の仕様を許可する
   async setMediaStream() {
     await this.getUserMedia()
-    this.setRtcClient()
+    await this.setRtcClient()
   }
 
-  setLocalPeerName(localPeerName: string) {
+  async setLocalPeerName(localPeerName: string) {
     this.self.name = localPeerName
-    this.setRtcClient()
+    await this.setRtcClient()
   }
 
   async setRoomName(roomName: string) {
-    console.log('this.room 0', roomName)
-    // const key = await getDatabase().push({
-    //   name: roomName,
-    // }).key
-    const key = 'test'
+    const key = getDatabase().push({
+      name: roomName,
+    }).key
     this.room = {
       roomId: key+'',
       name: roomName
     }
-    console.log('this.room 1', this.room)
-    await getDatabase(this.room.roomId).set(this.room)
-    console.log('this.room 2', this.room)
-    this.setRtcClient()
+    // TODO ここにawaitを付けると何故か動作しない
+    getDatabase(this.room.roomId).update(this.room)
+    await this.setRtcClient()
   }
 
   async setRoomId(roomId: string) {
-    await getDatabase(roomId).once('value', (snapshot) => {
+    await getDatabase(roomId).once('value', async (snapshot) => {
       const data = snapshot.val()
       if (data === null) return
       const { roomId, name } = data
-      console.log('room', roomId,  data)
       this.room = {
         roomId,
         name
       }
-      this.setRtcClient()
+      await this.setRtcClient()
     })
   }
 
@@ -112,7 +108,7 @@ export default class RtcClient implements RtcClientType {
     console.log('disconnect', this.self)
     await this.databaseMembersRef(this.self.clientId).remove()
     this.room = { roomId:undefined, name: ''}
-    this.setRtcClient()
+    await this.setRtcClient()
   }
 
   // 自分がルームに入ったら全メンバーにjoinを送信する
@@ -142,7 +138,7 @@ export default class RtcClient implements RtcClientType {
         clientId: this.self.clientId,
       })
 
-      this.setRtcClient()
+      await this.setRtcClient()
     } catch (error) {
       console.error(error)
     }
@@ -166,16 +162,16 @@ export default class RtcClient implements RtcClientType {
       [data.clientId]: data,
     }
     this.members = { ...this.members, ...newMember }
-    this.setRtcClient()
+    await this.setRtcClient()
   }
 
-  removeMember(data: Member) {
+  async removeMember(data: Member) {
     console.log('removeMember', data)
     if (this.members[data.clientId]) {
       this.members[data.clientId].webRtc?.disconnect()
     }
     delete this.members[data.clientId]
-    this.setRtcClient()
+    await this.setRtcClient()
   }
 
   // シグナリングサーバーをリスンする処理
@@ -227,7 +223,7 @@ export default class RtcClient implements RtcClientType {
         // ignore self message (自分自身からのメッセージは無視する）
         return
       }
-      this.removeMember(data)
+      await this.removeMember(data)
     })
     // 自分の通信が切断されたらFirebaseから自分を削除
     await this.databaseMembersRef(this.self.clientId).onDisconnect().remove()

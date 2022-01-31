@@ -29,9 +29,9 @@ const SideMenu: VFC<Props> = ({ isMenuOpen, setMenuOpen, rtcClient }) => {
   const menu = {
     'Exit room': [
       <ExitToAppIcon key={0} />,
-      () => {
-        rtcClient.disconnect()
-        router.push('/')
+      async () => {
+        await rtcClient.disconnect()
+        await router.push('/')
       },
     ],
     'Stream cam': [<VideocamIcon key={0} />, () => ({})],

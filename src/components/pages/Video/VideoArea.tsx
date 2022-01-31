@@ -34,17 +34,19 @@ const VideoArea: VFC<Props> = ({ rtcClient }) => {
   }, [router])
 
   useEffect(() => {
-    if (rtcClient.room.name !== '') {
-      if (rtcClient.self.name === '') {
-        router.push('/')
-      } else {
+    if (rtcClient.self.name === '') {
+      router.push('/')
+    }
+  }, [])
+
+  useEffect(() => {
+    if (rtcClient.self.name !== '' && rtcClient.room.name !== '') {
         ;(async () => {
           await rtcClient.setMediaStream()
           await rtcClient.join()
         })()
-      }
     }
-  }, [rtcClient.room.name])
+  }, [rtcClient.self.name, rtcClient.room.name])
 
   const grids = {
     0: { xs: 12, sm: 6, md: 6 },
@@ -57,6 +59,9 @@ const VideoArea: VFC<Props> = ({ rtcClient }) => {
     7: { xs: 12, sm: 3, md: 3 },
   }
   const grid = grids[Math.min(Object.keys(rtcClient.members).length, 7)]
+
+  if (rtcClient.self.name === '') return <></>
+  if (rtcClient.room.name === '') return <></>
 
   return (
     <div className={classes.root}>
