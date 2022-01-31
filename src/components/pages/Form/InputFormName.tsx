@@ -50,9 +50,6 @@ const SignIn: VFC<Props> = ({ rtcClient }) => {
       e.persist()
       await rtcClient.setLocalPeerName(name)
 
-      if (rtcClient.room.roomId) {
-        router.push(rtcClient.room.roomId)
-      }
 
       e.preventDefault()
     },

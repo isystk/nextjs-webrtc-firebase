@@ -68,15 +68,16 @@ export default class RtcClient implements RtcClientType {
 
   async setRoomName(roomName: string) {
     console.log('this.room 0', roomName)
-    const key = await getDatabase().push({
-      name: roomName,
-    }).key
+    // const key = await getDatabase().push({
+    //   name: roomName,
+    // }).key
+    const key = 'test'
     this.room = {
       roomId: key+'',
       name: roomName
     }
     console.log('this.room 1', this.room)
-    await getDatabase(this.room.roomId).update(this.room)
+    await getDatabase(this.room.roomId).set(this.room)
     console.log('this.room 2', this.room)
     this.setRtcClient()
   }
