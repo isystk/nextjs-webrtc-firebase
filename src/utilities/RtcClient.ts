@@ -13,6 +13,7 @@ export type Member = {
   clientId: string
   name: string
   webRtc: WebRtc | null
+  status: string
 }
 type Members = {
   [key: string]: Member
@@ -35,7 +36,7 @@ export default class RtcClient implements RtcClientType {
   constructor(setRtcClient: (rtcClient: RtcClient) => void) {
     console.log('Initial RtcClient')
     this._setRtcClient = setRtcClient
-    this.room = { roomId: undefined, name: ''}
+    this.room = { roomId: undefined, name: '' }
     this.mediaStream = null
     this.self = { clientId: undefined, name: '' }
     this.members = {}
@@ -71,8 +72,8 @@ export default class RtcClient implements RtcClientType {
       name: roomName,
     }).key
     this.room = {
-      roomId: key+'',
-      name: roomName
+      roomId: key + '',
+      name: roomName,
     }
     // TODO ここにawaitを付けると何故か動作しない
     getDatabase(this.room.roomId).update(this.room)
@@ -86,7 +87,7 @@ export default class RtcClient implements RtcClientType {
       const { roomId, name } = data
       this.room = {
         roomId,
-        name
+        name,
       }
       await this.setRtcClient()
     })
@@ -107,7 +108,7 @@ export default class RtcClient implements RtcClientType {
   async disconnect() {
     console.log('disconnect', this.self)
     await this.databaseMembersRef(this.self.clientId).remove()
-    this.room = { roomId:undefined, name: ''}
+    this.room = { roomId: undefined, name: '' }
     await this.setRtcClient()
   }
 
@@ -154,6 +155,7 @@ export default class RtcClient implements RtcClientType {
         this.self.clientId,
         data.clientId
       )
+      data.status = 'online'
       await data.webRtc.startListening()
     } else {
       console.error('no mediaStream')
@@ -166,11 +168,13 @@ export default class RtcClient implements RtcClientType {
   }
 
   async removeMember(data: Member) {
-    console.log('removeMember', data)
+    console.log('removeMember', this.members[data.clientId])
     if (this.members[data.clientId]) {
       this.members[data.clientId].webRtc?.disconnect()
+      // delete this.members[data.clientId]
+      this.members[data.clientId].status = 'offline'
+      console.log('after', this.members)
     }
-    delete this.members[data.clientId]
     await this.setRtcClient()
   }
 

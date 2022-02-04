@@ -41,10 +41,10 @@ const VideoArea: VFC<Props> = ({ rtcClient }) => {
 
   useEffect(() => {
     if (rtcClient.self.name !== '' && rtcClient.room.name !== '') {
-        ;(async () => {
-          await rtcClient.setMediaStream()
-          await rtcClient.join()
-        })()
+      ;(async () => {
+        await rtcClient.setMediaStream()
+        await rtcClient.join()
+      })()
     }
   }, [rtcClient.self.name, rtcClient.room.name])
 
@@ -70,13 +70,13 @@ const VideoArea: VFC<Props> = ({ rtcClient }) => {
           <VideoLocal rtcClient={rtcClient} />
         </Grid>
         {Object.keys(rtcClient.members).map(function (key, idx) {
-          return (
+          const member = rtcClient.members[key]
+          return member.status === 'online' ? (
             <Grid item {...grid} key={idx}>
-              <VideoRemote
-                rtcClient={rtcClient}
-                member={rtcClient.members[key]}
-              />
+              <VideoRemote rtcClient={rtcClient} member={member} />
             </Grid>
+          ) : (
+            <></>
           )
         })}
       </Grid>

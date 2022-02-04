@@ -1,4 +1,5 @@
 import { getDatabase } from './firebase'
+import firebase from 'firebase/app'
 
 interface WebRtcType {
   roomId: string
@@ -83,6 +84,11 @@ export default class WebRtc implements WebRtcType {
     if (this.rtcPeerConnection !== null) {
       this.rtcPeerConnection?.close()
       this.rtcPeerConnection = null
+
+      const databaseMembersRef = this.databaseMembersRef(
+        this.localClientId + '/connections/' + this.remoteClientId
+      )
+      databaseMembersRef.off('value', this.listener)
     }
   }
 
@@ -234,42 +240,47 @@ export default class WebRtc implements WebRtcType {
     }
   }
 
-  // シグナリングサーバーをリスンする処理
   async startListening() {
     console.log(
       'startListening',
-      this.roomId + '/_members_/' +
-      this.localClientId + '/connections/' + this.remoteClientId
+      this.roomId +
+        '/_members_/' +
+        this.localClientId +
+        '/connections/' +
+        this.remoteClientId
     )
 
     const databaseMembersRef = this.databaseMembersRef(
       this.localClientId + '/connections/' + this.remoteClientId
     )
-    databaseMembersRef.on('value', async (snapshot) => {
-      const data = snapshot.val()
-      if (data === null) return
-      const { candidate, sessionDescription, type } = data
-      switch (type) {
-        case 'offer':
-          console.log('receive offer', data)
-          // 既存メンバーからofferを受信したらanswerを送信する
-          await this.answer(sessionDescription)
-          break
-        case 'answer':
-          console.log('receive answer', data)
-          // answerを受信する
-          await this.saveReceivedSessionDescription(sessionDescription)
-          break
-        case 'candidate':
-          // console.log("receive candidate", data)
-          // シグナリングサーバー経由でcandidateを受信し、相手の通信経路を追加する
-          await this.addIceCandidate(candidate)
-          break
-        default:
-          break
-      }
-    })
+    databaseMembersRef.on('value', this.listener)
     // メンバーが離脱した場合にFirebaseから削除
     await databaseMembersRef.onDisconnect().remove()
+  }
+
+  // シグナリングサーバーをリスンする処理
+  listener = async (snapshot: firebase.database.DataSnapshot) => {
+    const data = snapshot.val()
+    if (data === null) return
+    const { candidate, sessionDescription, type } = data
+    switch (type) {
+      case 'offer':
+        console.log('receive offer', data)
+        // 既存メンバーからofferを受信したらanswerを送信する
+        await this.answer(sessionDescription)
+        break
+      case 'answer':
+        console.log('receive answer', data)
+        // answerを受信する
+        await this.saveReceivedSessionDescription(sessionDescription)
+        break
+      case 'candidate':
+        console.log('receive candidate', data)
+        // シグナリングサーバー経由でcandidateを受信し、相手の通信経路を追加する
+        await this.addIceCandidate(candidate)
+        break
+      default:
+        break
+    }
   }
 }
