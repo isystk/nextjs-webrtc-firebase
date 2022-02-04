@@ -32,6 +32,7 @@ export default class RtcClient implements RtcClientType {
   self: Self
   members: Members
   room: Room
+  constraints: { audio: boolean, video: boolean }
 
   constructor(setRtcClient: (rtcClient: RtcClient) => void) {
     console.log('Initial RtcClient')
@@ -40,6 +41,7 @@ export default class RtcClient implements RtcClientType {
     this.mediaStream = null
     this.self = { clientId: undefined, name: '' }
     this.members = {}
+    this.constraints = { audio: false, video: true }
   }
 
   async setRtcClient() {
@@ -49,8 +51,16 @@ export default class RtcClient implements RtcClientType {
   // ブラウザからオーディオやビデオの使用許可を取得する
   async getUserMedia() {
     try {
-      const constraints = { audio: true, video: true }
-      this.mediaStream = await navigator.mediaDevices.getUserMedia(constraints)
+      this.mediaStream = await navigator.mediaDevices.getUserMedia(this.constraints)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  async getDisplayMedia() {
+    try {
+      this.mediaStream = await navigator.mediaDevices.getDisplayMedia(this.constraints)
+      console.log(this.mediaStream)
     } catch (error) {
       console.error(error)
     }
@@ -58,7 +68,8 @@ export default class RtcClient implements RtcClientType {
 
   // メディア(音声とビデオ)の仕様を許可する
   async setMediaStream() {
-    await this.getUserMedia()
+    // await this.getUserMedia()
+    await this.getDisplayMedia()
     await this.setRtcClient()
   }
 
@@ -153,7 +164,8 @@ export default class RtcClient implements RtcClientType {
         this.mediaStream,
         this.room.roomId,
         this.self.clientId,
-        data.clientId
+        data.clientId,
+        this.constraints
       )
       data.status = 'online'
       await data.webRtc.startListening()
@@ -173,7 +185,6 @@ export default class RtcClient implements RtcClientType {
       this.members[data.clientId].webRtc?.disconnect()
       // delete this.members[data.clientId]
       this.members[data.clientId].status = 'offline'
-      console.log('after', this.members)
     }
     await this.setRtcClient()
   }

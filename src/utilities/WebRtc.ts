@@ -22,7 +22,8 @@ export default class WebRtc implements WebRtcType {
     mediaStream: MediaStream,
     roomId: string,
     localClientId: string,
-    remoteClientId: string
+    remoteClientId: string,
+    constraints: { audio: boolean, video: boolean }
   ) {
     this.roomId = roomId
     this.mediaStream = mediaStream
@@ -33,13 +34,13 @@ export default class WebRtc implements WebRtcType {
       iceServers: [{ urls: 'stun:stun.stunprotocol.org' }],
     }
     this.rtcPeerConnection = new RTCPeerConnection(config)
-    this.addTracks()
+    this.addTracks(constraints)
   }
 
   // ピアツーピアで通信相手に対して送信されるオーディオとビデオのトラックを追加する
-  addTracks(): void {
-    this.addAudioTrack()
-    this.addVideoTrack()
+  addTracks(constratins: { audio: boolean, video: boolean }): void {
+    if (constratins.audio) this.addAudioTrack()
+    if (constratins.video) this.addVideoTrack()
   }
 
   addAudioTrack(): void {
@@ -275,7 +276,7 @@ export default class WebRtc implements WebRtcType {
         await this.saveReceivedSessionDescription(sessionDescription)
         break
       case 'candidate':
-        console.log('receive candidate', data)
+        // console.log('receive candidate', data)
         // シグナリングサーバー経由でcandidateを受信し、相手の通信経路を追加する
         await this.addIceCandidate(candidate)
         break
