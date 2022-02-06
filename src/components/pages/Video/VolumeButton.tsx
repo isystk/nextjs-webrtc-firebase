@@ -10,8 +10,8 @@ import RtcClient from '@/utilities/RtcClient'
 
 const useStyles = makeStyles({
   icon: {
-    height: 38,
-    width: 38,
+    height: 19,
+    width: 19,
   },
 })
 

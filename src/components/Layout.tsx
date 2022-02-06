@@ -1,6 +1,6 @@
 import React, { FC, useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
-import useRtcClient from '@/hooks/useRtcClient'
+import useRtcClient from '@/store/useRtcClient'
 import Header from '@/components/pages/Header'
 import Footer from '@/components/pages/Footer'
 import SideMenu from '@/components/pages/SideMenu'

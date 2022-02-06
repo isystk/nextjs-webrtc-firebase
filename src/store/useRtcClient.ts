@@ -1,14 +1,12 @@
 import { useEffect, useReducer } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import RtcClient from '@/utilities/RtcClient'
-import { setRtcClient } from '@/store/slice/client'
-import { forceRender } from '@/store/slice/render'
+import { forceRender, setRtcClient } from '@/store/slice/client'
 
 const useRtcClient = () => {
   const dispatch = useDispatch()
   const { rtcClient } = useSelector((state: { client }) => state.client)
   // const [, forceRender] = useReducer((boolean) => !boolean, false)
-  const { render } = useSelector((state: { render }) => state.render)
 
   const _setRtcClient = async (rtcClient: RtcClient) => {
     await dispatch(setRtcClient(rtcClient))

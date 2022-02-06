@@ -81,7 +81,6 @@ videoRef.srcObject = mediaStream
 │   ├── @types/
 │   ├── common/
 │   ├── components/
-│   ├── hooks/
 │   ├── pages/
 │   ├── store/
 │   ├── styles/

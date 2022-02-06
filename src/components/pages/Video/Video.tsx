@@ -15,7 +15,7 @@ import {
 import RtcClient, { Member } from '@/utilities/RtcClient'
 import AudioAnalyser from './AudioAnalyser'
 import VolumeButton from './VolumeButton'
-import useDimensions from '@/hooks/useDimentions'
+import useDimensions from '@/store/useDimentions'
 
 type Props = {
   isLocal: boolean
@@ -52,7 +52,7 @@ const Video: VFC<Props> = ({ isLocal, member, rtcClient, videoRef }) => {
           id={`video-${member.clientId}`}
         />
         <CardContent>
-          <Typography gutterBottom variant="h5" component="h2">
+          <Typography gutterBottom variant="h5" component="h3">
             {member.name}
           </Typography>
         </CardContent>
