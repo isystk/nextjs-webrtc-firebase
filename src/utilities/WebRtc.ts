@@ -93,20 +93,20 @@ export default class WebRtc implements WebRtcType {
     }
   }
 
-  // 2. AさんがBさんからjoinを受信したらAさんはBさんにofferを送信する
+  // 3. BさんがAさんからjoinを受信したらBさんはAさんにofferを送信する
   async offer(): Promise<void> {
     try {
-      // 2-2. 通信経路をシグナリングサーバーに送信できるようにイベントハンドラを登録する
+      // 3-2. 通信経路をシグナリングサーバーに送信できるようにイベントハンドラを登録する
       this.setOnicecandidateCallback()
-      // 2-3. P2P確立後、通信相手のメディアストリーム情報の受信後、表示先のDOMを登録しておく
+      // 3-3. P2P確立後、通信相手のメディアストリーム情報の受信後、表示先のDOMを登録しておく
       this.setOntrack()
-      // 2-4. SDP(offer)を作成する
+      // 3-4. SDP(offer)を作成する
       const sessionDescription = await this.createOffer()
-      // 2-5. 作成したSDP(offer)を保存する
+      // 3-5. 作成したSDP(offer)を保存する
       if (sessionDescription !== undefined) {
         await this.setLocalDescription(sessionDescription)
       }
-      // 2-6. SDP(offer)を送信する
+      // 3-6. SDP(offer)を送信する
       const data = {
         type: 'offer',
         sender: this.localClientId,
@@ -177,22 +177,22 @@ export default class WebRtc implements WebRtcType {
     }
   }
 
-  // 3. BさんがAさんからofferを受信したらBさんはAさんにanswerを送信する
+  // 4. AさんがBさんからofferを受信したらAさんはBさんにanswerを送信する
   async answer(sessionDescription: RTCSessionDescriptionInit): Promise<void> {
     try {
-      // 3-2. 通信経路をシグナリングサーバーに送信できるようにイベントハンドラを登録する
+      // 4-2. 通信経路をシグナリングサーバーに送信できるようにイベントハンドラを登録する
       this.setOnicecandidateCallback()
-      // 3-3. P2P確立後、通信相手のメディアストリーム情報の受信後、表示先のDOMを登録しておく
+      // 4-3. P2P確立後、通信相手のメディアストリーム情報の受信後、表示先のDOMを登録しておく
       this.setOntrack()
-      // 3-4. 受信した相手のSDP(offer)を保存する
+      // 4-4. 受信した相手のSDP(offer)を保存する
       await this.setRemoteDescription(sessionDescription)
-      // 3-5. SDP(answer)を作成する
+      // 4-5. SDP(answer)を作成する
       if (this.rtcPeerConnection !== null) {
         const answer = await this.rtcPeerConnection.createAnswer()
-        // 3-6. 作成したSDP(answer)を保存する
+        // 4-6. 作成したSDP(answer)を保存する
         await this.rtcPeerConnection.setLocalDescription(answer)
       }
-      // 3-7. SDP(answer)を送信する
+      // 4-7. SDP(answer)を送信する
       const data = {
         type: 'answer',
         sender: this.localClientId,
@@ -217,23 +217,24 @@ export default class WebRtc implements WebRtcType {
     }
   }
 
-  // 4. AさんがBさんからanswerを受信する
+  // 5. BさんがAさんからanswerを受信する
   async saveReceivedSessionDescription(
     sessionDescription: RTCSessionDescriptionInit
   ): Promise<void> {
     try {
-      // 4-1. 受信した相手のSDP(answer)を保存する
+      // 5-2. 受信した相手のSDP(answer)を保存する
       await this.setRemoteDescription(sessionDescription)
     } catch (e) {
       console.error(e)
     }
   }
 
-  // 5. 相手の通信経路(candidate)を追加する
+  // 6. シグナリングサーバー経由でcandidateを受信し、相手の通信経路(candidate)を追加する
   async addIceCandidate(candidate: RTCIceCandidateInit): Promise<void> {
     try {
       if (this.rtcPeerConnection !== null) {
         const iceCandidate = new RTCIceCandidate(candidate)
+        // 6-2. 受信した相手の通信経路(candidate)を保存する
         await this.rtcPeerConnection.addIceCandidate(iceCandidate)
       }
     } catch (error) {
@@ -266,18 +267,18 @@ export default class WebRtc implements WebRtcType {
     const { candidate, sessionDescription, type } = data
     switch (type) {
       case 'offer':
+        // 4-1. 新メンバーからofferを受信する
         console.log('receive offer', data)
-        // 既存メンバーからofferを受信したらanswerを送信する
         await this.answer(sessionDescription)
         break
       case 'answer':
+        // 5-1. 既存メンバーからanswerを受信する
         console.log('receive answer', data)
-        // answerを受信する
         await this.saveReceivedSessionDescription(sessionDescription)
         break
       case 'candidate':
+        // 6-1. Aさん、Bさんはシグナリングサーバーからcandidateを受信する
         // console.log('receive candidate', data)
-        // シグナリングサーバー経由でcandidateを受信し、相手の通信経路を追加する
         await this.addIceCandidate(candidate)
         break
       default:

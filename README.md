@@ -10,87 +10,54 @@
 
 Next.js ＆ Firebase の学習用サンプルアプリケーションです。
 
-## シグナリングサーバ上の読み取りと書き出しのルール
+## P2P 通信 が確立するまでの処理の流れ
 
-##### 読み取り
-
-自分の名前上の場所を常時監視し、何かしらのデータが書き込まれたらリアルタイムにそのデータを読み取るようにする。
-
-##### 書き出す
-
-通常、相手の名前上の場所に書き出すものとする。
-
-## シグナリングサーバへ送信するデータの構造
-
-### 1. offer
-
-以下の構造のデータを P2P 通信相手がリスンしている場所に書き込む。
-
-```javascript
-const sampleOffer = {
-  sender: 'データの送信者',
-  sessionDescription: {
-    sdp: 'Session Description Protocol',
-    type: 'offer',
-  },
-  type: 'offer',
-};
+```
+1. Aさんがルームに入ったらブロードキャストですべてのメンバーにjoinを送信する
+2. BさんがAさんからjoinを受信したらBさんはAさんにhelloを送信する
+    2-1. joinを受信して新メンバーの情報をローカルに登録する
+    2-2. helloを送信する
+3. AさんがBさんからhelloを受信したらAさんはBさんにofferを送信する
+    3-1. helloを受信して既存メンバーの情報をローカルに登録する
+    3-2. 通信経路をシグナリングサーバーに送信できるようにイベントハンドラを登録する
+    3-3. P2P確立後、通信相手のメディアストリーム情報の受信後、表示先のDOMを登録しておく
+    3-4. SDP(offer)を作成する
+    3-5. 作成したSDP(offer)を保存する
+    3-6. SDP(offer)を送信する
+4. AさんがBさんからofferを受信したらAさんはBさんにanswerを送信する
+    4-1. 新メンバーからofferを受信する
+    4-2. 通信経路をシグナリングサーバーに送信できるようにイベントハンドラを登録する
+    4-3. P2P確立後、通信相手のメディアストリーム情報の受信後、表示先のDOMを登録しておく
+    4-4. 受信した相手のSDP(offer)を保存する
+    4-5. SDP(answer)を作成する
+    4-6. 作成したSDP(answer)を保存する
+    4-7. SDP(answer)を送信する
+5. BさんがAさんからanswerを受信したらBさんはAさんのSDP(answer)を保存する
+    5-1. 既存メンバーからanswerを受信する
+    5-2. 受信した相手のSDP(answer)を保存する
+6. シグナリングサーバー経由でcandidateを受信し、相手の通信経路(candidate)を追加する
+    6-1. Aさん、Bさんはシグナリングサーバーからcandidateを受信する
+    6-2. 受信した相手の通信経路(candidate)を保存する
 ```
 
-<!-- prettier-ignore -->
-| プロパティ  | 説明|
-| --------------- | --- |
-| sender      | 誰が書き込んだのかを書き込む。例）Taro、たろう、等ユニークな文字列。 |
-| sessionDescription |[`RTCPeerConnection.createOffer()`](https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/createOffer) によって作成する。P2P 通信に必要な情報諸々、例えば、オーディオやビデオのコーデック情報等をまとめたもの。  |
-| type   | offer の type は`offer`とする。     |
+## MediaDevices
 
-### 2. answer
+##### getUserMedia()
 
-以下の構造のデータを P2P 通信相手がリスンしている場所に書き込む。
+要求された種類のメディアを含むトラックを持つ `MediaStream` を生成するメディア入力を使用する許可をユーザーに求めます。
+```
+カメラ
+navigator.mediaDevices.getUserMedia({ audio: true, video: true })
 
-```javascript
-const sampleAnswer = {
-  sender: 'データの送信者',
-  sessionDescription: {
-    sdp: 'Session Description Protocol',
-    type: 'answer',
-  },
-  type: 'answer',
-};
+画面共有
+navigator.mediaDevices.getDisplayMedia({ audio: false, video: true })
 ```
 
-<!-- prettier-ignore -->
-| プロパティ  | 説明|
-| --------------- | --- |
-| sender      | 誰が書き込んだのかを書き込む。 |
-| sessionDescription | [`RTCPeerConnection.createAnswer()`](https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/createAnswer) によって作成する。 データ構造は、`RTCPeerConnection.createOffer()`によって作られるものと似ている。 |
-| type   | answer の type は`answer`とする。|
-
-### 3. candidate
-
-以下の構造のデータを P2P 通信相手がリスンしている場所に書き込む。
-
-```javascript
-const sampleCandidate = {
-  candidate: {
-    candidate: 'candidate',
-    sdpMLineIndex: 0,
-    sdpMid: '0',
-  },
-  sender: 'データの送信者',
-  type: 'candidate',
-};
+メディアストリームをVideoタグに書き出す
 ```
-
-<!-- prettier-ignore -->
-| プロパティ | 説明 |
-| --- | --- |
-| candidate  | [`RTCPeerConnection.onicecandidate`](https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/onicecandidate)によって取得できる経路情報。|
-| sender  | 誰が書き込んだのかを書き込む。    |
-| type  | candidate の type は`candidate`とする。 |
-
-
-
+const videoRef = document.querySelector(`#video-xxxx`)
+videoRef.srcObject = mediaStream
+```
 
 ## 🌐 Demo
 
@@ -110,11 +77,11 @@ const sampleCandidate = {
 │       ├── Dockerfile
 │       └── src
 │           └── functions (Cloud functions のソースコード)
-├── public/
 ├── src/ (Next.js のソースコード)
-│   ├── auth/
+│   ├── @types/
 │   ├── common/
 │   ├── components/
+│   ├── hooks/
 │   ├── pages/
 │   ├── store/
 │   ├── styles/

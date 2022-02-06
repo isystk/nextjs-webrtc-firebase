@@ -48,7 +48,7 @@ export default class RtcClient implements RtcClientType {
     await this._setRtcClient(this)
   }
 
-  // ブラウザからオーディオやビデオの使用許可を取得する
+  // カメラの使用許可を取得する
   async getUserMedia() {
     try {
       this.mediaStream = await navigator.mediaDevices.getUserMedia(this.constraints)
@@ -57,6 +57,7 @@ export default class RtcClient implements RtcClientType {
     }
   }
 
+  // 画面共有の使用許可を取得する
   async getDisplayMedia() {
     try {
       this.mediaStream = await navigator.mediaDevices.getDisplayMedia(this.constraints)
@@ -68,8 +69,8 @@ export default class RtcClient implements RtcClientType {
 
   // メディア(音声とビデオ)の仕様を許可する
   async setMediaStream() {
-    // await this.getUserMedia()
-    await this.getDisplayMedia()
+    await this.getUserMedia()
+    // await this.getDisplayMedia()
     await this.setRtcClient()
   }
 
@@ -123,7 +124,7 @@ export default class RtcClient implements RtcClientType {
     await this.setRtcClient()
   }
 
-  // 自分がルームに入ったら全メンバーにjoinを送信する
+  // ルームに参加する
   async join() {
     try {
       // joinを初期化する
@@ -142,7 +143,7 @@ export default class RtcClient implements RtcClientType {
       // シグナリングサーバーをリスンする
       await this.startListening()
 
-      // joinを送信する
+      // 1. Aさんがルームに入ったらブロードキャストですべてのメンバーにjoinを送信する
       console.log('send join', this.room.roomId, this.self)
       await this.databaseJoinRef(this.self.clientId).set({
         ...this.self,
@@ -202,9 +203,10 @@ export default class RtcClient implements RtcClientType {
         // 自分自身は無視する
         return
       }
+      // 2-1. joinを受信して新メンバーの情報をローカルに登録する
       console.log('receive join', data)
       await this.addMember(data)
-
+      // 2-2. helloを送信する
       await this.databaseJoinRef(clientId).set({
         type: 'hello',
         clientId: this.self.clientId,
@@ -219,6 +221,7 @@ export default class RtcClient implements RtcClientType {
       const { type, clientId } = data
       switch (type) {
         case 'hello':
+          // 3-1. helloを受信して既存メンバーの情報をローカルに登録する
           console.log('receive hello', data)
           await this.addMember(data)
           await this.members[clientId].webRtc?.offer()
