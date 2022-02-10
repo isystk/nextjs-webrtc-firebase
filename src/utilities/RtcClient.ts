@@ -1,4 +1,4 @@
-import { getDatabase } from '@/utilities/firebase'
+import { getDatabase, getAuth } from '@/utilities/firebase'
 import WebRtc from '@/utilities/WebRtc'
 
 export type Self = {
@@ -117,8 +117,16 @@ export default class RtcClient implements RtcClientType {
     })
   }
 
+  async signOut() {
+    console.log('logout')
+    await this.disconnect()
+    await getAuth().signOut();
+    this.self = { clientId: undefined, name: '' }
+    await this.setRtcClient()
+  }
+
   async disconnect() {
-    console.log('disconnect', this.self)
+    console.log('disconnect')
     await this.databaseMembersRef(this.self.clientId).remove()
     this.room = { roomId: undefined, name: '' }
     await this.setRtcClient()

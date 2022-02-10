@@ -37,7 +37,7 @@ const VideoArea: VFC<Props> = ({ rtcClient }) => {
     if (rtcClient.self.name === '') {
       router.push('/')
     }
-  }, [])
+  }, [rtcClient.self.name])
 
   useEffect(() => {
     if (rtcClient.self.name !== '' && rtcClient.room.name !== '') {
