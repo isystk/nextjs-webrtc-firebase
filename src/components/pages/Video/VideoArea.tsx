@@ -5,6 +5,8 @@ import VideoLocal from './VideoLocal'
 import VideoRemote from './VideoRemote'
 import { makeStyles } from '@material-ui/core/styles'
 import { useRouter } from 'next/router'
+import FloatingBtn from "@/components/pages/FloatingBtn";
+import BottomMenu from "@/components/pages/BottomMenu";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -80,6 +82,8 @@ const VideoArea: VFC<Props> = ({ rtcClient }) => {
           )
         })}
       </Grid>
+      <BottomMenu rtcClient={rtcClient} />
+      <FloatingBtn />
     </div>
   )
 }

@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, VFC } from 'react'
+import React, {Dispatch, SetStateAction, useEffect, useState, VFC} from 'react'
 import PropTypes from 'prop-types'
 import {
   Divider,
@@ -11,10 +11,7 @@ import {
 } from '@material-ui/core'
 import ExitToAppIcon from '@material-ui/icons/ExitToApp'
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft'
-import VideocamIcon from '@material-ui/icons/Videocam'
 import FullscreenIcon from '@material-ui/icons/Fullscreen'
-import ScreenShareIcon from '@material-ui/icons/ScreenShare'
-import StopIcon from '@material-ui/icons/Stop'
 import { useRouter } from 'next/router'
 import RtcClient from '@/utilities/RtcClient'
 
@@ -34,10 +31,16 @@ const SideMenu: VFC<Props> = ({ isMenuOpen, setMenuOpen, rtcClient }) => {
         await router.push('/')
       },
     ],
-    'Stream cam': [<VideocamIcon key={0} />, () => ({})],
-    'Stream screen': [<ScreenShareIcon key={0} />, () => ({})],
-    'Stop Stream': [<StopIcon key={0} />, () => ({})],
-    'Full screen': [<FullscreenIcon key={0} />, () => ({})],
+    'Full screen': [<FullscreenIcon key={0} />,
+      () => {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen();
+        } else {
+          if (document.exitFullscreen) {
+            document.exitFullscreen();
+          }
+        }
+      }],
   }
   const getIcon = (text) => (menu[text] ? menu[text][0] : <div />)
 
@@ -57,7 +60,7 @@ const SideMenu: VFC<Props> = ({ isMenuOpen, setMenuOpen, rtcClient }) => {
       </div>
       <Divider />
       <List>
-        {['Stream cam', 'Stream screen', 'Stop Stream', 'Full screen'].map(
+        {['Full screen'].map(
           (text, index) => (
             <ListItem button key={index} onClick={() => onClickItem(text)}>
               <ListItemIcon>{getIcon(text)}</ListItemIcon>

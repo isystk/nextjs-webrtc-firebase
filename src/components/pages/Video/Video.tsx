@@ -25,7 +25,6 @@ type Props = {
 }
 
 const Video: VFC<Props> = ({ isLocal, member, rtcClient, videoRef }) => {
-  const [muted, setMuted] = useState(rtcClient.initialAudioMuted)
   const refCard = useRef(null)
   // ブラウザの表示サイズに応じてビデオを表示する幅を取得する
   const dimensionsCard = useDimensions(refCard)
@@ -44,12 +43,18 @@ const Video: VFC<Props> = ({ isLocal, member, rtcClient, videoRef }) => {
   return (
     <Card ref={refCard}>
       <CardActionArea>
+        <img
+          src='/images/user.png'
+          width={dimensionsCard.width}
+          style={{display: rtcClient.self.videoOff ? 'block' : 'none'}}
+        />
         <video
           autoPlay
-          muted={isLocal || muted}
+          muted={isLocal || rtcClient.self.muted}
           ref={videoRef}
           width={dimensionsCard.width}
           id={`video-${member.clientId}`}
+          style={{display: !rtcClient.self.videoOff ? 'block' : 'none'}}
         />
         <CardContent>
           <Typography gutterBottom variant="h5" component="h3">
@@ -60,12 +65,10 @@ const Video: VFC<Props> = ({ isLocal, member, rtcClient, videoRef }) => {
       <CardActions>
         <VolumeButton
           isLocal={isLocal}
-          muted={muted}
           refVolumeButton={refVolumeButton}
           rtcClient={rtcClient}
-          setMuted={setMuted}
         />
-        {!muted && videoRef.current && videoRef.current.srcObject && (
+        {videoRef.current && videoRef.current.srcObject && (
           <AudioAnalyser
             audio={videoRef.current.srcObject}
             width={dimensionsCard.width - dimensionsVolumeButton.width - 40}

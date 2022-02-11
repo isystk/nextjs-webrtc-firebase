@@ -4,6 +4,8 @@ import WebRtc from '@/utilities/WebRtc'
 export type Self = {
   clientId?: string
   name: string
+  videoOff?: boolean
+  muted?: boolean
 }
 export type Room = {
   roomId?: string
@@ -15,33 +17,43 @@ export type Member = {
   webRtc: WebRtc | null
   status: string
 }
+export type Share = {
+  clientId?: string
+  name?: string
+  webRtc?: WebRtc | null
+  mediaStream?: MediaStream | null
+}
 type Members = {
   [key: string]: Member
 }
 interface RtcClientType {
   _setRtcClient: (rtcClient: RtcClient) => void
-  room: Room
+  constraints: { audio: boolean, video: boolean }
   mediaStream: MediaStream | null
-  self: Self
   members: Members
+  room: Room
+  self: Self
+  share: Share
 }
 
 export default class RtcClient implements RtcClientType {
   _setRtcClient: (rtcClient: RtcClient) => void
+  constraints: { audio: boolean, video: boolean }
   mediaStream: MediaStream | null
-  self: Self
   members: Members
   room: Room
-  constraints: { audio: boolean, video: boolean }
+  self: Self
+  share: Share
 
   constructor(setRtcClient: (rtcClient: RtcClient) => void) {
     console.log('Initial RtcClient')
     this._setRtcClient = setRtcClient
-    this.room = { roomId: undefined, name: '' }
+    this.constraints = { audio: true, video: true }
     this.mediaStream = null
-    this.self = { clientId: undefined, name: '' }
     this.members = {}
-    this.constraints = { audio: false, video: true }
+    this.room = { roomId: undefined, name: '' }
+    this.self = { clientId: undefined, name: '' }
+    this.share = { clientId: undefined, name: '' }
   }
 
   async setRtcClient() {
@@ -60,7 +72,7 @@ export default class RtcClient implements RtcClientType {
   // 画面共有の使用許可を取得する
   async getDisplayMedia() {
     try {
-      this.mediaStream = await navigator.mediaDevices.getDisplayMedia(this.constraints)
+      this.share.mediaStream = await navigator.mediaDevices.getDisplayMedia(this.constraints)
       console.log(this.mediaStream)
     } catch (error) {
       console.error(error)
@@ -105,16 +117,52 @@ export default class RtcClient implements RtcClientType {
     })
   }
 
-  get initialAudioMuted() {
-    return !WebRtc.INITIAL_AUDIO_ENABLED
+  // 映像のオン・オフを切り替える
+  async toggleVideo() {
+    this.self.videoOff = !this.self.videoOff;
+    await this.setRtcClient()
+    if (Object.keys(this.members).length === 0) return
+    Object.keys(this.members).forEach((key) => {
+      this.members[key].webRtc?.toggleVideo()
+    })
   }
 
   // 音声のオン・オフを切り替える
-  toggleAudio() {
+  async toggleAudio() {
+    this.self.muted = !this.self.muted;
+    await this.setRtcClient()
     if (Object.keys(this.members).length === 0) return
     Object.keys(this.members).forEach((key) => {
       this.members[key].webRtc?.toggleAudio()
     })
+  }
+
+  // 画面共有
+  async screanShare() {
+    try {
+
+      await this.getDisplayMedia();
+
+      // 画面共有を開始することをすべてのメンバーに通知する
+      // await this.databaseJoinRef(this.self.clientId).set({
+      //   ...this.self,
+      //   type: 'share',
+      //   clientId: this.self.clientId,
+      // })
+
+      // this.share.webRtc = new WebRtc(
+      //     this.mediaStream,
+      //     this.room.roomId,
+      //     this.self.clientId,
+      //     this.self.clientId,
+      //     this.constraints
+      // )
+      // await this.share.webRtc.startListening()
+
+      await this.setRtcClient()
+    } catch (error) {
+      console.error(error)
+    }
   }
 
   async signOut() {

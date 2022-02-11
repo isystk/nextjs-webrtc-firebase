@@ -16,8 +16,6 @@ export default class WebRtc implements WebRtcType {
   roomId: string
   rtcPeerConnection: RTCPeerConnection | null
 
-  static INITIAL_AUDIO_ENABLED = false
-
   constructor(
     mediaStream: MediaStream,
     roomId: string,
@@ -44,7 +42,7 @@ export default class WebRtc implements WebRtcType {
   }
 
   addAudioTrack(): void {
-    this.audioTrack.enabled = WebRtc.INITIAL_AUDIO_ENABLED
+    this.audioTrack.enabled = true
     this.rtcPeerConnection?.addTrack(this.audioTrack, this.mediaStream)
   }
 
@@ -58,6 +56,11 @@ export default class WebRtc implements WebRtcType {
 
   get videoTrack(): MediaStreamTrack {
     return this.mediaStream.getVideoTracks()[0]
+  }
+
+  // 映像のオン・オフを切り替える
+  toggleVideo(): void {
+    this.videoTrack.enabled = !this.videoTrack.enabled
   }
 
   // 音声のオン・オフを切り替える
