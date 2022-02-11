@@ -1,38 +1,39 @@
 import React, { FC } from 'react'
 import PropTypes from 'prop-types'
-import { useDispatch, useSelector } from 'react-redux'
 import Portal from './Portal'
-import { Parts } from '../../store/StoreTypes'
-import { hideOverlay } from '../../actions'
+import RtcClient from "@/utilities/RtcClient";
+import CloseIcon from '@material-ui/icons/Close';
+import {Fab} from "@material-ui/core";
 
-const Modal: FC = (props) => {
-  const dispatch = useDispatch()
-  const { isShowOverlay } = useSelector(parts)
+type Props = {
+  rtcClient: RtcClient
+}
 
-  const onClose = (e) => {
+const Modal: FC<Props> = ({children, isOpen, rtcClient}) => {
+
+  const onClose = async (e) => {
     e.preventDefault()
-    dispatch(hideOverlay())
+    await rtcClient.closeChat()
   }
 
   return (
     <Portal>
-      {isShowOverlay && <div id="overlay-background"></div>}
-      <div className={`isystk-overlay ${isShowOverlay ? 'open' : ''}`}>
-        <button
-          type="button"
-          className="close"
-          aria-label="Close"
-          onClick={onClose}
-        >
-          <span aria-hidden="true">&times;</span>
-        </button>
-        {props.children}
+      {isOpen && <div id="overlay-background"></div>}
+      <div className={`overlay ${isOpen ? 'open' : ''}`}>
+        <Fab color="default" aria-label="add"  style={{position: 'absolute', top: '-25px', right: '-25px'}}>
+          <CloseIcon
+            onClick={onClose}
+          >
+            <span aria-hidden="true">&times;</span>
+          </CloseIcon>
+        </Fab>
+        <div className="wrap">
+          {children}
+        </div>
       </div>
     </Portal>
   )
 }
-
-const parts = (state): Parts => state.parts
 
 Modal.propTypes = {
   children: PropTypes.oneOfType([PropTypes.string, PropTypes.element])

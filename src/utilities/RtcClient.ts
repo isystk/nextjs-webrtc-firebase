@@ -23,20 +23,14 @@ export type Share = {
   webRtc?: WebRtc | null
   mediaStream?: MediaStream | null
 }
+export type Chat = {
+  isOpen: boolean
+}
 type Members = {
   [key: string]: Member
 }
-interface RtcClientType {
-  _setRtcClient: (rtcClient: RtcClient) => void
-  constraints: { audio: boolean, video: boolean }
-  mediaStream: MediaStream | null
-  members: Members
-  room: Room
-  self: Self
-  share: Share
-}
 
-export default class RtcClient implements RtcClientType {
+export default class RtcClient {
   _setRtcClient: (rtcClient: RtcClient) => void
   constraints: { audio: boolean, video: boolean }
   mediaStream: MediaStream | null
@@ -44,6 +38,7 @@ export default class RtcClient implements RtcClientType {
   room: Room
   self: Self
   share: Share
+  chat: Chat
 
   constructor(setRtcClient: (rtcClient: RtcClient) => void) {
     console.log('Initial RtcClient')
@@ -54,6 +49,7 @@ export default class RtcClient implements RtcClientType {
     this.room = { roomId: undefined, name: '' }
     this.self = { clientId: undefined, name: '' }
     this.share = { clientId: undefined, name: '' }
+    this.chat = { isOpen: false }
   }
 
   async setRtcClient() {
@@ -135,6 +131,16 @@ export default class RtcClient implements RtcClientType {
     Object.keys(this.members).forEach((key) => {
       this.members[key].webRtc?.toggleAudio()
     })
+  }
+
+  // チャットの表示・非表示を切り替える
+  async openChat() {
+    this.chat.isOpen = true;
+    await this.setRtcClient()
+  }
+  async closeChat() {
+    this.chat.isOpen = false;
+    await this.setRtcClient()
   }
 
   // 画面共有

@@ -7,6 +7,8 @@ import { makeStyles } from '@material-ui/core/styles'
 import { useRouter } from 'next/router'
 import FloatingBtn from "@/components/pages/FloatingBtn";
 import BottomMenu from "@/components/pages/BottomMenu";
+import ChatArea from "@/components/widgets/ChatArea";
+import Modal from "@/components/widgets/Modal";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -83,7 +85,10 @@ const VideoArea: VFC<Props> = ({ rtcClient }) => {
         })}
       </Grid>
       <BottomMenu rtcClient={rtcClient} />
-      <FloatingBtn />
+      <FloatingBtn rtcClient={rtcClient} />
+      <Modal isOpen={rtcClient.chat.isOpen} rtcClient={rtcClient}>
+        <ChatArea />
+      </Modal>
     </div>
   )
 }

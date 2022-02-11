@@ -6,7 +6,7 @@ const Portal: FC = ({ children }) => {
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    const current = document.querySelector<HTMLElement>('#react-root')
+    const current = document.querySelector<HTMLElement>('body')
     if (current) {
       ref.current = current
     }

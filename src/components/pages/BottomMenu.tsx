@@ -9,7 +9,7 @@ const BottomMenu = ({rtcClient}) => {
   // ブラウザの表示サイズに応じてビデオを表示する幅を取得する
   const VolumeIcon = rtcClient.self.muted ? VolumeOffIcon : VolumeUpIcon
   const style = {
-    margin: 10,
+    margin: '0 10px',
   };
   return (
      <div style={{position: 'fixed', bottom: '20px', right: '50%', transform: 'translate(50%, 0%)'}} >
