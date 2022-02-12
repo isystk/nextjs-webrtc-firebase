@@ -14,6 +14,7 @@ export type Room = {
 }
 export type Member = {
   clientId: string
+  shareClientId?: string
   name: string
   webRtc: WebRtc | null
   status: string
@@ -27,14 +28,7 @@ export type Chat = {
 export type Share = {
   clientId?: string
   mediaStream: MediaStream | null
-  members: ShareMembers
-}
-export type ShareMember = {
-  clientId: string
   webRtc: DisplayShare | null
-}
-type ShareMembers = {
-  [key: string]: ShareMember
 }
 
 export default class RtcClient {
@@ -55,7 +49,7 @@ export default class RtcClient {
     this.members = {}
     this.room = { roomId: undefined, name: '' }
     this.self = { clientId: undefined, name: '' }
-    this.share = { clientId: undefined, mediaStream: null, members: {}}
+    this.share = { clientId: undefined, mediaStream: null, webRtc: null }
     this.chat = { isOpen: false }
   }
 
@@ -146,45 +140,47 @@ export default class RtcClient {
       const mediaStream = await navigator.mediaDevices.getDisplayMedia({ audio: false, video: true })
       this.share = {...this.share, clientId: this.self.clientId, mediaStream}
 
-      if (Object.keys(this.members).length === 0) return
-      Object.keys(this.members).forEach((key) => {
-        const member = {...this.members[key]} as ShareMember
-        this.addShare(member)
-      })
+      // joinを初期化する
+      await this.databaseJoinRef().remove()
 
-      // 画面共有を開始することをすべてのメンバーに通知する
-      await this.databaseBroadcastRef.set({
+      // メンバーに画面共有を追加する
+      const key = await this.databaseMembersRef().push({
+        type: 'share'
+      }).key
+      const self = {
+        clientId: key,
+        name: this.self.name + '(画面共有)',
+      }
+      await this.databaseMembersRef(self.clientId).update(self)
+
+      this.databaseJoinRef(self.clientId).on('value', async (snapshot) => {
+        const data = snapshot.val()
+        if (data === null) return
+        const { type, clientId } = data
+        switch (type) {
+          case 'accept':
+            console.log('receive share accept', data)
+            await this.addShare(clientId, data.shareClientId)
+            this.share.webRtc?.addTracks(mediaStream);
+            await this.share.webRtc?.offer()
+            break
+          default:
+            break
+        }
+      })
+      // 自分の通信が切断されたらFirebaseから自分を削除
+      await this.databaseMembersRef(self.clientId).onDisconnect().remove()
+
+      await this.databaseJoinRef(key).set({
+        ...this.self,
         type: 'share',
-        clientId: this.self.clientId,
-      })
-
-      Object.keys(this.share.members).forEach(async (key) => {
-        const member = this.share.members[key]
-        member.webRtc?.addTracks(mediaStream);
-        await member.webRtc?.offer()
+        shareClientId: self.clientId
       })
 
       await this.setRtcClient()
     } catch (error) {
       console.error(error)
     }
-  }
-
-  // 画面共有を開始した時やshareを受信したら画面共有を表示する
-  async addShare(data: ShareMember) {
-    if (this.self.clientId && this.room.roomId) {
-      data.webRtc = new DisplayShare(
-          this.room.roomId,
-          this.self.clientId,
-          data.clientId
-      )
-      await data.webRtc.startListening()
-    }
-    const newMember = {
-      [data.clientId]: data,
-    }
-    this.share.members = { ...this.members, ...newMember }
-    await this.setRtcClient()
   }
 
   async signOut() {
@@ -210,7 +206,7 @@ export default class RtcClient {
 
       // メンバーに自分を追加する
       const key = await this.databaseMembersRef().push({
-        name: this.self.name,
+        type: 'user'
       }).key
       this.self = {
         clientId: key + '',
@@ -241,22 +237,36 @@ export default class RtcClient {
     if (this.mediaStream && this.self.clientId && this.room.roomId) {
       const remoteVideoSelector = `#video-${data.clientId}`
       data.webRtc = new WebRtc(
-        this.mediaStream,
-        this.room.roomId,
-        this.self.clientId,
-        data.clientId,
-        remoteVideoSelector,
-        this.constraints
+          this.mediaStream,
+          this.room.roomId,
+          this.self.clientId,
+          data.clientId,
+          remoteVideoSelector,
+          this.constraints
       )
       data.status = 'online'
       await data.webRtc.startListening()
+      const newMember = {
+        [data.clientId]: data,
+      }
+      this.members = { ...this.members, ...newMember }
     } else {
       console.error('no mediaStream')
     }
-    const newMember = {
-      [data.clientId]: data,
+    await this.setRtcClient()
+  }
+
+  async addShare(shareClientId, clientId) {
+    console.log('addShare', shareClientId, clientId)
+    if (this.self.clientId && this.room.roomId) {
+      this.share.clientId = shareClientId
+      this.share.webRtc = new DisplayShare(
+          this.room.roomId,
+          shareClientId,
+          clientId
+      )
+      await this.share.webRtc.startListening()
     }
-    this.members = { ...this.members, ...newMember }
     await this.setRtcClient()
   }
 
@@ -278,20 +288,47 @@ export default class RtcClient {
     this.databaseJoinRef().on('child_added', async (snapshot) => {
       const data = snapshot.val()
       if (data === null) return
-      const { clientId } = data
+      const { type, clientId, shareClientId } = data
       if (clientId === this.self.clientId) {
         // 自分自身は無視する
         return
       }
-      // 2-1. joinを受信して新メンバーの情報をローカルに登録する
-      console.log('receive join', data)
-      await this.addMember(data)
-      // 2-2. acceptを送信する
-      await this.databaseJoinRef(clientId).set({
-        type: 'accept',
-        clientId: this.self.clientId,
-        name: this.self.name,
-      })
+      switch (type) {
+        case 'join':
+          // 2-1. joinを受信して新メンバーの情報をローカルに登録する
+          console.log('receive join', data)
+          await this.addMember(data)
+          // 2-2. acceptを送信する
+          await this.databaseJoinRef(clientId).set({
+            type: 'accept',
+            clientId: this.self.clientId,
+            name: this.self.name,
+          })
+          console.log(this.share.clientId, this.self.clientId)
+          if (this.share.clientId && this.share.clientId === this.self.clientId) {
+            await this.addShare(this.share.clientId, this.self.clientId)
+            await this.databaseJoinRef(this.share.clientId).set({
+              type: 'accept',
+              clientId: this.self.clientId,
+              shareClientId: this.share.clientId,
+              name: this.self.name,
+            })
+          }
+          break
+        case 'share':
+          // joinを受信して画面共有の情報をローカルに登録する
+          console.log('receive share', data)
+          await this.addShare(shareClientId, this.self.clientId)
+          await this.databaseJoinRef(shareClientId).set({
+            type: 'accept',
+            clientId: this.self.clientId,
+            shareClientId,
+            name: this.self.name,
+          })
+          break
+        default:
+          break
+      }
     })
     await this.databaseJoinRef(this.self.clientId).onDisconnect().remove()
 
@@ -325,28 +362,6 @@ export default class RtcClient {
     })
     // 自分の通信が切断されたらFirebaseから自分を削除
     await this.databaseMembersRef(this.self.clientId).onDisconnect().remove()
-
-    // ブロードキャスト通信に関するリスナー
-    this.databaseBroadcastRef.on('value', async (snapshot) => {
-      const data = snapshot.val()
-      if (data === null) return
-      const { type, clientId } = data
-      if (clientId === this.self.clientId) {
-        // ignore self message (自分自身からのメッセージは無視する）
-        return
-      }
-      switch (type) {
-        case 'share':
-          // 画面共有
-          console.log('receive share', data)
-          this.share = {...this.share, clientId: data.clientId}
-          await this.addShare(data)
-          break
-        default:
-          break
-      }
-      console.log('databaseBroadcastRef', data)
-    })
 
     // ダイレクト通信に関するリスナー
     const databaseDirectRef = this.databaseDirectRef(this.self.clientId)

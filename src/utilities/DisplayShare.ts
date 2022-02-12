@@ -49,7 +49,7 @@ export default class DisplayShare {
       this.rtcPeerConnection = null
 
       const databaseMembersRef = this.databaseMembersRef(
-        this.localClientId + '/connections/share/' + this.remoteClientId
+        this.localClientId + '/connections/' + this.remoteClientId
       )
       databaseMembersRef.off('value', this.listener)
     }
@@ -75,7 +75,7 @@ export default class DisplayShare {
         sessionDescription: this.localDescription,
       }
       const databaseMembersRef = this.databaseMembersRef(
-        this.remoteClientId + '/connections/share/' + this.localClientId
+        this.remoteClientId + '/connections/' + this.localClientId
       )
       console.log('send offer', data)
       await databaseMembersRef.set(data)
@@ -91,7 +91,7 @@ export default class DisplayShare {
         if (candidate) {
           // remoteへcandidate(通信経路)を通知する
           await this.databaseMembersRef(
-            this.remoteClientId + '/connections/share/' + this.localClientId
+            this.remoteClientId + '/connections/' + this.localClientId
           ).update({
             type: 'candidate',
             sender: this.localClientId,
@@ -161,7 +161,7 @@ export default class DisplayShare {
         sessionDescription: this.localDescription,
       }
       const databaseMembersRef = this.databaseMembersRef(
-        this.remoteClientId + '/connections/share/' + this.localClientId
+        this.remoteClientId + '/connections/' + this.localClientId
       )
       console.log('send answer', databaseMembersRef, data)
       await databaseMembersRef.update(data)
@@ -210,12 +210,12 @@ export default class DisplayShare {
       this.roomId +
         '/_members_/' +
         this.localClientId +
-        '/connections/share/' +
+        '/connections/' +
         this.remoteClientId
     )
 
     const databaseMembersRef = this.databaseMembersRef(
-      this.localClientId + '/connections/share/' + this.remoteClientId
+      this.localClientId + '/connections/' + this.remoteClientId
     )
     databaseMembersRef.on('value', this.listener)
     // メンバーが離脱した場合にFirebaseから削除
