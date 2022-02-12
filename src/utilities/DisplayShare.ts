@@ -1,66 +1,30 @@
 import { getDatabase } from './firebase'
 import firebase from 'firebase/app'
 
-export default class WebRtc {
+export default class DisplayShare {
   localClientId: string
-  mediaStream: MediaStream
   remoteClientId: string
-  remoteVideoSelector: string
   roomId: string
   rtcPeerConnection: RTCPeerConnection | null
 
   constructor(
-    mediaStream: MediaStream,
     roomId: string,
     localClientId: string,
-    remoteClientId: string,
-    remoteVideoSelector: string,
-    constraints: { audio: boolean, video: boolean }
+    remoteClientId: string
   ) {
     this.roomId = roomId
-    this.mediaStream = mediaStream
     this.localClientId = localClientId
     this.remoteClientId = remoteClientId
-    this.remoteVideoSelector = remoteVideoSelector
 
     const config = {
       iceServers: [{ urls: 'stun:stun.stunprotocol.org' }],
     }
     this.rtcPeerConnection = new RTCPeerConnection(config)
-    this.addTracks(constraints)
   }
 
   // ピアツーピアで通信相手に対して送信されるオーディオとビデオのトラックを追加する
-  addTracks(constratins: { audio: boolean, video: boolean }): void {
-    if (constratins.audio) this.addAudioTrack()
-    if (constratins.video) this.addVideoTrack()
-  }
-
-  addAudioTrack(): void {
-    this.audioTrack.enabled = true
-    this.rtcPeerConnection?.addTrack(this.audioTrack, this.mediaStream)
-  }
-
-  addVideoTrack(): void {
-    this.rtcPeerConnection?.addTrack(this.videoTrack, this.mediaStream)
-  }
-
-  get audioTrack(): MediaStreamTrack {
-    return this.mediaStream.getAudioTracks()[0]
-  }
-
-  get videoTrack(): MediaStreamTrack {
-    return this.mediaStream.getVideoTracks()[0]
-  }
-
-  // 映像のオン・オフを切り替える
-  toggleVideo(): void {
-    this.videoTrack.enabled = !this.videoTrack.enabled
-  }
-
-  // 音声のオン・オフを切り替える
-  toggleAudio(): void {
-    this.audioTrack.enabled = !this.audioTrack.enabled
+  addTracks(mediaStream: MediaStream): void {
+    this.rtcPeerConnection?.addTrack(mediaStream.getVideoTracks()[0], mediaStream)
   }
 
   get localDescription(): (() => any) | undefined {
@@ -75,7 +39,7 @@ export default class WebRtc {
 
   get remoteVideoRef(): HTMLVideoElement {
     return <HTMLVideoElement>(
-      document.querySelector(this.remoteVideoSelector)
+      document.querySelector('#share')
     )
   }
 
@@ -85,7 +49,7 @@ export default class WebRtc {
       this.rtcPeerConnection = null
 
       const databaseMembersRef = this.databaseMembersRef(
-        this.localClientId + '/connections/' + this.remoteClientId
+        this.localClientId + '/connections/share/' + this.remoteClientId
       )
       databaseMembersRef.off('value', this.listener)
     }
@@ -111,7 +75,7 @@ export default class WebRtc {
         sessionDescription: this.localDescription,
       }
       const databaseMembersRef = this.databaseMembersRef(
-        this.remoteClientId + '/connections/' + this.localClientId
+        this.remoteClientId + '/connections/share/' + this.localClientId
       )
       console.log('send offer', data)
       await databaseMembersRef.set(data)
@@ -127,7 +91,7 @@ export default class WebRtc {
         if (candidate) {
           // remoteへcandidate(通信経路)を通知する
           await this.databaseMembersRef(
-            this.remoteClientId + '/connections/' + this.localClientId
+            this.remoteClientId + '/connections/share/' + this.localClientId
           ).update({
             type: 'candidate',
             sender: this.localClientId,
@@ -197,7 +161,7 @@ export default class WebRtc {
         sessionDescription: this.localDescription,
       }
       const databaseMembersRef = this.databaseMembersRef(
-        this.remoteClientId + '/connections/' + this.localClientId
+        this.remoteClientId + '/connections/share/' + this.localClientId
       )
       console.log('send answer', databaseMembersRef, data)
       await databaseMembersRef.update(data)
@@ -246,12 +210,12 @@ export default class WebRtc {
       this.roomId +
         '/_members_/' +
         this.localClientId +
-        '/connections/' +
+        '/connections/share/' +
         this.remoteClientId
     )
 
     const databaseMembersRef = this.databaseMembersRef(
-      this.localClientId + '/connections/' + this.remoteClientId
+      this.localClientId + '/connections/share/' + this.remoteClientId
     )
     databaseMembersRef.on('value', this.listener)
     // メンバーが離脱した場合にFirebaseから削除

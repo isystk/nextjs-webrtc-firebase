@@ -1,12 +1,16 @@
 import * as React from 'react'
+import RtcClient from "@/utilities/RtcClient";
+import Modal from "@/components/widgets/Modal";
 
 // ↓ 表示用のデータ型
 interface IProps {
+    rtcClient: RtcClient
 }
 
-const ChatArea = ({ }: IProps) => {
+const ChatArea = ({rtcClient}: IProps) => {
   return (
-    <div className="chat-area">
+    <Modal isOpen={rtcClient.chat.isOpen} handleClose={() => rtcClient.closeChat()} >
+        <div className="chat-area">
             <div id="bms_messages_container">
                 <div id="bms_messages">
                     <div className="bms_message bms_left">
@@ -103,7 +107,8 @@ const ChatArea = ({ }: IProps) => {
                     <div id="bms_send_btn">送信</div>
                 </div>
             </div>
-    </div>
+        </div>
+    </Modal>
   )
 }
 

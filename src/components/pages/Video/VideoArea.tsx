@@ -1,5 +1,5 @@
 import Grid from '@material-ui/core/Grid'
-import React, { useEffect, useState, VFC } from 'react'
+import React, { useEffect, VFC } from 'react'
 import RtcClient from '@/utilities/RtcClient'
 import VideoLocal from './VideoLocal'
 import VideoRemote from './VideoRemote'
@@ -8,7 +8,7 @@ import { useRouter } from 'next/router'
 import FloatingBtn from "@/components/pages/FloatingBtn";
 import BottomMenu from "@/components/pages/BottomMenu";
 import ChatArea from "@/components/widgets/ChatArea";
-import Modal from "@/components/widgets/Modal";
+import DisplayShare from "@/components/pages/Video/DisplayShare";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -73,6 +73,9 @@ const VideoArea: VFC<Props> = ({ rtcClient }) => {
         <Grid item {...grid}>
           <VideoLocal rtcClient={rtcClient} />
         </Grid>
+        <Grid item {...grid}>
+          <DisplayShare rtcClient={rtcClient} />
+        </Grid>
         {Object.keys(rtcClient.members).map(function (key, idx) {
           const member = rtcClient.members[key]
           return member.status === 'online' ? (
@@ -86,9 +89,7 @@ const VideoArea: VFC<Props> = ({ rtcClient }) => {
       </Grid>
       <BottomMenu rtcClient={rtcClient} />
       <FloatingBtn rtcClient={rtcClient} />
-      <Modal isOpen={rtcClient.chat.isOpen} rtcClient={rtcClient}>
-        <ChatArea />
-      </Modal>
+      <ChatArea rtcClient={rtcClient} />
     </div>
   )
 }

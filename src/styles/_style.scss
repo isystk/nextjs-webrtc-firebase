@@ -94,12 +94,6 @@ padding: 10px;
 
 /* チャットエリア */
 .chat-area {
-/* チャットの外側部分① */
-#bms_messages_container{
-    height: 100%;/*your_containerに対して100%になる */
-    width: 100%;/*your_containerに対して100%になる */
-    background-color: #eee;
-}
 
 /* ヘッダー部分② */
 #bms_chat_header {
@@ -127,8 +121,8 @@ padding: 10px;
 
 /* タイムライン部分③ */
 #bms_messages {
-    overflow: auto;/* スクロールを効かせつつ、メッセージがタイムラインの外に出ないようにする */
-    height: 90%;/*テキストエリアが下に張り付く様にする*/
+    overflow: scroll;
+    height: 73vh;
     border-right: 1px solid #ddd;
     border-left: 1px solid #ddd;
     background-color: #eee;

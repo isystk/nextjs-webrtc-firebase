@@ -1,19 +1,38 @@
-import React, { FC } from 'react'
-import PropTypes from 'prop-types'
-import Portal from './Portal'
-import RtcClient from "@/utilities/RtcClient";
+import React, {FC, useEffect, useRef, useState} from 'react'
+import ReactDOM from 'react-dom';
 import CloseIcon from '@material-ui/icons/Close';
 import {Fab} from "@material-ui/core";
 
 type Props = {
-  rtcClient: RtcClient
+  isOpen: boolean,
+  handleClose: () => {}
 }
 
-const Modal: FC<Props> = ({children, isOpen, rtcClient}) => {
+const Modal: FC<Props> = ({children, isOpen, handleClose}) => {
 
-  const onClose = async (e) => {
+  const onClose = (e) => {
     e.preventDefault()
-    await rtcClient.closeChat()
+    handleClose()
+  }
+
+  const Portal: FC = ({ children }) => {
+    const ref = useRef<HTMLElement>()
+    const [mounted, setMounted] = useState(false)
+
+    useEffect(() => {
+      const current = document.querySelector<HTMLElement>('body')
+      if (current) {
+        ref.current = current
+      }
+      setMounted(true)
+    }, [])
+
+    return mounted
+        ? ReactDOM.createPortal(
+            <>{children}</>,
+            ref.current ? ref.current : new Element()
+        )
+        : null
   }
 
   return (
@@ -35,9 +54,5 @@ const Modal: FC<Props> = ({children, isOpen, rtcClient}) => {
   )
 }
 
-Modal.propTypes = {
-  children: PropTypes.oneOfType([PropTypes.string, PropTypes.element])
-    .isRequired,
-}
 
 export default Modal
