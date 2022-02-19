@@ -8,7 +8,7 @@ import { useRouter } from 'next/router'
 import FloatingBtn from "@/components/pages/FloatingBtn";
 import BottomMenu from "@/components/pages/BottomMenu";
 import ChatArea from "@/components/widgets/ChatArea";
-import DisplayShare from "@/components/pages/Video/DisplayShare";
+import DisplayShare from "@/components/widgets/DisplayShare";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -73,9 +73,6 @@ const VideoArea: VFC<Props> = ({ rtcClient }) => {
         <Grid item {...grid}>
           <VideoLocal rtcClient={rtcClient} />
         </Grid>
-        <Grid item {...grid}>
-          <DisplayShare rtcClient={rtcClient} />
-        </Grid>
         {Object.keys(rtcClient.members).map(function (key, idx) {
           const member = rtcClient.members[key]
           return member.status === 'online' ? (
@@ -87,6 +84,7 @@ const VideoArea: VFC<Props> = ({ rtcClient }) => {
           )
         })}
       </Grid>
+      <DisplayShare rtcClient={rtcClient} />
       <BottomMenu rtcClient={rtcClient} />
       <FloatingBtn rtcClient={rtcClient} />
       <ChatArea rtcClient={rtcClient} />

@@ -177,10 +177,24 @@ export default class RtcClient {
         shareClientId: self.clientId
       })
 
+      window.setTimeout(async () => {
+        const shareVideoRef = <HTMLVideoElement>(document.querySelector('#share'));
+        shareVideoRef.srcObject = mediaStream;
+      }, 500)
+
       await this.setRtcClient()
     } catch (error) {
       console.error(error)
     }
+  }
+
+  async stopShare() {
+    this.share.webRtc?.disconnect();
+    this.share = { clientId: undefined, mediaStream: null, webRtc: null }
+
+    // TODO 画面共有の終了処理
+
+    await this.setRtcClient()
   }
 
   async signOut() {
