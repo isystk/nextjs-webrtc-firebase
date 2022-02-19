@@ -3,7 +3,6 @@ import RtcClient from "@/utilities/RtcClient";
 import Modal from "@/components/widgets/Modal";
 import {Button, TextField} from "@material-ui/core";
 import {useCallback, useEffect, useState} from "react";
-import {makeStyles} from "@material-ui/core/styles";
 
 // ↓ 表示用のデータ型
 interface IProps {
@@ -24,10 +23,8 @@ const ChatArea = ({rtcClient}: IProps) => {
   const initializeLocalPeer = useCallback(
       async (e) => {
           e.persist()
-
-          console.log(message)
-
-
+          await rtcClient.sendChat(message)
+          setMessage('')
           e.preventDefault()
       },
       [message, rtcClient]
@@ -38,97 +35,23 @@ const ChatArea = ({rtcClient}: IProps) => {
         <div className="chat-area">
             <div id="bms_messages_container">
                 <div id="bms_messages">
-                    <div className="bms_message bms_left">
-                        <div className="bms_message_box">
-                            <div className="bms_message_content">
-                                <div className="bms_message_text">ほうほうこりゃー便利じゃないか</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="bms_clear"></div>
-                    <div className="bms_message bms_right">
-                        <div className="bms_message_box">
-                            <div className="bms_message_content">
-                                <div className="bms_message_text">うん、まあまあいけとるな</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="bms_clear"></div>
-                    <div className="bms_message bms_right">
-                        <div className="bms_message_box">
-                            <div className="bms_message_content">
-                                <div className="bms_message_text">うん、まあまあいけとるな</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="bms_clear"></div>
-                    <div className="bms_message bms_right">
-                        <div className="bms_message_box">
-                            <div className="bms_message_content">
-                                <div className="bms_message_text">うん、まあまあいけとるな</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="bms_clear"></div>
-                    <div className="bms_message bms_right">
-                        <div className="bms_message_box">
-                            <div className="bms_message_content">
-                                <div className="bms_message_text">うん、まあまあいけとるな</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="bms_clear"></div>
-                    <div className="bms_message bms_right">
-                        <div className="bms_message_box">
-                            <div className="bms_message_content">
-                                <div className="bms_message_text">うん、まあまあいけとるな</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="bms_clear"></div>
-                    <div className="bms_message bms_right">
-                        <div className="bms_message_box">
-                            <div className="bms_message_content">
-                                <div className="bms_message_text">うん、まあまあいけとるな</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="bms_clear"></div>
-                    <div className="bms_message bms_right">
-                        <div className="bms_message_box">
-                            <div className="bms_message_content">
-                                <div className="bms_message_text">うん、まあまあいけとるな</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="bms_clear"></div>
-                    <div className="bms_message bms_right">
-                        <div className="bms_message_box">
-                            <div className="bms_message_content">
-                                <div className="bms_message_text">うん、まあまあいけとるな</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="bms_clear"></div>
-                    <div className="bms_message bms_right">
-                        <div className="bms_message_box">
-                            <div className="bms_message_content">
-                                <div className="bms_message_text">うん、まあまあいけとるな</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="bms_clear"></div>
-                    <div className="bms_message bms_right">
-                        <div className="bms_message_box">
-                            <div className="bms_message_content">
-                                <div className="bms_message_text">うん、まあまあいけとるな</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="bms_clear"></div>
+                    {rtcClient.chat.messages.map((message, index) => {
+                        return (
+                            <>
+                                <div key={index} className={`bms_message ${message.clientId===rtcClient.self.clientId ? 'bms_left' : 'bms_right'}`}>
+                                    <div className="bms_message_box">
+                                        <div className="bms_message_content">
+                                            <div className="bms_message_text">{message.text}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="bms_clear"></div>
+                            </>
+                            )
+                        })
+                    }
                 </div>
                 <div>
-                  <form noValidate id="bms_send">
                     <TextField
                         className="bms_send_message"
                         autoFocus
@@ -158,7 +81,6 @@ const ChatArea = ({rtcClient}: IProps) => {
                         >
                         送信
                     </Button>
-                  </form>
                 </div>
             </div>
         </div>

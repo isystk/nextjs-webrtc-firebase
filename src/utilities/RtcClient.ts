@@ -1,6 +1,7 @@
 import { getDatabase, getAuth } from '@/utilities/firebase'
 import WebRtc from '@/utilities/WebRtc'
 import DisplayShare from "@/utilities/DisplayShare";
+import {now} from "moment";
 
 export type Self = {
   clientId?: string
@@ -24,6 +25,12 @@ type Members = {
 }
 export type Chat = {
   isOpen: boolean
+  messages: ChatMessage[]
+}
+export type ChatMessage = {
+  text: string
+  clientId: string
+  datetime: Date
 }
 export type Share = {
   clientId?: string
@@ -50,7 +57,7 @@ export default class RtcClient {
     this.room = { roomId: undefined, name: '' }
     this.self = { clientId: undefined, name: '' }
     this.share = { clientId: undefined, mediaStream: null, webRtc: null }
-    this.chat = { isOpen: false }
+    this.chat = { isOpen: false, messages: [] }
   }
 
   async setRtcClient() {
@@ -131,6 +138,21 @@ export default class RtcClient {
   }
   async closeChat() {
     this.chat.isOpen = false;
+    await this.setRtcClient()
+  }
+  async sendChat(text) {
+    const message = {
+      type: 'chat',
+      text,
+      clientId: this.self.clientId,
+      datetime: now()
+    } as ChatMessage
+    this.chat.messages = [...this.chat.messages, message]
+    await this.databaseBroadcastRef.set(message)
+    await this.setRtcClient()
+  }
+  async receiveChat(message: ChatMessage) {
+    this.chat.messages = [...this.chat.messages, message]
     await this.setRtcClient()
   }
 
@@ -378,11 +400,30 @@ export default class RtcClient {
     await this.databaseMembersRef(this.self.clientId).onDisconnect().remove()
 
     // ダイレクト通信に関するリスナー
-    const databaseDirectRef = this.databaseDirectRef(this.self.clientId)
-    databaseDirectRef.on('value', (snapshot) => {
+    this.databaseBroadcastRef.on('value', async (snapshot) => {
       const data = snapshot.val()
       if (data === null) return
-      console.log('databaseDirectRef', data)
+      console.log(data)
+      const { type, clientId } = data
+      if (clientId === this.self.clientId) {
+        // ignore self message (自分自身からのメッセージは無視する）
+        return
+      }
+      switch (type) {
+        case 'chat':
+          await this.receiveChat(data)
+          break
+        default:
+          break
+      }
+    })
+
+    // ダイレクト通信に関するリスナー
+    const databaseDirectRef = this.databaseDirectRef(this.self.clientId)
+    databaseDirectRef.on('value', async (snapshot) => {
+      const data = snapshot.val()
+      if (data === null) return
+      console.log('receive Direct', data)
     })
   }
 
