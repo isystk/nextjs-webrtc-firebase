@@ -38,14 +38,6 @@ const VideoLocal: VFC<Props> = ({ rtcClient }) => {
         rtcClient={rtcClient}
         videoRef={videoRef}
       />
-      <Button
-        color="primary"
-        onClick={() => rtcClient.sendAll()}
-        type="submit"
-        variant="contained"
-      >
-        みんなに送信
-      </Button>
     </>
   )
 }

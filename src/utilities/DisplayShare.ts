@@ -1,5 +1,5 @@
 import { getDatabase } from './firebase'
-import firebase from 'firebase/app'
+import firebase from 'firebase/compat/app'
 
 export default class DisplayShare {
   localClientId: string
@@ -7,11 +7,7 @@ export default class DisplayShare {
   roomId: string
   rtcPeerConnection: RTCPeerConnection | null
 
-  constructor(
-    roomId: string,
-    localClientId: string,
-    remoteClientId: string
-  ) {
+  constructor(roomId: string, localClientId: string, remoteClientId: string) {
     this.roomId = roomId
     this.localClientId = localClientId
     this.remoteClientId = remoteClientId
@@ -24,7 +20,10 @@ export default class DisplayShare {
 
   // ピアツーピアで通信相手に対して送信されるオーディオとビデオのトラックを追加する
   addTracks(mediaStream: MediaStream): void {
-    this.rtcPeerConnection?.addTrack(mediaStream.getVideoTracks()[0], mediaStream)
+    this.rtcPeerConnection?.addTrack(
+      mediaStream.getVideoTracks()[0],
+      mediaStream
+    )
   }
 
   get localDescription(): (() => any) | undefined {
@@ -38,9 +37,7 @@ export default class DisplayShare {
   }
 
   get remoteVideoRef(): HTMLVideoElement {
-    return <HTMLVideoElement>(
-      document.querySelector('#share')
-    )
+    return <HTMLVideoElement>document.querySelector('#share')
   }
 
   disconnect(): void {

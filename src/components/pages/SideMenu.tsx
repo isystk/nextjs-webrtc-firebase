@@ -1,4 +1,10 @@
-import React, {Dispatch, SetStateAction, useEffect, useState, VFC} from 'react'
+import React, {
+  Dispatch,
+  SetStateAction,
+  useEffect,
+  useState,
+  VFC,
+} from 'react'
 import PropTypes from 'prop-types'
 import {
   Divider,
@@ -31,16 +37,18 @@ const SideMenu: VFC<Props> = ({ isMenuOpen, setMenuOpen, rtcClient }) => {
         await router.push('/')
       },
     ],
-    'Full screen': [<FullscreenIcon key={0} />,
+    'Full screen': [
+      <FullscreenIcon key={0} />,
       () => {
         if (!document.fullscreenElement) {
-          document.documentElement.requestFullscreen();
+          document.documentElement.requestFullscreen()
         } else {
           if (document.exitFullscreen) {
-            document.exitFullscreen();
+            document.exitFullscreen()
           }
         }
-      }],
+      },
+    ],
   }
   const getIcon = (text) => (menu[text] ? menu[text][0] : <div />)
 
@@ -60,14 +68,12 @@ const SideMenu: VFC<Props> = ({ isMenuOpen, setMenuOpen, rtcClient }) => {
       </div>
       <Divider />
       <List>
-        {['Full screen'].map(
-          (text, index) => (
-            <ListItem button key={index} onClick={() => onClickItem(text)}>
-              <ListItemIcon>{getIcon(text)}</ListItemIcon>
-              <ListItemText primary={text} />
-            </ListItem>
-          )
-        )}
+        {['Full screen'].map((text, index) => (
+          <ListItem button key={index} onClick={() => onClickItem(text)}>
+            <ListItemIcon>{getIcon(text)}</ListItemIcon>
+            <ListItemText primary={text} />
+          </ListItem>
+        ))}
       </List>
       <Divider />
       <List>

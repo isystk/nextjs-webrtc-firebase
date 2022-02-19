@@ -7,7 +7,7 @@ import CssBaseline from '@material-ui/core/CssBaseline'
 import Container from '@material-ui/core/Container'
 import Button from '@material-ui/core/Button'
 import { getAuth } from '@/utilities/firebase'
-import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth';
+import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth'
 import firebase from 'firebase/compat/app'
 
 const useStyles = makeStyles((theme) => ({
@@ -46,18 +46,19 @@ const SignIn: VFC<Props> = ({ rtcClient }) => {
     setDisabled(disabled)
   }, [name])
 
-
   // Listen to the Firebase Auth state and set the local state.
   useEffect(() => {
-    const unregisterAuthObserver = firebase.auth().onAuthStateChanged(async (user) => {
-      if (user !== null) {
-        const {displayName, email, photoURL, emailVerified, uid} = user;
-        console.log(displayName, email, photoURL, emailVerified, uid);
-        await rtcClient.setLocalPeerName(displayName+'')
-      }
-    });
-    return () => unregisterAuthObserver();
-  }, []);
+    const unregisterAuthObserver = firebase
+      .auth()
+      .onAuthStateChanged(async (user) => {
+        if (user !== null) {
+          const { displayName, email, photoURL, emailVerified, uid } = user
+          console.log(displayName, email, photoURL, emailVerified, uid)
+          await rtcClient.setLocalPeerName(displayName + '')
+        }
+      })
+    return () => unregisterAuthObserver()
+  }, [])
 
   const initializeLocalPeer = useCallback(
     async (e) => {
@@ -67,7 +68,6 @@ const SignIn: VFC<Props> = ({ rtcClient }) => {
     },
     [name, rtcClient]
   )
-
 
   const firebaseAuthConfig = {
     signInFlow: 'popup',
@@ -86,7 +86,7 @@ const SignIn: VFC<Props> = ({ rtcClient }) => {
       // Avoid redirects after sign-in.
       signInSuccessWithAuthResult: () => false,
     },
-  };
+  }
 
   if (rtcClient.self.name !== '') return <></>
 
@@ -98,8 +98,8 @@ const SignIn: VFC<Props> = ({ rtcClient }) => {
           {label}を入力してください
         </Typography>
         <StyledFirebaseAuth
-            uiConfig={firebaseAuthConfig}
-            firebaseAuth={getAuth()}
+          uiConfig={firebaseAuthConfig}
+          firebaseAuth={getAuth()}
         />
         <form className={classes.form} noValidate>
           <TextField

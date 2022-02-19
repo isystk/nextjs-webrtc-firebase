@@ -44,9 +44,9 @@ const Video: VFC<Props> = ({ isLocal, member, rtcClient, videoRef }) => {
     <Card ref={refCard}>
       <CardActionArea>
         <img
-          src='/images/user.png'
+          src="/images/user.png"
           width={dimensionsCard.width}
-          style={{display: rtcClient.self.videoOff ? 'block' : 'none'}}
+          style={{ display: rtcClient.self.videoOff ? 'block' : 'none' }}
         />
         <video
           autoPlay
@@ -54,7 +54,7 @@ const Video: VFC<Props> = ({ isLocal, member, rtcClient, videoRef }) => {
           ref={videoRef}
           width={dimensionsCard.width}
           id={`video-${member.clientId}`}
-          style={{display: !rtcClient.self.videoOff ? 'block' : 'none'}}
+          style={{ display: !rtcClient.self.videoOff ? 'block' : 'none' }}
         />
         <CardContent>
           <Typography gutterBottom variant="h5" component="h3">

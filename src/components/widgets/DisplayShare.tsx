@@ -1,7 +1,7 @@
-import React, {VFC, useRef, useEffect} from 'react'
+import React, { VFC, useRef, useEffect } from 'react'
 
 import RtcClient from '@/utilities/RtcClient'
-import Modal from "@/components/widgets/Modal";
+import Modal from '@/components/widgets/Modal'
 
 type Props = {
   rtcClient: RtcClient
@@ -21,14 +21,11 @@ const DisplayShare: VFC<Props> = ({ rtcClient }) => {
   // }, [currentVideoRef, mediaStream])
 
   return (
-    <Modal isOpen={rtcClient.share.clientId} handleClose={() => rtcClient.stopShare()} >
-      <video
-          autoPlay
-          muted={true}
-          ref={videoRef}
-          width='100%'
-          id='share'
-       />
+    <Modal
+      isOpen={rtcClient.share.clientId}
+      handleClose={() => rtcClient.stopShare()}
+    >
+      <video autoPlay muted={true} ref={videoRef} width="100%" id="share" />
     </Modal>
   )
 }

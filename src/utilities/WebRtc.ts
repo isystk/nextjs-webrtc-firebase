@@ -1,5 +1,5 @@
 import { getDatabase } from './firebase'
-import firebase from 'firebase/app'
+import firebase from 'firebase/compat/app'
 
 export default class WebRtc {
   localClientId: string
@@ -15,7 +15,7 @@ export default class WebRtc {
     localClientId: string,
     remoteClientId: string,
     remoteVideoSelector: string,
-    constraints: { audio: boolean, video: boolean }
+    constraints: { audio: boolean; video: boolean }
   ) {
     this.roomId = roomId
     this.mediaStream = mediaStream
@@ -31,7 +31,7 @@ export default class WebRtc {
   }
 
   // ピアツーピアで通信相手に対して送信されるオーディオとビデオのトラックを追加する
-  addTracks(constratins: { audio: boolean, video: boolean }): void {
+  addTracks(constratins: { audio: boolean; video: boolean }): void {
     if (constratins.audio) this.addAudioTrack()
     if (constratins.video) this.addVideoTrack()
   }
@@ -74,9 +74,7 @@ export default class WebRtc {
   }
 
   get remoteVideoRef(): HTMLVideoElement {
-    return <HTMLVideoElement>(
-      document.querySelector(this.remoteVideoSelector)
-    )
+    return <HTMLVideoElement>document.querySelector(this.remoteVideoSelector)
   }
 
   disconnect(): void {

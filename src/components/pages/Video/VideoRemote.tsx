@@ -22,14 +22,6 @@ const VideoRemote: VFC<Props> = ({ rtcClient, member }) => {
         rtcClient={rtcClient}
         videoRef={videoRef}
       />
-      <Button
-        color="primary"
-        onClick={() => rtcClient.sendTarget(member.clientId)}
-        type="submit"
-        variant="contained"
-      >
-        送信
-      </Button>
     </>
   )
 }

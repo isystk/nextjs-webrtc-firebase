@@ -19,7 +19,7 @@ const VolumeButton: VFC<Props> = ({
   isLocal,
   refVolumeButton,
   rtcClient,
-  color = 'black'
+  color = 'black',
 }) => {
   const Icon = isLocal && rtcClient.self.muted ? VolumeOffIcon : VolumeUpIcon
 

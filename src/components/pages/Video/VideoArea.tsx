@@ -5,10 +5,10 @@ import VideoLocal from './VideoLocal'
 import VideoRemote from './VideoRemote'
 import { makeStyles } from '@material-ui/core/styles'
 import { useRouter } from 'next/router'
-import FloatingBtn from "@/components/pages/FloatingBtn";
-import BottomMenu from "@/components/pages/BottomMenu";
-import ChatArea from "@/components/widgets/ChatArea";
-import DisplayShare from "@/components/widgets/DisplayShare";
+import FloatingBtn from '@/components/pages/FloatingBtn'
+import BottomMenu from '@/components/pages/BottomMenu'
+import ChatArea from '@/components/widgets/ChatArea'
+import DisplayShare from '@/components/widgets/DisplayShare'
 
 const useStyles = makeStyles((theme) => ({
   root: {
