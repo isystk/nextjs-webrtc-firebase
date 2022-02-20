@@ -60,10 +60,9 @@ export const getMessaging = () => {
   return getApp().messaging()
 }
 export const getMessagingToken = async () => {
-  console.log('vapidKey!!', config.messagingVapidKey)
-  // return await getMessaging().getToken({ vapidKey: config.messagingVapidKey })
-  return  getMessaging()
-      .getToken({ vapidKey: config.messagingVapidKey })
+  return await getMessaging()
+      // .getToken({ vapidKey: config.messagingVapidKey })
+      .getToken()
       .then(currentToken => {
           console.log('Success!!', currentToken)
         return currentToken;

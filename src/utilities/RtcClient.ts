@@ -262,8 +262,6 @@ export default class RtcClient {
       // シグナリングサーバーをリスンする
       await this.startListening()
 
-      console.log("getMessagingToken", getMessagingToken());
-
       // 1. Aさんがルームに入ったらブロードキャストですべてのメンバーにjoinを送信する
       console.log('send join', this.room.roomId, this.self)
       await this.databaseJoinRef(this.self.clientId).set({
