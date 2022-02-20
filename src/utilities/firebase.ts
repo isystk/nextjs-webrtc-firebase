@@ -3,6 +3,7 @@ import 'firebase/compat/auth'
 import 'firebase/compat/firestore'
 import 'firebase/compat/functions'
 import 'firebase/compat/database'
+import 'firebase/compat/messaging'
 
 const isEmulator = () => {
   const useEmulator = process.env.USE_FIREBASE_EMULATOR
@@ -16,6 +17,7 @@ const config = {
   projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
   storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  messagingVapidKey: process.env.REACT_APP_FIREBASE_MESSAGING_VAPID_KEY,
   appId: process.env.REACT_APP_FIREBASE_APP_ID,
 }
 
@@ -29,6 +31,12 @@ export const getApp = () => {
       firebase.functions().useEmulator('localhost', 5001)
       firebase.database().useEmulator('localhost', 9000)
     }
+
+    // this is working
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.addEventListener('message', (event) => console.log('event for the service worker', event))
+    }
+
   } else {
     firebase.app()
   }
@@ -46,6 +54,24 @@ export const getFirestore = () => {
 
 export const getFunctions = () => {
   return getApp().functions()
+}
+
+export const getMessaging = () => {
+  return getApp().messaging()
+}
+export const getMessagingToken = async () => {
+  console.log('vapidKey!!', config.messagingVapidKey)
+  // return await getMessaging().getToken({ vapidKey: config.messagingVapidKey })
+  return  getMessaging()
+      .getToken({ vapidKey: config.messagingVapidKey })
+      .then(currentToken => {
+          console.log('Success!!', currentToken)
+        return currentToken;
+      })
+      .catch(err => {
+        console.log('An error occurred while retrieving token. ', err)
+        // ...
+      })
 }
 
 export const getDatabase = (path = '') => {

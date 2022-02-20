@@ -1,4 +1,4 @@
-import { getDatabase, getAuth } from '@/utilities/firebase'
+import { getDatabase, getAuth, getMessagingToken } from '@/utilities/firebase'
 import WebRtc from '@/utilities/WebRtc'
 import DisplayShare from '@/utilities/DisplayShare'
 
@@ -261,6 +261,8 @@ export default class RtcClient {
 
       // シグナリングサーバーをリスンする
       await this.startListening()
+
+      console.log("getMessagingToken", getMessagingToken());
 
       // 1. Aさんがルームに入ったらブロードキャストですべてのメンバーにjoinを送信する
       console.log('send join', this.room.roomId, this.self)
