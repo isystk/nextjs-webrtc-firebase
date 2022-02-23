@@ -153,7 +153,7 @@ $ ./dc.sh stop
 | :---------------------------------------| :-------------------------------|
 | [RTCPeerConnection](https://developer.mozilla.org/ja/docs/Web/API/RTCPeerConnection)| RTCPeerConnection |
 | [STUNTMAN](http://www.stunprotocol.org/)| Public STUN server |
-| [Material Icons](https://v4.mui.com/components/material-iconshttps://v4.mui.com/components/material-icons/)| Material Icons |
+| [Material Icons](https://v4.mui.com/components/material-icons/)| Material Icons |
 
 
 

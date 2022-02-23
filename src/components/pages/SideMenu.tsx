@@ -1,11 +1,4 @@
-import React, {
-  Dispatch,
-  SetStateAction,
-  useEffect,
-  useState,
-  VFC,
-} from 'react'
-import PropTypes from 'prop-types'
+import React, { Dispatch, SetStateAction, VFC } from 'react'
 import {
   Divider,
   Drawer,
@@ -18,6 +11,8 @@ import {
 import ExitToAppIcon from '@material-ui/icons/ExitToApp'
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft'
 import FullscreenIcon from '@material-ui/icons/Fullscreen'
+import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord'
+import StopIcon from '@material-ui/icons/Stop'
 import { useRouter } from 'next/router'
 import RtcClient from '@/utilities/RtcClient'
 
@@ -29,6 +24,11 @@ type Props = {
 
 const SideMenu: VFC<Props> = ({ isMenuOpen, setMenuOpen, rtcClient }) => {
   const router = useRouter()
+
+  const RecoderIcon = rtcClient.recorder.isRecording
+    ? StopIcon
+    : FiberManualRecordIcon
+
   const menu = {
     'Exit room': [
       <ExitToAppIcon key={0} />,
@@ -46,6 +46,16 @@ const SideMenu: VFC<Props> = ({ isMenuOpen, setMenuOpen, rtcClient }) => {
           if (document.exitFullscreen) {
             document.exitFullscreen()
           }
+        }
+      },
+    ],
+    Recorder: [
+      <RecoderIcon key={0} />,
+      async () => {
+        if (rtcClient.recorder.isRecording) {
+          await rtcClient.stopRecorder()
+        } else {
+          await rtcClient.startRecorder()
         }
       },
     ],
@@ -83,19 +93,15 @@ const SideMenu: VFC<Props> = ({ isMenuOpen, setMenuOpen, rtcClient }) => {
             <ListItemText primary={text} />
           </ListItem>
         ))}
+        {['Recorder'].map((text, index) => (
+          <ListItem button key={index} onClick={() => onClickItem(text)}>
+            <ListItemIcon>{getIcon(text)}</ListItemIcon>
+            <ListItemText primary={text} />
+          </ListItem>
+        ))}
       </List>
     </Drawer>
   )
-}
-
-SideMenu.propTypes = {
-  onCaptureStart: PropTypes.func,
-  onCameraStart: PropTypes.func,
-  onVideoStop: PropTypes.func,
-  onCall: PropTypes.func,
-  onBye: PropTypes.func,
-  onMute: PropTypes.func,
-  onFullScreen: PropTypes.func,
 }
 
 export default SideMenu

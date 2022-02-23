@@ -1,4 +1,4 @@
-import { getDatabase, getAuth, getMessagingToken } from '@/utilities/firebase'
+import { getDatabase, getAuth } from '@/utilities/firebase'
 import WebRtc from '@/utilities/WebRtc'
 import DisplayShare from '@/utilities/DisplayShare'
 
@@ -36,6 +36,13 @@ export type Share = {
   mediaStream: MediaStream | null
   webRtc: DisplayShare | null
 }
+export type Recoder = {
+  // @ts-ignore
+  mediaRecorder: MediaRecorder | null
+  isRecording: boolean
+  isOpen: boolean
+  chunks: []
+}
 
 export default class RtcClient {
   _setRtcClient: (rtcClient: RtcClient) => void
@@ -46,6 +53,7 @@ export default class RtcClient {
   self: Self
   share: Share
   chat: Chat
+  recorder: Recoder
 
   constructor(setRtcClient: (rtcClient: RtcClient) => void) {
     console.log('Initial RtcClient')
@@ -57,6 +65,12 @@ export default class RtcClient {
     this.self = { clientId: undefined, name: '' }
     this.share = { clientId: undefined, mediaStream: null, webRtc: null }
     this.chat = { isOpen: false, messages: [] }
+    this.recorder = {
+      mediaRecorder: null,
+      isRecording: false,
+      isOpen: false,
+      chunks: [],
+    }
   }
 
   async setRtcClient() {
@@ -225,6 +239,63 @@ export default class RtcClient {
 
     // TODO 画面共有の終了処理
 
+    await this.setRtcClient()
+  }
+
+  // 録画の開始
+  async startRecorder() {
+    if (this.recorder.isRecording) {
+      alert('録画中です')
+      return
+    }
+    // @ts-ignore
+    const videoStream = await navigator.mediaDevices.getDisplayMedia({
+      audio: true, // PCからの音声
+      video: true, // PCの画面キャプチャ
+    })
+    const audioStream = await navigator.mediaDevices.getUserMedia({
+      video: false, // 外部カメラからの映像
+      audio: true, // マイクからの音声
+    })
+    const mediaStream = new MediaStream([
+      ...videoStream.getTracks(),
+      ...audioStream.getTracks(),
+    ])
+    // @ts-ignore
+    this.recorder.mediaRecorder = new MediaRecorder(mediaStream, {
+      videoBitsPerSecond: 512000, // 512kbits / sec
+      mimeType: 'video/webm; codecs=vp9',
+    })
+    // @ts-ignore
+    this.recorder.mediaRecorder.ondataavailable = (e) => {
+      // 録画が終了したタイミングで呼び出される
+      console.log('record start')
+      // @ts-ignore
+      this.recorder.chunks.push(e.data)
+    }
+    // 録画開始
+    this.recorder.isRecording = true
+    this.recorder.mediaRecorder.start()
+    await this.setRtcClient()
+  }
+  // 録画の停止
+  async stopRecorder() {
+    // 録画ファイルのダウンロード
+    console.log('record download')
+
+    this.recorder.mediaRecorder.onstop = async () => {
+      this.recorder.mediaRecorder = null
+      this.recorder.isRecording = false
+      this.recorder.isOpen = true
+      await this.setRtcClient()
+    }
+    this.recorder.mediaRecorder.stop()
+
+    await this.setRtcClient()
+  }
+  // 録画モーダルを閉じる
+  async closeRecorder() {
+    this.recorder.isOpen = false
     await this.setRtcClient()
   }
 

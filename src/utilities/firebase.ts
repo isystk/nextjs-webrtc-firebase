@@ -34,9 +34,10 @@ export const getApp = () => {
 
     // this is working
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.addEventListener('message', (event) => console.log('event for the service worker', event))
+      navigator.serviceWorker.addEventListener('message', (event) =>
+        console.log('event for the service worker', event)
+      )
     }
-
   } else {
     firebase.app()
   }
@@ -61,16 +62,16 @@ export const getMessaging = () => {
 }
 export const getMessagingToken = async () => {
   return await getMessaging()
-      // .getToken({ vapidKey: config.messagingVapidKey })
-      .getToken()
-      .then(currentToken => {
-          console.log('Success!!', currentToken)
-        return currentToken;
-      })
-      .catch(err => {
-        console.log('An error occurred while retrieving token. ', err)
-        // ...
-      })
+    // .getToken({ vapidKey: config.messagingVapidKey })
+    .getToken()
+    .then((currentToken) => {
+      console.log('Success!!', currentToken)
+      return currentToken
+    })
+    .catch((err) => {
+      console.log('An error occurred while retrieving token. ', err)
+      // ...
+    })
 }
 
 export const getDatabase = (path = '') => {

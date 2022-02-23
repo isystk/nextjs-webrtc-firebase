@@ -9,6 +9,7 @@ import FloatingBtn from '@/components/pages/FloatingBtn'
 import BottomMenu from '@/components/pages/BottomMenu'
 import ChatArea from '@/components/widgets/ChatArea'
 import DisplayShare from '@/components/widgets/DisplayShare'
+import Recorder from '@/components/widgets/Recorder'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -88,6 +89,7 @@ const VideoArea: VFC<Props> = ({ rtcClient }) => {
       <BottomMenu rtcClient={rtcClient} />
       <FloatingBtn rtcClient={rtcClient} />
       <ChatArea rtcClient={rtcClient} />
+      <Recorder rtcClient={rtcClient} />
     </div>
   )
 }
