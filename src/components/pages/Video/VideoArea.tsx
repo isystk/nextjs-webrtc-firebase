@@ -6,7 +6,7 @@ import VideoRemote from './VideoRemote'
 import { makeStyles } from '@material-ui/core/styles'
 import { useRouter } from 'next/router'
 import FloatingBtn from '@/components/pages/FloatingBtn'
-import BottomMenu from '@/components/pages/BottomMenu'
+import MenuBtn from '@/components/pages/MenuBtn'
 import ChatArea from '@/components/widgets/ChatArea'
 import DisplayShare from '@/components/widgets/DisplayShare'
 import Recorder from '@/components/widgets/Recorder'
@@ -86,7 +86,7 @@ const VideoArea: VFC<Props> = ({ rtcClient }) => {
         })}
       </Grid>
       <DisplayShare rtcClient={rtcClient} />
-      <BottomMenu rtcClient={rtcClient} />
+      <MenuBtn rtcClient={rtcClient} />
       <FloatingBtn rtcClient={rtcClient} />
       <ChatArea rtcClient={rtcClient} />
       <Recorder rtcClient={rtcClient} />

@@ -1,13 +1,15 @@
-import React, { useRef } from 'react'
+import React from 'react'
 import { Fab } from '@material-ui/core'
 import VideocamIcon from '@material-ui/icons/Videocam'
+import VideocamOffIcon from '@material-ui/icons/VideocamOff';
 import ScreenShareIcon from '@material-ui/icons/ScreenShare'
 import VolumeOffIcon from '@material-ui/icons/VolumeOff'
 import VolumeUpIcon from '@material-ui/icons/VolumeUp'
 
-const BottomMenu = ({ rtcClient }) => {
+const MenuBtn = ({ rtcClient }) => {
   // ブラウザの表示サイズに応じてビデオを表示する幅を取得する
   const VolumeIcon = rtcClient.self.muted ? VolumeOffIcon : VolumeUpIcon
+  const VideoIcon = rtcClient.self.videoOff ? VideocamOffIcon : VideocamIcon
   const style = {
     margin: '0 10px',
   }
@@ -21,7 +23,7 @@ const BottomMenu = ({ rtcClient }) => {
       }}
     >
       <Fab color="primary" style={style}>
-        <VideocamIcon
+        <VideoIcon
           onClick={async () => {
             await rtcClient.toggleVideo()
           }}
@@ -45,4 +47,4 @@ const BottomMenu = ({ rtcClient }) => {
     </div>
   )
 }
-export default BottomMenu
+export default MenuBtn

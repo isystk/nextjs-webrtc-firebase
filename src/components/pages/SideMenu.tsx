@@ -30,14 +30,14 @@ const SideMenu: VFC<Props> = ({ isMenuOpen, setMenuOpen, rtcClient }) => {
     : FiberManualRecordIcon
 
   const menu = {
-    'Exit room': [
+    '退出': [
       <ExitToAppIcon key={0} />,
       async () => {
         await rtcClient.disconnect()
         await router.push('/')
       },
     ],
-    'Full screen': [
+    '全画面': [
       <FullscreenIcon key={0} />,
       () => {
         if (!document.fullscreenElement) {
@@ -49,7 +49,7 @@ const SideMenu: VFC<Props> = ({ isMenuOpen, setMenuOpen, rtcClient }) => {
         }
       },
     ],
-    Recorder: [
+    '録画': [
       <RecoderIcon key={0} />,
       async () => {
         if (rtcClient.recorder.isRecording) {
@@ -60,15 +60,6 @@ const SideMenu: VFC<Props> = ({ isMenuOpen, setMenuOpen, rtcClient }) => {
       },
     ],
   }
-  const getIcon = (text) => (menu[text] ? menu[text][0] : <div />)
-
-  const getMethod = (text) => (menu[text] ? menu[text][1] : () => ({}))
-
-  const onClickItem = (text) => {
-    setMenuOpen(!isMenuOpen)
-    getMethod(text).apply()
-  }
-
   return (
     <Drawer open={isMenuOpen} onClose={() => setMenuOpen(!isMenuOpen)}>
       <div style={{ marginLeft: 'auto' }}>
@@ -78,27 +69,15 @@ const SideMenu: VFC<Props> = ({ isMenuOpen, setMenuOpen, rtcClient }) => {
       </div>
       <Divider />
       <List>
-        {['Full screen'].map((text, index) => (
-          <ListItem button key={index} onClick={() => onClickItem(text)}>
-            <ListItemIcon>{getIcon(text)}</ListItemIcon>
-            <ListItemText primary={text} />
-          </ListItem>
-        ))}
-      </List>
-      <Divider />
-      <List>
-        {['Exit room'].map((text, index) => (
-          <ListItem button key={index} onClick={() => onClickItem(text)}>
-            <ListItemIcon>{getIcon(text)}</ListItemIcon>
-            <ListItemText primary={text} />
-          </ListItem>
-        ))}
-        {['Recorder'].map((text, index) => (
-          <ListItem button key={index} onClick={() => onClickItem(text)}>
-            <ListItemIcon>{getIcon(text)}</ListItemIcon>
-            <ListItemText primary={text} />
-          </ListItem>
-        ))}
+        {Object.keys(menu).map((key, index) => {
+          const [icon, func] = menu[key]
+          return (
+              <ListItem button key={index} onClick={func}>
+                <ListItemIcon>{icon}</ListItemIcon>
+                <ListItemText primary={key} />
+              </ListItem>
+          )
+        })}
       </List>
     </Drawer>
   )
