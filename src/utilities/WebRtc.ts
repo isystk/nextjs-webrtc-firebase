@@ -15,7 +15,6 @@ export default class WebRtc {
     localClientId: string,
     remoteClientId: string,
     remoteVideoSelector: string,
-    constraints: { audio: boolean; video: boolean }
   ) {
     this.roomId = roomId
     this.mediaStream = mediaStream
@@ -27,13 +26,13 @@ export default class WebRtc {
       iceServers: [{ urls: 'stun:stun.stunprotocol.org' }],
     }
     this.rtcPeerConnection = new RTCPeerConnection(config)
-    this.addTracks(constraints)
+    this.addTracks()
   }
 
   // ピアツーピアで通信相手に対して送信されるオーディオとビデオのトラックを追加する
-  addTracks(constratins: { audio: boolean; video: boolean }): void {
-    if (constratins.audio) this.addAudioTrack()
-    if (constratins.video) this.addVideoTrack()
+  addTracks(): void {
+    this.addAudioTrack()
+    this.addVideoTrack()
   }
 
   addAudioTrack(): void {
@@ -41,9 +40,18 @@ export default class WebRtc {
     this.rtcPeerConnection?.addTrack(this.audioTrack, this.mediaStream)
   }
 
-  addVideoTrack(): void {
-    this.rtcPeerConnection?.addTrack(this.videoTrack, this.mediaStream)
+  addVideoTrack(): RTCRtpSender | undefined  {
+    return this.rtcPeerConnection?.addTrack(this.videoTrack, this.mediaStream)
   }
+
+  // changeMediaStream(mediaStream): void {
+  //   const sender = this.addVideoTrack()
+  //   if (sender) {
+  //     this.rtcPeerConnection?.removeTrack(sender)
+  //   }
+  //   this.mediaStream = mediaStream
+  //   this.addVideoTrack()
+  // }
 
   get audioTrack(): MediaStreamTrack {
     return this.mediaStream.getAudioTracks()[0]

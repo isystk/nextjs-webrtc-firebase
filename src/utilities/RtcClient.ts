@@ -43,10 +43,18 @@ export type Recoder = {
   isOpen: boolean
   chunks: []
 }
+export type Device = {
+  deviceId: string
+}
+export type MediaDevice = {
+  isOpen: boolean
+  videoInput: Device | null
+  audioInput: Device | null
+  audioOutput: Device | null
+}
 
 export default class RtcClient {
   _setRtcClient: (rtcClient: RtcClient) => void
-  constraints: { audio: boolean; video: boolean }
   mediaStream: MediaStream | null
   members: Members
   room: Room
@@ -54,11 +62,10 @@ export default class RtcClient {
   share: Share
   chat: Chat
   recorder: Recoder
+  mediaDevice: MediaDevice
 
   constructor(setRtcClient: (rtcClient: RtcClient) => void) {
-    console.log('Initial RtcClient')
     this._setRtcClient = setRtcClient
-    this.constraints = { audio: true, video: true }
     this.mediaStream = null
     this.members = {}
     this.room = { roomId: undefined, name: '' }
@@ -71,6 +78,7 @@ export default class RtcClient {
       isOpen: false,
       chunks: [],
     }
+    this.mediaDevice = { isOpen: false, videoInput: null, audioInput: null, audioOutput: null }
   }
 
   async setRtcClient() {
@@ -78,20 +86,26 @@ export default class RtcClient {
   }
 
   // カメラの使用許可を取得する
-  async getUserMedia() {
+  async setMediaStream() {
+    let constraint = {audio: true, video: true} as {}
+    if (this.mediaDevice.audioInput) {
+      constraint = {...constraint, audio: {deviceId: this.mediaDevice.audioInput.deviceId}}
+    }
+    if (this.mediaDevice.videoInput) {
+      constraint = {...constraint, video: {deviceId: this.mediaDevice.videoInput.deviceId}}
+    }
     try {
+      if (this.mediaStream) {
+        // 既にメディアストリームがある場合は停止させる
+        this.mediaStream.getTracks().forEach(track => track.stop())
+        this.mediaStream = null
+      }
       this.mediaStream = await navigator.mediaDevices.getUserMedia(
-        this.constraints
+          constraint
       )
     } catch (error) {
       console.error(error)
     }
-  }
-
-  // メディア(音声とビデオ)の仕様を許可する
-  async setMediaStream() {
-    await this.getUserMedia()
-    // await this.getDisplayMedia()
     await this.setRtcClient()
   }
 
@@ -299,6 +313,36 @@ export default class RtcClient {
     await this.setRtcClient()
   }
 
+  async openMediaDevice() {
+    this.mediaDevice.isOpen = true
+    await this.setRtcClient()
+  }
+  async closeMediaDevice() {
+    this.mediaDevice.isOpen = false
+    await this.setRtcClient()
+  }
+  async setMediaDevice(deviceId: string, kind: string) {
+    if (kind === 'videoinput') {
+      this.mediaDevice.videoInput = {deviceId}
+    }
+    if (kind === 'audioinput') {
+      this.mediaDevice.audioInput = {deviceId}
+    }
+    if (kind === 'audiooutput') {
+      this.mediaDevice.audioOutput = {deviceId}
+    }
+
+    await this.setMediaStream()
+
+    // TODO RTCConnectionにMediaStreamの変更を反映
+    // if (Object.keys(this.members).length === 0) return
+    // Object.keys(this.members).forEach((key) => {
+    //   this.members[key].webRtc?.changeMediaStream(this.mediaStream)
+    // })
+
+    await this.setRtcClient()
+  }
+
   async signOut() {
     console.log('logout')
     await this.disconnect()
@@ -317,6 +361,7 @@ export default class RtcClient {
   // ルームに参加する
   async join() {
     try {
+
       // joinを初期化する
       await this.databaseJoinRef().remove()
 
@@ -358,7 +403,6 @@ export default class RtcClient {
         this.self.clientId,
         data.clientId,
         remoteVideoSelector,
-        this.constraints
       )
       data.status = 'online'
       await data.webRtc.startListening()

@@ -13,6 +13,7 @@ import ChevronLeftIcon from '@material-ui/icons/ChevronLeft'
 import FullscreenIcon from '@material-ui/icons/Fullscreen'
 import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord'
 import StopIcon from '@material-ui/icons/Stop'
+import SettingsIcon from '@material-ui/icons/Settings';
 import { useRouter } from 'next/router'
 import RtcClient from '@/utilities/RtcClient'
 
@@ -56,6 +57,14 @@ const SideMenu: VFC<Props> = ({ isMenuOpen, setMenuOpen, rtcClient }) => {
           await rtcClient.stopRecorder()
         } else {
           await rtcClient.startRecorder()
+        }
+      },
+    ],
+    '設定': [
+      <SettingsIcon key={0} />,
+      async () => {
+        if (!rtcClient.mediaDevice.isOpen) {
+          await rtcClient.openMediaDevice()
         }
       },
     ],
