@@ -39,9 +39,6 @@ const CommonHeader: VFC<Props> = ({ isMenuOpen, setMenuOpen, rtcClient }) => {
           <Grid container>
             <IconButton
               color="inherit"
-              disabled={
-                rtcClient.self.name === '' || rtcClient.room.name === ''
-              }
               onClick={() => setMenuOpen(!isMenuOpen)}
             >
               <MenuIcon />

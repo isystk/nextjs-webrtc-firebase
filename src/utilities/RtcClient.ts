@@ -78,7 +78,12 @@ export default class RtcClient {
       isOpen: false,
       chunks: [],
     }
-    this.mediaDevice = { isOpen: false, videoInput: null, audioInput: null, audioOutput: null }
+    this.mediaDevice = {
+      isOpen: false,
+      videoInput: null,
+      audioInput: null,
+      audioOutput: null,
+    }
   }
 
   async setRtcClient() {
@@ -87,22 +92,29 @@ export default class RtcClient {
 
   // カメラの使用許可を取得する
   async setMediaStream() {
-    let constraint = {audio: true, video: true} as {}
+    let constraint = { audio: true, video: true } as {
+      audio: boolean | { deviceId: string }
+      video: boolean | { deviceId: string }
+    }
     if (this.mediaDevice.audioInput) {
-      constraint = {...constraint, audio: {deviceId: this.mediaDevice.audioInput.deviceId}}
+      constraint = {
+        ...constraint,
+        audio: { deviceId: this.mediaDevice.audioInput.deviceId },
+      }
     }
     if (this.mediaDevice.videoInput) {
-      constraint = {...constraint, video: {deviceId: this.mediaDevice.videoInput.deviceId}}
+      constraint = {
+        ...constraint,
+        video: { deviceId: this.mediaDevice.videoInput.deviceId },
+      }
     }
     try {
       if (this.mediaStream) {
         // 既にメディアストリームがある場合は停止させる
-        this.mediaStream.getTracks().forEach(track => track.stop())
+        this.mediaStream.getTracks().forEach((track) => track.stop())
         this.mediaStream = null
       }
-      this.mediaStream = await navigator.mediaDevices.getUserMedia(
-          constraint
-      )
+      this.mediaStream = await navigator.mediaDevices.getUserMedia(constraint)
     } catch (error) {
       console.error(error)
     }
@@ -323,22 +335,16 @@ export default class RtcClient {
   }
   async setMediaDevice(deviceId: string, kind: string) {
     if (kind === 'videoinput') {
-      this.mediaDevice.videoInput = {deviceId}
+      this.mediaDevice.videoInput = { deviceId }
     }
     if (kind === 'audioinput') {
-      this.mediaDevice.audioInput = {deviceId}
+      this.mediaDevice.audioInput = { deviceId }
     }
     if (kind === 'audiooutput') {
-      this.mediaDevice.audioOutput = {deviceId}
+      this.mediaDevice.audioOutput = { deviceId }
     }
 
     await this.setMediaStream()
-
-    // TODO RTCConnectionにMediaStreamの変更を反映
-    // if (Object.keys(this.members).length === 0) return
-    // Object.keys(this.members).forEach((key) => {
-    //   this.members[key].webRtc?.changeMediaStream(this.mediaStream)
-    // })
 
     await this.setRtcClient()
   }
@@ -361,7 +367,6 @@ export default class RtcClient {
   // ルームに参加する
   async join() {
     try {
-
       // joinを初期化する
       await this.databaseJoinRef().remove()
 
@@ -402,7 +407,7 @@ export default class RtcClient {
         this.room.roomId,
         this.self.clientId,
         data.clientId,
-        remoteVideoSelector,
+        remoteVideoSelector
       )
       data.status = 'online'
       await data.webRtc.startListening()

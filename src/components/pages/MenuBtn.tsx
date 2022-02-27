@@ -1,7 +1,7 @@
 import React from 'react'
 import { Fab } from '@material-ui/core'
 import VideocamIcon from '@material-ui/icons/Videocam'
-import VideocamOffIcon from '@material-ui/icons/VideocamOff';
+import VideocamOffIcon from '@material-ui/icons/VideocamOff'
 import ScreenShareIcon from '@material-ui/icons/ScreenShare'
 import VolumeOffIcon from '@material-ui/icons/VolumeOff'
 import VolumeUpIcon from '@material-ui/icons/VolumeUp'

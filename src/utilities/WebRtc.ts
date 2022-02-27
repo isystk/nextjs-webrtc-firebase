@@ -14,7 +14,7 @@ export default class WebRtc {
     roomId: string,
     localClientId: string,
     remoteClientId: string,
-    remoteVideoSelector: string,
+    remoteVideoSelector: string
   ) {
     this.roomId = roomId
     this.mediaStream = mediaStream
@@ -40,18 +40,9 @@ export default class WebRtc {
     this.rtcPeerConnection?.addTrack(this.audioTrack, this.mediaStream)
   }
 
-  addVideoTrack(): RTCRtpSender | undefined  {
-    return this.rtcPeerConnection?.addTrack(this.videoTrack, this.mediaStream)
+  addVideoTrack(): void {
+    this.rtcPeerConnection?.addTrack(this.videoTrack, this.mediaStream)
   }
-
-  // changeMediaStream(mediaStream): void {
-  //   const sender = this.addVideoTrack()
-  //   if (sender) {
-  //     this.rtcPeerConnection?.removeTrack(sender)
-  //   }
-  //   this.mediaStream = mediaStream
-  //   this.addVideoTrack()
-  // }
 
   get audioTrack(): MediaStreamTrack {
     return this.mediaStream.getAudioTracks()[0]

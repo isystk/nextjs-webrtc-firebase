@@ -10,7 +10,7 @@ import MenuBtn from '@/components/pages/MenuBtn'
 import ChatArea from '@/components/widgets/ChatArea'
 import DisplayShare from '@/components/widgets/DisplayShare'
 import Recorder from '@/components/widgets/Recorder'
-import DeviceSetting from "@/components/widgets/DeviceSetting";
+import DeviceSetting from '@/components/widgets/DeviceSetting'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -91,7 +91,6 @@ const VideoArea: VFC<Props> = ({ rtcClient }) => {
       <FloatingBtn rtcClient={rtcClient} />
       <ChatArea rtcClient={rtcClient} />
       <Recorder rtcClient={rtcClient} />
-      <DeviceSetting rtcClient={rtcClient} />
     </div>
   )
 }

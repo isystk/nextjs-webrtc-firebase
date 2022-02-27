@@ -13,7 +13,7 @@ import ChevronLeftIcon from '@material-ui/icons/ChevronLeft'
 import FullscreenIcon from '@material-ui/icons/Fullscreen'
 import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord'
 import StopIcon from '@material-ui/icons/Stop'
-import SettingsIcon from '@material-ui/icons/Settings';
+import SettingsIcon from '@material-ui/icons/Settings'
 import { useRouter } from 'next/router'
 import RtcClient from '@/utilities/RtcClient'
 
@@ -30,15 +30,10 @@ const SideMenu: VFC<Props> = ({ isMenuOpen, setMenuOpen, rtcClient }) => {
     ? StopIcon
     : FiberManualRecordIcon
 
+  const joined = rtcClient.self.name !== '' && rtcClient.room.name !== ''
+
   const menu = {
-    '退出': [
-      <ExitToAppIcon key={0} />,
-      async () => {
-        await rtcClient.disconnect()
-        await router.push('/')
-      },
-    ],
-    '全画面': [
+    全画面: [
       <FullscreenIcon key={0} />,
       () => {
         if (!document.fullscreenElement) {
@@ -49,8 +44,26 @@ const SideMenu: VFC<Props> = ({ isMenuOpen, setMenuOpen, rtcClient }) => {
           }
         }
       },
+      false,
     ],
-    '録画': [
+    デバイス設定: [
+      <SettingsIcon key={0} />,
+      async () => {
+        if (!rtcClient.mediaDevice.isOpen) {
+          await rtcClient.openMediaDevice()
+        }
+      },
+      joined,
+    ],
+    退出: [
+      <ExitToAppIcon key={0} />,
+      async () => {
+        await rtcClient.disconnect()
+        await router.push('/')
+      },
+      !joined,
+    ],
+    録画: [
       <RecoderIcon key={0} />,
       async () => {
         if (rtcClient.recorder.isRecording) {
@@ -59,14 +72,7 @@ const SideMenu: VFC<Props> = ({ isMenuOpen, setMenuOpen, rtcClient }) => {
           await rtcClient.startRecorder()
         }
       },
-    ],
-    '設定': [
-      <SettingsIcon key={0} />,
-      async () => {
-        if (!rtcClient.mediaDevice.isOpen) {
-          await rtcClient.openMediaDevice()
-        }
-      },
+      !joined,
     ],
   }
   return (
@@ -79,12 +85,12 @@ const SideMenu: VFC<Props> = ({ isMenuOpen, setMenuOpen, rtcClient }) => {
       <Divider />
       <List>
         {Object.keys(menu).map((key, index) => {
-          const [icon, func] = menu[key]
+          const [icon, func, disabled] = menu[key]
           return (
-              <ListItem button key={index} onClick={func}>
-                <ListItemIcon>{icon}</ListItemIcon>
-                <ListItemText primary={key} />
-              </ListItem>
+            <ListItem button key={index} onClick={func} disabled={disabled}>
+              <ListItemIcon>{icon}</ListItemIcon>
+              <ListItemText primary={key} />
+            </ListItem>
           )
         })}
       </List>
