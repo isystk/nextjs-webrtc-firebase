@@ -16,6 +16,7 @@ import StopIcon from '@material-ui/icons/Stop'
 import SettingsIcon from '@material-ui/icons/Settings'
 import { useRouter } from 'next/router'
 import RtcClient from '@/utilities/RtcClient'
+import { URL } from '@/common/constants/url'
 
 type Props = {
   isMenuOpen: boolean
@@ -59,7 +60,7 @@ const SideMenu: VFC<Props> = ({ isMenuOpen, setMenuOpen, rtcClient }) => {
       <ExitToAppIcon key={0} />,
       async () => {
         await rtcClient.disconnect()
-        await router.push('/')
+        await router.push(URL.HOME)
       },
       !joined,
     ],

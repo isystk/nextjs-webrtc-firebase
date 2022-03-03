@@ -1,5 +1,5 @@
 {
   "projects": {
-    "default": "nextjs-typescript-firestore"
+    "default": "nextjs-webrtc-firebase"
   }
 }

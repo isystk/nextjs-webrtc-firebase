@@ -1,12 +1,14 @@
-import { getDatabase, getAuth } from '@/utilities/firebase'
-import WebRtc from '@/utilities/WebRtc'
+import {getDatabase, getAuth, getMessaging, getMessagingToken} from '@/utilities/firebase'
 import DisplayShare from '@/utilities/DisplayShare'
+import { WebRtc, API } from '@/utilities'
+import { API_ENDPOINT } from '@/common/constants/api'
 
 export type Self = {
   clientId?: string
   name: string
   videoOff?: boolean
   muted?: boolean
+  fcmToken?: string
 }
 export type Room = {
   roomId?: string
@@ -14,6 +16,7 @@ export type Room = {
 }
 export type Member = {
   clientId: string
+  fcmToken: string
   shareClientId?: string
   name: string
   webRtc: WebRtc | null
@@ -84,6 +87,7 @@ export default class RtcClient {
       audioInput: null,
       audioOutput: null,
     }
+    this.setFcmToken()
   }
 
   async setRtcClient() {
@@ -119,6 +123,14 @@ export default class RtcClient {
       console.error(error)
     }
     await this.setRtcClient()
+  }
+
+  async setFcmToken() {
+    await getMessagingToken().then((currentToken) => {
+      if (currentToken) {
+        this.self.fcmToken = currentToken
+      }
+    });
   }
 
   async setLocalPeerName(localPeerName: string) {
@@ -190,6 +202,10 @@ export default class RtcClient {
     } as ChatMessage
     this.chat.messages = [...this.chat.messages, message]
     await this.databaseBroadcastRef.set(message)
+
+    // プッシュ通知を送信する
+    await this.sendFcm(message)
+
     await this.setRtcClient()
   }
   async receiveChat(message: ChatMessage) {
@@ -257,6 +273,13 @@ export default class RtcClient {
     } catch (error) {
       console.error(error)
     }
+  }
+
+  async sendFcm(message: ChatMessage) {
+    const token = getMessaging().getToken();
+    console.log("request", {token, message})
+    const response = await API.post(`${API_ENDPOINT.SEND_FCM}`, {token, message})
+    console.log("response", response)
   }
 
   async stopShare() {
@@ -377,6 +400,7 @@ export default class RtcClient {
       this.self = {
         clientId: key + '',
         name: this.self.name,
+        fcmToken: this.self.fcmToken,
       }
       await this.databaseMembersRef(this.self.clientId).update(this.self)
 

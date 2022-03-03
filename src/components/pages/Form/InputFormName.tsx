@@ -9,6 +9,7 @@ import Button from '@material-ui/core/Button'
 import { getAuth } from '@/utilities/firebase'
 import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth'
 import firebase from 'firebase/compat/app'
+import { URL } from '@/common/constants/url'
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -80,7 +81,7 @@ const SignIn: VFC<Props> = ({ rtcClient }) => {
       firebase.auth.GoogleAuthProvider.PROVIDER_ID,
       // firebase.auth.TwitterAuthProvider.PROVIDER_ID
     ],
-    signInSuccessUrl: '/',
+    signInSuccessUrl: URL.HOME,
     credentialHelper: 'none',
     callbacks: {
       // Avoid redirects after sign-in.

@@ -9,6 +9,6 @@ const getBffUrl = (path: string): string => {
 
 /** API のエンドポイント */
 export const API_ENDPOINT = {
-  /** 投稿 */
-  POSTS: getBffUrl('/posts'),
+  HELLO_WORLD: getBffUrl('/helloWorld'),
+  SEND_FCM: getBffUrl('/sendFcm'),
 }

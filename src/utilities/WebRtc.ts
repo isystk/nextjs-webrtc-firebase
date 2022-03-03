@@ -1,7 +1,7 @@
 import { getDatabase } from './firebase'
 import firebase from 'firebase/compat/app'
 
-export default class WebRtc {
+export class WebRtc {
   localClientId: string
   mediaStream: MediaStream
   remoteClientId: string

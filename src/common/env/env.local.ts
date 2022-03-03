@@ -2,7 +2,7 @@ const Env = {
   envName: 'local',
   internalEndpointUrl: 'http://localhost:3000',
   externalEndpointUrl:
-    'https://obew4p54y9.execute-api.ap-northeast-1.amazonaws.com/Prod',
+    'http://localhost:5001/nextjs-webrtc-firebase/us-central1/api',
 }
 
 export default Env

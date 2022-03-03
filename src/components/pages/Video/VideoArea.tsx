@@ -10,7 +10,7 @@ import MenuBtn from '@/components/pages/MenuBtn'
 import ChatArea from '@/components/widgets/ChatArea'
 import DisplayShare from '@/components/widgets/DisplayShare'
 import Recorder from '@/components/widgets/Recorder'
-import DeviceSetting from '@/components/widgets/DeviceSetting'
+import { URL } from '@/common/constants/url'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -41,7 +41,7 @@ const VideoArea: VFC<Props> = ({ rtcClient }) => {
 
   useEffect(() => {
     if (rtcClient.self.name === '') {
-      router.push('/')
+      router.push(URL.HOME)
     }
   }, [rtcClient.self.name])
 
