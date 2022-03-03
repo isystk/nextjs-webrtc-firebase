@@ -88,7 +88,8 @@ case ${1} in
               $DOCKER_COMPOSE exec firebase $COMMAND
           ;;
           start)
-              COMMAND="firebase emulators:start --import data --export-on-exit"
+              COMMAND="firebase emulators:start"
+#              COMMAND="firebase emulators:start --import data --export-on-exit"
               $DOCKER_COMPOSE exec firebase $COMMAND
           ;;
           deploy)
