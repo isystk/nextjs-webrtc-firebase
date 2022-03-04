@@ -19,6 +19,7 @@ const Recorder: VFC<Props> = ({ rtcClient }) => {
 
       const playbackVideo = document.getElementById('recorder-play')
       if (playbackVideo) {
+        console.log(playbackVideo)
         if (playbackVideo.src) {
           window.URL.revokeObjectURL(playbackVideo.src) // 解放
           playbackVideo.src = null
@@ -31,13 +32,13 @@ const Recorder: VFC<Props> = ({ rtcClient }) => {
         downloadVideo.download = 'recorded.webm'
         downloadVideo.href = blobUrl
       }
-    }, 500)
+    }, 1000)
   }, [rtcClient.recorder.isOpen])
 
   return (
     <Modal
       isOpen={rtcClient.recorder.isOpen}
-      handleClose={() => rtcClient.closeRecorder()}
+      handleClose={() => rtcClient.recorder.closeRecorder()}
     >
       <video controls width="100%" id="recorder-play" />
       <a href="#" id="recorder-download">

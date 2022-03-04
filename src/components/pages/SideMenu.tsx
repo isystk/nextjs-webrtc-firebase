@@ -68,9 +68,9 @@ const SideMenu: VFC<Props> = ({ isMenuOpen, setMenuOpen, rtcClient }) => {
       <RecoderIcon key={0} />,
       async () => {
         if (rtcClient.recorder.isRecording) {
-          await rtcClient.stopRecorder()
+          await rtcClient.recorder.stopRecorder()
         } else {
-          await rtcClient.startRecorder()
+          await rtcClient.recorder.startRecorder()
         }
       },
       !joined,

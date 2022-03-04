@@ -38,33 +38,6 @@ const request = async (
   return response?.data?.body
 }
 
-const jsonToForm = (params, formData, name = '') => {
-  if (_.isArray(params)) formatArray(params, formData, name)
-  if (_.isPlainObject(params)) formatObject(params, formData, name)
-  return formData
-}
-
-const formatObject = (params, formData, name) => {
-  _.forEach(params, (v, k) => {
-    if (_.isArray(v) || _.isPlainObject(v)) {
-      jsonToForm(v, formData, !name ? k : `${name}.${k}`)
-      return
-    }
-    formData.append(!name ? k : `${name}.${k}`, v)
-  })
-}
-
-const formatArray = (params, formData, name) => {
-  _.map(params, (data, index) => {
-    if (_.isArray(data) || _.isPlainObject(data)) {
-      jsonToForm(data, formData, `${name}[${index}]`)
-      return
-    }
-    formData.append(`${name}[${index}]`, data)
-  })
-  return formData
-}
-
 export const API = {
   get,
   post,
