@@ -1,32 +1,32 @@
-import * as functions from "firebase-functions";
 import {Request, Response, NextFunction} from "express";
 import router from "./common";
 
 import * as admin from "firebase-admin";
 
-admin.initializeApp(functions.config().firebase);
+admin.initializeApp({
+  credential: admin.credential.applicationDefault()
+})
 
 router.post("/sendFcm", async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const text = req.body;
-    if (!text) {
+    const {token, message} = req.body;
+    if (!token) {
       throw new Error("Text is blank");
     }
 
-    const {title, description, thumbnailUrl, path} = req;
-
-    const tokens = ['<token>']
+    const tokens = [token]
     const content: admin.messaging.MulticastMessage = {
       notification: {
-        title,
-        body: description,
-        imageUrl: thumbnailUrl
+        title: message.title,
+        body: message.description,
+        // imageUrl: message.thumbnailUrl
       },
       data: {
-        pathname: path
+        pathname: message.path
       },
       tokens
     }
+    console.log(content)
 
     await admin.messaging().sendMulticast(content)
 

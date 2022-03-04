@@ -275,11 +275,21 @@ export default class RtcClient {
     }
   }
 
-  async sendFcm(message: ChatMessage) {
-    const token = getMessaging().getToken();
-    console.log("request", {token, message})
-    const response = await API.post(`${API_ENDPOINT.SEND_FCM}`, {token, message})
-    console.log("response", response)
+  sendFcm(chat: ChatMessage) {
+    if (Object.keys(this.members).length === 0) return
+    Object.keys(this.members).forEach((key) => {
+      const member = this.members[key]
+      const token = member.fcmToken
+      const message = {
+        title: chat.text,
+        description: '',
+        thumbnailUrl: '',
+        path: ''
+      }
+
+      const response = API.post(`${API_ENDPOINT.SEND_FCM}`, {token, message})
+      console.log("response", response)
+    })
   }
 
   async stopShare() {
@@ -516,6 +526,7 @@ export default class RtcClient {
           await this.databaseJoinRef(shareClientId).set({
             type: 'accept',
             clientId: this.self.clientId,
+            fcmToken: this.self.fcmToken,
             shareClientId,
             name: this.self.name,
           })
