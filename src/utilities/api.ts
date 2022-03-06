@@ -30,10 +30,8 @@ const request = async (
     values,
     config
   ).catch(function (e: string | undefined) {
-    if (axios.isAxiosError(e) && e.response && e.response.status === 400) {
-      if (e.response) {
-        throw new Error(e)
-      }
+    if (axios.isAxiosError(e) && e.response) {
+      throw new Error(e)
     }
   })
   // console.log('Response:%s', response.data.body)
