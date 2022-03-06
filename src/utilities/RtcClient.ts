@@ -1,8 +1,4 @@
-import {
-  getDatabase,
-  getAuth,
-  getMessagingToken,
-} from '@/utilities/firebase'
+import { getDatabase, getAuth, getMessagingToken } from '@/utilities/firebase'
 import DisplayShare from '@/utilities/DisplayShare'
 import { WebRtc, API } from '@/utilities'
 import { API_ENDPOINT } from '@/common/constants/api'
@@ -135,8 +131,10 @@ export default class RtcClient {
     const key = getDatabase().push({
       name: roomName,
     }).key
+    console.log('roomId', key)
     this.room = {
-      roomId: key + '',
+      // roomId: key + '',
+      roomId: roomName, // 本番ではSSGを利用するためパスにIDが利用できない
       name: roomName,
     }
     // TODO ここにawaitを付けると何故か動作しない
@@ -379,15 +377,15 @@ export default class RtcClient {
         data.clientId,
         remoteVideoSelector
       )
-      data.status = 'online'
       await data.webRtc.startListening()
-      const newMember = {
-        [data.clientId]: data,
-      }
-      this.members = { ...this.members, ...newMember }
     } else {
       console.error('no mediaStream')
     }
+    data.status = 'online'
+    const newMember = {
+      [data.clientId]: data,
+    }
+    this.members = { ...this.members, ...newMember }
     await this.setRtcClient()
   }
 

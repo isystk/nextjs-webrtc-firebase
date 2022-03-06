@@ -4,7 +4,6 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "NODE_ENV=development next",
-    "build": "NODE_ENV=production next build && next export",
     "start": "NODE_ENV=production next start",
     "type-check": "tsc",
     "lint": "eslint --ext .ts,.tsx .",
@@ -12,8 +11,9 @@
     "test": "jest",
     "test:coverage": "jest --collect-coverage",
     "precommit": "npm run lint && npm run test",
-    "deploy:production": "now -t $VERCEL_TOKEN -c --prod",
-    "deploy:preview": "now -t $VERCEL_TOKEN -c"
+    "build": "NODE_ENV=production USE_FIREBASE_EMULATOR=false next build && next export",
+    "deploy:production": "firebase deploy",
+    "deploy:preview": "firebase hosting:channel:deploy preview_name"
   },
   "dependencies": {
     "react-firebaseui": "^6.0.0"
