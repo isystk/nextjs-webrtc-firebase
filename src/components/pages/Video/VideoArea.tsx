@@ -48,7 +48,7 @@ const VideoArea: VFC<Props> = ({ rtcClient }) => {
   useEffect(() => {
     if (rtcClient.self.name !== '' && rtcClient.room.name !== '') {
       ;(async () => {
-        await rtcClient.setMediaStream()
+        await rtcClient.mediaDevice.setMediaStream()
         await rtcClient.join()
       })()
     }

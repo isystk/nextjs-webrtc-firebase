@@ -63,13 +63,13 @@ const DeviceSetting: VFC<Props> = ({ rtcClient }) => {
   }, [])
 
   const changeDevice = async (e, kind) => {
-    await rtcClient.setMediaDevice(e.target.value, kind)
+    await rtcClient.mediaDevice.setMediaDevice(e.target.value, kind)
   }
 
   return (
     <Modal
       isOpen={rtcClient.mediaDevice.isOpen}
-      handleClose={() => rtcClient.closeMediaDevice()}
+      handleClose={() => rtcClient.mediaDevice.closeMediaDevice()}
     >
       <Container component="main" maxWidth="xs">
         <CssBaseline />

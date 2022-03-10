@@ -23,7 +23,7 @@ const DisplayShare: VFC<Props> = ({ rtcClient }) => {
   return (
     <Modal
       isOpen={rtcClient.share.clientId}
-      handleClose={() => rtcClient.stopShare()}
+      handleClose={() => rtcClient.share.stopShare()}
     >
       <video autoPlay muted={true} ref={videoRef} width="100%" id="share" />
     </Modal>

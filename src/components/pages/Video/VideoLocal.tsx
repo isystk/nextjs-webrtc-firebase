@@ -11,7 +11,7 @@ type Props = {
 const VideoLocal: VFC<Props> = ({ rtcClient }) => {
   const videoRef = useRef(null)
   const currentVideoRef = videoRef.current
-  const mediaStream = rtcClient.mediaStream
+  const mediaStream = rtcClient.mediaDevice.mediaStream
 
   useEffect(() => {
     if (currentVideoRef === null) return

@@ -20,8 +20,8 @@ export default class RoomChat {
 
   constructor(rtcClient: RtcClient) {
     this.rtcClient = rtcClient
-    this.isOpen = false;
-    this.messages = [];
+    this.isOpen = false
+    this.messages = []
   }
 
   // チャットの表示・非表示を切り替える

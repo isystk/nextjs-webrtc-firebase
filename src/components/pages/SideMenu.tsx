@@ -52,7 +52,7 @@ const SideMenu: VFC<Props> = ({ isMenuOpen, setMenuOpen, rtcClient }) => {
       <SettingsIcon key={0} />,
       async () => {
         if (!rtcClient.mediaDevice.isOpen) {
-          await rtcClient.openMediaDevice()
+          await rtcClient.mediaDevice.openMediaDevice()
         }
         setMenuOpen(!isMenuOpen)
       },

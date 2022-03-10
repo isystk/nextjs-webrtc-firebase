@@ -40,7 +40,7 @@ const MenuBtn = ({ rtcClient }) => {
       <Fab color="primary" style={style}>
         <ScreenShareIcon
           onClick={async () => {
-            await rtcClient.startShare()
+            await rtcClient.share.startShare()
           }}
         />
       </Fab>
