@@ -1,19 +1,25 @@
 import RtcClient from '@/utilities/RtcClient'
 import ShareWebRtc from '@/utilities/ShareWebRtc'
 
+export type Member = {
+  webRtc: ShareWebRtc | null
+}
+type Members = {
+  [key: string]: Member
+}
 export default class DisplayShare {
   rtcClient: RtcClient
 
   clientId?: string
   mediaStream: MediaStream | null
-  webRtc: ShareWebRtc | null
+  members: Members
 
   constructor(rtcClient: RtcClient) {
     this.rtcClient = rtcClient
 
     this.clientId = undefined
     this.mediaStream = null
-    this.webRtc = null
+    this.members = {}
   }
 
   // 画面共有を開始する
@@ -49,8 +55,8 @@ export default class DisplayShare {
               case 'accept':
                 console.log('receive share accept', data)
                 await this.addShare(clientId, data.shareClientId)
-                this.webRtc?.addTracks(mediaStream)
-                await this.webRtc?.offer()
+                this.members[clientId].webRtc?.addTracks(mediaStream)
+                await this.members[clientId].webRtc?.offer()
                 break
               default:
                 break
@@ -83,12 +89,14 @@ export default class DisplayShare {
   }
 
   async stopShare() {
-    this.webRtc?.disconnect()
-    this.clientId = undefined
-    this.mediaStream = null
-    this.webRtc = null
-
-    // TODO 画面共有の終了処理
+    if (Object.keys(this.members).length === 0) return
+    Object.keys(this.members).forEach((key) => {
+      this.members[key].webRtc?.disconnect()
+      this.clientId = undefined
+      this.mediaStream = null
+      delete this.members[key]
+      // TODO 画面共有の終了処理
+    })
 
     await this.rtcClient.setRtcClient()
   }
@@ -97,12 +105,14 @@ export default class DisplayShare {
     console.log('addShare', shareClientId, clientId)
     if (this.rtcClient.self.clientId && this.rtcClient.room.roomId) {
       this.clientId = shareClientId
-      this.webRtc = new ShareWebRtc(
-        this.rtcClient.room.roomId,
-        shareClientId,
-        clientId
-      )
-      await this.webRtc.startListening()
+      this.members[shareClientId] = {
+        webRtc: new ShareWebRtc(
+            this.rtcClient.room.roomId,
+            shareClientId,
+            clientId
+        )
+      }
+      await this.members[shareClientId].webRtc?.startListening()
     }
     await this.rtcClient.setRtcClient()
   }

@@ -214,34 +214,32 @@ export default class ShareWebRtc {
     const databaseMembersRef = this.databaseMembersRef(
       this.localClientId + '/connections/' + this.remoteClientId
     )
-    databaseMembersRef.on('value', this.listener)
+    databaseMembersRef.on('value', async (snapshot: firebase.database.DataSnapshot) => {
+      const data = snapshot.val()
+      if (data === null) return
+      const { candidate, sessionDescription, type } = data
+      switch (type) {
+        case 'offer':
+          // 4-1. 新メンバーからofferを受信する
+          console.log('receive offer', data)
+          await this.answer(sessionDescription)
+          break
+        case 'answer':
+          // 5-1. 既存メンバーからanswerを受信する
+          console.log('receive answer', data)
+          await this.saveReceivedSessionDescription(sessionDescription)
+          break
+        case 'candidate':
+          // 6-1. Aさん、Bさんはシグナリングサーバーからcandidateを受信する
+          // console.log('receive candidate', data)
+          await this.addIceCandidate(candidate)
+          break
+        default:
+          break
+      }
+    })
     // メンバーが離脱した場合にFirebaseから削除
     await databaseMembersRef.onDisconnect().remove()
   }
 
-  // シグナリングサーバーをリスンする処理
-  listener = async (snapshot: firebase.database.DataSnapshot) => {
-    const data = snapshot.val()
-    if (data === null) return
-    const { candidate, sessionDescription, type } = data
-    switch (type) {
-      case 'offer':
-        // 4-1. 新メンバーからofferを受信する
-        console.log('receive offer', data)
-        await this.answer(sessionDescription)
-        break
-      case 'answer':
-        // 5-1. 既存メンバーからanswerを受信する
-        console.log('receive answer', data)
-        await this.saveReceivedSessionDescription(sessionDescription)
-        break
-      case 'candidate':
-        // 6-1. Aさん、Bさんはシグナリングサーバーからcandidateを受信する
-        // console.log('receive candidate', data)
-        await this.addIceCandidate(candidate)
-        break
-      default:
-        break
-    }
-  }
 }
