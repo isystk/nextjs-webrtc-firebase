@@ -19,7 +19,7 @@ const Recorder: VFC<Props> = ({ rtcClient }) => {
 
       const playbackVideo = document.getElementById('recorder-play')
       if (playbackVideo) {
-        console.log(playbackVideo)
+        console.log('playing', playbackVideo)
         if (playbackVideo.src) {
           window.URL.revokeObjectURL(playbackVideo.src) // 解放
           playbackVideo.src = null

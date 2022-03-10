@@ -82,7 +82,7 @@ const VideoArea: VFC<Props> = ({ rtcClient }) => {
               <VideoRemote rtcClient={rtcClient} member={member} />
             </Grid>
           ) : (
-            <></>
+            <div key={idx}></div>
           )
         })}
       </Grid>

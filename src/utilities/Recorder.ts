@@ -23,6 +23,7 @@ export default class Recorder {
       alert('録画中です')
       return
     }
+    console.log('record start')
     // @ts-ignore
     const videoStream = await navigator.mediaDevices.getDisplayMedia({
       audio: true, // PCからの音声
@@ -44,7 +45,6 @@ export default class Recorder {
     // @ts-ignore
     this.mediaRecorder.ondataavailable = (e) => {
       // 録画が終了したタイミングで呼び出される
-      console.log('record start')
       // @ts-ignore
       this.chunks.push(e.data)
     }
@@ -57,17 +57,15 @@ export default class Recorder {
   // 録画の停止
   async stopRecorder() {
     // 録画ファイルのダウンロード
-    console.log('record download')
+    console.log('record stop')
 
     this.mediaRecorder.onstop = async () => {
-      this.mediaRecorder = null
+      // this.mediaRecorder = null
       this.isRecording = false
       this.isOpen = true
       await this.rtcClient.setRtcClient()
     }
     this.mediaRecorder.stop()
-
-    await this.rtcClient.setRtcClient()
   }
   // 録画モーダルを閉じる
   async closeRecorder() {
