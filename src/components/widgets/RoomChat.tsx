@@ -9,7 +9,7 @@ interface IProps {
   rtcClient: RtcClient
 }
 
-const ChatArea = ({ rtcClient }: IProps) => {
+const RoomChat = ({ rtcClient }: IProps) => {
   const label = 'メッセージを入力してください'
   const [disabled, setDisabled] = useState(true)
   const [message, setMessage] = useState('')
@@ -23,7 +23,7 @@ const ChatArea = ({ rtcClient }: IProps) => {
   const initializeLocalPeer = useCallback(
     async (e) => {
       e.persist()
-      await rtcClient.sendChat(message)
+      await rtcClient.chat.sendChat(message)
       setMessage('')
       e.preventDefault()
     },
@@ -33,7 +33,7 @@ const ChatArea = ({ rtcClient }: IProps) => {
   return (
     <Modal
       isOpen={rtcClient.chat.isOpen}
-      handleClose={() => rtcClient.closeChat()}
+      handleClose={() => rtcClient.chat.closeChat()}
     >
       <div className="chat-area">
         <div id="bms_messages_container">
@@ -96,4 +96,4 @@ const ChatArea = ({ rtcClient }: IProps) => {
   )
 }
 
-export default ChatArea
+export default RoomChat

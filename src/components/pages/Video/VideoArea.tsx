@@ -7,7 +7,7 @@ import { makeStyles } from '@material-ui/core/styles'
 import { useRouter } from 'next/router'
 import FloatingBtn from '@/components/pages/FloatingBtn'
 import MenuBtn from '@/components/pages/MenuBtn'
-import ChatArea from '@/components/widgets/ChatArea'
+import RoomChat from '@/components/widgets/RoomChat'
 import DisplayShare from '@/components/widgets/DisplayShare'
 import Recorder from '@/components/widgets/Recorder'
 import { URL } from '@/common/constants/url'
@@ -89,7 +89,7 @@ const VideoArea: VFC<Props> = ({ rtcClient }) => {
       <DisplayShare rtcClient={rtcClient} />
       <MenuBtn rtcClient={rtcClient} />
       <FloatingBtn rtcClient={rtcClient} />
-      <ChatArea rtcClient={rtcClient} />
+      <RoomChat rtcClient={rtcClient} />
       <Recorder rtcClient={rtcClient} />
     </div>
   )

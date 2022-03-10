@@ -20,7 +20,7 @@ const FloatingBtn: VFC<Props> = ({ rtcClient }) => {
     <Fab color="primary" aria-label="add" style={style}>
       <AddIcon
         onClick={async () => {
-          await rtcClient.openChat()
+          await rtcClient.chat.openChat()
         }}
         style={{ fill: 'white' }}
       />

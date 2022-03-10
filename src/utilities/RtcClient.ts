@@ -1,8 +1,9 @@
 import { getDatabase, getAuth, getMessagingToken } from '@/utilities/firebase'
 import DisplayShare from '@/utilities/DisplayShare'
-import { WebRtc, API } from '@/utilities'
-import { API_ENDPOINT } from '@/common/constants/api'
+import { WebRtc } from '@/utilities'
 import Recorder from '@/utilities/Recorder'
+import MediaDevice from "@/utilities/MediaDevice";
+import RoomChat from "@/utilities/RoomChat";
 
 export type Self = {
   clientId?: string
@@ -26,15 +27,7 @@ export type Member = {
 type Members = {
   [key: string]: Member
 }
-export type Chat = {
-  isOpen: boolean
-  messages: ChatMessage[]
-}
-export type ChatMessage = {
-  text: string
-  clientId: string
-  datetime: Date
-}
+
 export type Share = {
   clientId?: string
   mediaStream: MediaStream | null
@@ -57,7 +50,7 @@ export default class RtcClient {
   room: Room
   self: Self
   share: Share
-  chat: Chat
+  chat:RoomChat
   recorder: Recorder
   mediaDevice: MediaDevice
 
@@ -68,14 +61,9 @@ export default class RtcClient {
     this.room = { roomId: undefined, name: '' }
     this.self = { clientId: undefined, name: '' }
     this.share = { clientId: undefined, mediaStream: null, webRtc: null }
-    this.chat = { isOpen: false, messages: [] }
+    this.chat = new RoomChat(this)
     this.recorder = new Recorder(this)
-    this.mediaDevice = {
-      isOpen: false,
-      videoInput: null,
-      audioInput: null,
-      audioOutput: null,
-    }
+    this.mediaDevice = new MediaDevice(this)
     this.setFcmToken()
   }
 
@@ -175,35 +163,6 @@ export default class RtcClient {
     })
   }
 
-  // チャットの表示・非表示を切り替える
-  async openChat() {
-    this.chat.isOpen = true
-    await this.setRtcClient()
-  }
-  async closeChat() {
-    this.chat.isOpen = false
-    await this.setRtcClient()
-  }
-  async sendChat(text: string) {
-    const message = {
-      type: 'chat',
-      text,
-      clientId: this.self.clientId,
-      datetime: new Date(),
-    } as ChatMessage
-    this.chat.messages = [...this.chat.messages, message]
-    await this.databaseBroadcastRef.set(message)
-
-    // プッシュ通知を送信する
-    await this.sendFcm(message)
-
-    await this.setRtcClient()
-  }
-  async receiveChat(message: ChatMessage) {
-    this.chat.messages = [...this.chat.messages, message]
-    await this.setRtcClient()
-  }
-
   // 画面共有を開始する
   async startShare() {
     try {
@@ -264,23 +223,6 @@ export default class RtcClient {
     } catch (error) {
       console.error(error)
     }
-  }
-
-  sendFcm(chat: ChatMessage) {
-    if (Object.keys(this.members).length === 0) return
-    Object.keys(this.members).forEach((key) => {
-      const member = this.members[key]
-      const token = member.fcmToken
-      const message = {
-        title: chat.text,
-        description: '',
-        thumbnailUrl: '',
-        path: '',
-      }
-
-      const response = API.post(`${API_ENDPOINT.SEND_FCM}`, { token, message })
-      console.log('response', response)
-    })
   }
 
   async stopShare() {
@@ -514,7 +456,7 @@ export default class RtcClient {
       }
       switch (type) {
         case 'chat':
-          await this.receiveChat(data)
+          await this.chat.receiveChat(data)
           break
         default:
           break
