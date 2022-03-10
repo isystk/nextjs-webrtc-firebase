@@ -44,6 +44,7 @@ const SideMenu: VFC<Props> = ({ isMenuOpen, setMenuOpen, rtcClient }) => {
             document.exitFullscreen()
           }
         }
+        setMenuOpen(!isMenuOpen)
       },
       false,
     ],
@@ -53,6 +54,7 @@ const SideMenu: VFC<Props> = ({ isMenuOpen, setMenuOpen, rtcClient }) => {
         if (!rtcClient.mediaDevice.isOpen) {
           await rtcClient.openMediaDevice()
         }
+        setMenuOpen(!isMenuOpen)
       },
       joined,
     ],
@@ -61,6 +63,7 @@ const SideMenu: VFC<Props> = ({ isMenuOpen, setMenuOpen, rtcClient }) => {
       async () => {
         await rtcClient.disconnect()
         await router.push(URL.HOME)
+        setMenuOpen(!isMenuOpen)
       },
       !joined,
     ],
@@ -72,6 +75,7 @@ const SideMenu: VFC<Props> = ({ isMenuOpen, setMenuOpen, rtcClient }) => {
         } else {
           await rtcClient.recorder.startRecorder()
         }
+        setMenuOpen(!isMenuOpen)
       },
       !joined,
     ],
