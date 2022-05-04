@@ -31,13 +31,13 @@ export const getApp = () => {
       firebase.functions().useEmulator('localhost', 5001)
       firebase.database().useEmulator('localhost', 9000)
     }
-
-    // this is working
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.addEventListener('message', (event) =>
-        console.log('event for the service worker', event)
-      )
-    }
+    //
+    // // this is working
+    // if ('serviceWorker' in navigator) {
+    //   navigator.serviceWorker.addEventListener('message', (event) =>
+    //     console.log('event for the service worker', event)
+    //   )
+    // }
   } else {
     firebase.app()
   }
