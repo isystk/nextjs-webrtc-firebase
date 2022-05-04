@@ -1,7 +1,7 @@
 import RtcClient from '@/utilities/RtcClient'
 import ShareWebRtc from '@/utilities/ShareWebRtc'
 
-export type Member = {
+type Member = {
   webRtc: ShareWebRtc | null
 }
 type Members = {
@@ -107,10 +107,10 @@ export default class DisplayShare {
       this.clientId = shareClientId
       this.members[shareClientId] = {
         webRtc: new ShareWebRtc(
-            this.rtcClient.room.roomId,
-            shareClientId,
-            clientId
-        )
+          this.rtcClient.room.roomId,
+          shareClientId,
+          clientId
+        ),
       }
       await this.members[shareClientId].webRtc?.startListening()
     }

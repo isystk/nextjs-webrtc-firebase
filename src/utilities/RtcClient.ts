@@ -1,4 +1,4 @@
-import { getDatabase, getAuth, getMessagingToken } from '@/utilities/firebase'
+import { getDatabase, getAuth } from '@/utilities/firebase'
 import DisplayShare from '@/utilities/DisplayShare'
 import { WebRtc } from '@/utilities'
 import Recorder from '@/utilities/Recorder'
@@ -55,11 +55,11 @@ export default class RtcClient {
   }
 
   async setFcmToken() {
-    await getMessagingToken().then((currentToken) => {
-      if (currentToken) {
-        this.self.fcmToken = currentToken
-      }
-    })
+    // await getMessagingToken().then((currentToken) => {
+    //   if (currentToken) {
+    //     this.self.fcmToken = currentToken
+    //   }
+    // })
   }
 
   async setLocalPeerName(localPeerName: string) {
