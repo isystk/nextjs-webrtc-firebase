@@ -114,6 +114,9 @@ Options:
 ## 💬 使い方
 
 ```
+$ node -v
+v17.9.0
+
 # 下準備
 $ ./dc.sh init
 $ cp .env.example .env
