@@ -6,9 +6,9 @@ import Header from '@/components/pages/Header'
 
 storiesOf('commons/Header', module)
   .addDecorator((getStory) => <MemoryRouter>{getStory()}</MemoryRouter>)
-  .addDecorator(story => {
-    document.body.classList.add('App');
-    return story();
+  .addDecorator((story) => {
+    document.body.classList.add('App')
+    return story()
   })
   .add('Logout', () => {
     const rtcClient = {
@@ -19,7 +19,13 @@ storiesOf('commons/Header', module)
         name: '',
       },
     } as RtcClient
-    return <Header isMenuOpen={false} setMenuOpen={() => ({})} rtcClient={rtcClient} />
+    return (
+      <Header
+        isMenuOpen={false}
+        setMenuOpen={() => ({})}
+        rtcClient={rtcClient}
+      />
+    )
   })
   .add('Logined', () => {
     const rtcClient = {
@@ -30,5 +36,11 @@ storiesOf('commons/Header', module)
         name: 'isystk',
       },
     } as RtcClient
-    return <Header isMenuOpen={false} setMenuOpen={() => ({})} rtcClient={rtcClient} />
+    return (
+      <Header
+        isMenuOpen={false}
+        setMenuOpen={() => ({})}
+        rtcClient={rtcClient}
+      />
+    )
   })

@@ -24,10 +24,9 @@ export const { toggleState, fetchRtcClient } = ClientSlice.actions
 export const forceRender = () => async (dispatch) => {
   dispatch(toggleState())
 }
-export const setRtcClient = (rtcClient: Partial<RtcClient>) => async (
-  dispatch
-) => {
-  dispatch(fetchRtcClient(rtcClient))
-}
+export const setRtcClient =
+  (rtcClient: Partial<RtcClient>) => async (dispatch) => {
+    dispatch(fetchRtcClient(rtcClient))
+  }
 
 export default ClientSlice.reducer

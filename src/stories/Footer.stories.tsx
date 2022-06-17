@@ -5,8 +5,8 @@ import Footer from '@/components/pages/Footer'
 
 storiesOf('commons/Footer', module)
   .addDecorator((getStory) => <MemoryRouter>{getStory()}</MemoryRouter>)
-  .addDecorator(story => {
-    document.body.classList.add('App');
-    return story();
+  .addDecorator((story) => {
+    document.body.classList.add('App')
+    return story()
   })
-  .add('default', () => <Footer/>)
+  .add('default', () => <Footer />)

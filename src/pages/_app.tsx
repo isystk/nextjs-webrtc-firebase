@@ -1,5 +1,5 @@
 import React from 'react'
-import App, { Container, AppProps } from 'next/app'
+import App, { AppProps } from 'next/app'
 // 全体に適応する外部 CSS を読み込む
 import '../styles/app.scss'
 import { createStore, applyMiddleware } from 'redux'
@@ -29,11 +29,9 @@ class MyApp extends App {
 
     return (
       <MuiThemeProvider>
-        <Container>
-          <Provider store={store}>
-            <Component {...pageProps} />
-          </Provider>
-        </Container>
+        <Provider store={store}>
+          <Component {...pageProps} />
+        </Provider>
       </MuiThemeProvider>
     )
   }

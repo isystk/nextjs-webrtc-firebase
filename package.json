@@ -8,17 +8,25 @@
     "type-check": "tsc",
     "lint": "eslint --ext .ts,.tsx .",
     "lintfix": "eslint --fix --ext .ts,.tsx .",
+    "format": "prettier -w 'src/**/*.{ts,tsx}'",
+    "fix": "yarn format && yarn lint",
     "test": "jest",
     "test:coverage": "jest --collect-coverage",
-    "precommit": "npm run lint && npm run test",
     "build": "NODE_ENV=production USE_FIREBASE_EMULATOR=false next build && next export",
     "deploy:production": "firebase deploy",
     "deploy:preview": "firebase hosting:channel:deploy preview_name",
+    "prepare": "husky install",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook"
   },
-  "dependencies": {
-    "react-firebaseui": "^6.0.0"
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{css,less,sass,scss}": [
+      "stylelint --fix"
+    ]
   },
   "devDependencies": {
     "@babel/core": "^7.17.10",
@@ -70,18 +78,21 @@
     "firebase": "^9.4.0",
     "formik": "^2.2.9",
     "formik-material-ui": "^4.0.0-alpha.2",
+    "husky": "^8.0.1",
     "jest": "^26.6.3",
+    "lint-staged": "^13.0.2",
     "lodash": "^4.17.20",
     "material-ui": "^0.20.2",
     "moment": "^2.29.1",
-    "next": "latest",
+    "next": "^12.1.7-canary.40",
     "next-redux-wrapper": "^6.0.2",
     "node-sass": "^7.0.1",
     "now": "^21.0.1",
-    "prettier": "^2.2.1",
+    "prettier": "^2.6.2",
     "react": "^16.12.0",
     "react-datepicker": "^4.3.0",
     "react-dom": "^16.12.0",
+    "react-firebaseui": "^6.0.0",
     "react-image-base64": "^1.1.0",
     "react-redux": "^7.2.2",
     "react-slick": "^0.27.14",
@@ -97,5 +108,6 @@
     "typescript": "4.0",
     "yup": "^0.32.11"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {}
 }
