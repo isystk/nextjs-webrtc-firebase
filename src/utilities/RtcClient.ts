@@ -42,7 +42,7 @@ export default class RtcClient {
     this._setRtcClient = setRtcClient
     this.members = {}
     this.room = { roomId: undefined, name: '' }
-    this.self = { clientId: undefined, name: '' }
+    this.self = { clientId: undefined, name: '', fcmToken: '' }
     this.share = new DisplayShare(this)
     this.chat = new RoomChat(this)
     this.recorder = new Recorder(this)
