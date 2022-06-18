@@ -1,4 +1,4 @@
-import { getDatabase } from './firebase'
+import { getDatabase } from '@/utilities/firebase'
 import firebase from 'firebase/compat/app'
 
 export class WebRtc {

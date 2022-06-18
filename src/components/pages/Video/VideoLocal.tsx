@@ -2,7 +2,7 @@ import React, { VFC, useEffect, useRef } from 'react'
 
 import Button from '@material-ui/core/Button'
 import Video from './Video'
-import RtcClient from '@/utilities/RtcClient'
+import RtcClient from '@/services/RtcClient'
 
 type Props = {
   rtcClient: RtcClient

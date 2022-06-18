@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
 import renderer from 'react-test-renderer'
-import Header from '../Header'
+import Header from '@/components/pages/Header'
 import '@testing-library/jest-dom/extend-expect'
 import { renderHook } from '@testing-library/react-hooks'
-import RtcClient from '@/utilities/RtcClient'
+import RtcClient from '@/services/RtcClient'
 
 describe('Header', () => {
   it('Match Snapshot', () => {

@@ -5,7 +5,7 @@ import VolumeOffIcon from '@material-ui/icons/VolumeOff'
 import VolumeUpIcon from '@material-ui/icons/VolumeUp'
 import { OverridableComponent } from '@material-ui/core/OverridableComponent'
 import { SvgIconTypeMap } from '@material-ui/core'
-import RtcClient from '@/utilities/RtcClient'
+import RtcClient from '@/services/RtcClient'
 
 type Props = {
   isLocal: boolean

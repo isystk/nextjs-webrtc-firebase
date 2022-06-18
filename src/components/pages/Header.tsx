@@ -10,7 +10,7 @@ import {
 } from '@material-ui/core'
 import MenuIcon from '@material-ui/icons/Menu'
 import { useState } from 'react'
-import RtcClient from '../../utilities/RtcClient'
+import RtcClient from '@/services/RtcClient'
 import { makeStyles } from '@material-ui/core/styles'
 
 type Props = {

@@ -15,8 +15,8 @@ import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord'
 import StopIcon from '@material-ui/icons/Stop'
 import SettingsIcon from '@material-ui/icons/Settings'
 import { useRouter } from 'next/router'
-import RtcClient from '@/utilities/RtcClient'
-import { URL } from '@/common/constants/url'
+import RtcClient from '@/services/RtcClient'
+import { URL } from '@/constants/url'
 
 type Props = {
   isMenuOpen: boolean

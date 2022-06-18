@@ -1,6 +1,6 @@
 import { useEffect, useReducer } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import RtcClient from '@/utilities/RtcClient'
+import RtcClient from '@/services/RtcClient'
 import { forceRender, setRtcClient } from '@/store/slice/client'
 
 const useRtcClient = () => {

@@ -1,5 +1,5 @@
 import * as React from 'react'
-import RtcClient from '@/utilities/RtcClient'
+import RtcClient from '@/services/RtcClient'
 import Modal from '@/components/widgets/Modal'
 import { Button, TextField } from '@material-ui/core'
 import { useCallback, useEffect, useState } from 'react'

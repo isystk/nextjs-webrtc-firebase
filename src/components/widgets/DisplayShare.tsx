@@ -1,6 +1,6 @@
 import React, { VFC, useRef, useEffect } from 'react'
 
-import RtcClient from '@/utilities/RtcClient'
+import RtcClient from '@/services/RtcClient'
 import Modal from '@/components/widgets/Modal'
 
 type Props = {

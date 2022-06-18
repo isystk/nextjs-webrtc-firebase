@@ -1,9 +1,9 @@
 import { getDatabase, getAuth } from '@/utilities/firebase'
-import DisplayShare from '@/utilities/DisplayShare'
-import { WebRtc } from '@/utilities'
-import Recorder from '@/utilities/Recorder'
-import MediaDevice from '@/utilities/MediaDevice'
-import RoomChat from '@/utilities/RoomChat'
+import DisplayShare from '@/services/DisplayShare'
+import { WebRtc } from '@/services/WebRtc'
+import Recorder from '@/services/Recorder'
+import MediaDevice from '@/services/MediaDevice'
+import RoomChat from '@/services/RoomChat'
 
 export type Self = {
   clientId?: string

@@ -1,7 +1,7 @@
 import React, { VFC } from 'react'
 import { Fab } from '@material-ui/core'
 import AddIcon from 'material-ui/svg-icons/content/add'
-import RtcClient from '@/utilities/RtcClient'
+import RtcClient from '@/services/RtcClient'
 
 type Props = {
   rtcClient: RtcClient

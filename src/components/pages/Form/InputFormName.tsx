@@ -1,7 +1,7 @@
 import { makeStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
 import TextField from '@material-ui/core/TextField'
-import RtcClient from '@/utilities/RtcClient'
+import RtcClient from '@/services/RtcClient'
 import React, { VFC, useCallback, useEffect, useState } from 'react'
 import CssBaseline from '@material-ui/core/CssBaseline'
 import Container from '@material-ui/core/Container'
@@ -9,7 +9,7 @@ import Button from '@material-ui/core/Button'
 import { getAuth } from '@/utilities/firebase'
 import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth'
 import firebase from 'firebase/compat/app'
-import { URL } from '@/common/constants/url'
+import { URL } from '@/constants/url'
 
 const useStyles = makeStyles((theme) => ({
   paper: {

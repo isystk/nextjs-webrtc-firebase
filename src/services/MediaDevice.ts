@@ -1,4 +1,4 @@
-import RtcClient from '@/utilities/RtcClient'
+import RtcClient from '@/services/RtcClient'
 
 export type Device = {
   deviceId: string

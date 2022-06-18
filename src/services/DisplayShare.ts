@@ -1,5 +1,5 @@
-import RtcClient from '@/utilities/RtcClient'
-import ShareWebRtc from '@/utilities/ShareWebRtc'
+import RtcClient from '@/services/RtcClient'
+import ShareWebRtc from '@/services/ShareWebRtc'
 
 type Member = {
   webRtc: ShareWebRtc | null

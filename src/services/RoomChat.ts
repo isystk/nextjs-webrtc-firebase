@@ -1,6 +1,6 @@
-import RtcClient from '@/utilities/RtcClient'
-import { API } from '@/utilities'
-import { API_ENDPOINT } from '@/common/constants/api'
+import RtcClient from '@/services/RtcClient'
+import { API } from '@/utilities/api'
+import { API_ENDPOINT } from '@/constants/api'
 
 export type Chat = {
   isOpen: boolean

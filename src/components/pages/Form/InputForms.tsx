@@ -2,7 +2,7 @@ import Grid from '@material-ui/core/Grid'
 import InputFormName from './InputFormName'
 import InputFormRoom from './InputFormRoom'
 import React, { useEffect, VFC } from 'react'
-import RtcClient from '@/utilities/RtcClient'
+import RtcClient from '@/services/RtcClient'
 import { useRouter } from 'next/router'
 import DeviceSetting from '@/components/widgets/DeviceSetting'
 

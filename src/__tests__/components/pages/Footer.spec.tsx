@@ -1,6 +1,6 @@
 import React from 'react'
 import renderer from 'react-test-renderer'
-import Footer from '../Footer'
+import Footer from '@/components/pages/Footer'
 
 test('Footer', () => {
   const component = renderer.create(<Footer />)

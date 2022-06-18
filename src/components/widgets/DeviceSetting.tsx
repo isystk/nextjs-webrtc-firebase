@@ -1,7 +1,7 @@
 import React, { VFC, useRef, useEffect, useState } from 'react'
 
 import Select from '@material-ui/core/Select'
-import RtcClient from '@/utilities/RtcClient'
+import RtcClient from '@/services/RtcClient'
 import Modal from '@/components/widgets/Modal'
 import { CssBaseline, InputLabel, MenuItem } from '@material-ui/core'
 import Container from '@material-ui/core/Container'
