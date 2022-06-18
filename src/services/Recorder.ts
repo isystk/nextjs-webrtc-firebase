@@ -59,13 +59,15 @@ export default class Recorder {
     // 録画ファイルのダウンロード
     console.log('record stop')
 
-    this.mediaRecorder.onstop = async () => {
-      // this.mediaRecorder = null
-      this.isRecording = false
-      this.isOpen = true
-      await this.rtcClient.setAppRoot()
+    if (this.mediaRecorder) {
+      this.mediaRecorder.onstop = async () => {
+        // this.mediaRecorder = null
+        this.isRecording = false
+        this.isOpen = true
+        await this.rtcClient.setAppRoot()
+      }
+      this.mediaRecorder?.stop()
     }
-    this.mediaRecorder.stop()
   }
   // 録画モーダルを閉じる
   async closeRecorder() {
