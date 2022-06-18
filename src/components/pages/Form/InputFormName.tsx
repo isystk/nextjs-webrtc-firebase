@@ -1,7 +1,7 @@
 import { makeStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
 import TextField from '@material-ui/core/TextField'
-import RtcClient from '@/services/RtcClient'
+import Main from '@/services/main'
 import React, { VFC, useCallback, useEffect, useState } from 'react'
 import CssBaseline from '@material-ui/core/CssBaseline'
 import Container from '@material-ui/core/Container'
@@ -32,7 +32,7 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 type Props = {
-  rtcClient: RtcClient
+  rtcClient: Main
 }
 
 const SignIn: VFC<Props> = ({ rtcClient }) => {

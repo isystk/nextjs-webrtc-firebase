@@ -1,12 +1,12 @@
 import * as React from 'react'
-import RtcClient from '@/services/RtcClient'
+import Main from '@/services/main'
 import Modal from '@/components/widgets/Modal'
 import { Button, TextField } from '@material-ui/core'
 import { useCallback, useEffect, useState } from 'react'
 
 // ↓ 表示用のデータ型
 interface IProps {
-  rtcClient: RtcClient
+  rtcClient: Main
 }
 
 const RoomChat = ({ rtcClient }: IProps) => {

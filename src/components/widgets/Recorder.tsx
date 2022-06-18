@@ -1,10 +1,10 @@
 import React, { VFC, useRef, useEffect } from 'react'
 
-import RtcClient from '@/services/RtcClient'
+import Main from '@/services/main'
 import Modal from '@/components/widgets/Modal'
 
 type Props = {
-  rtcClient: RtcClient
+  rtcClient: Main
 }
 
 const Recorder: VFC<Props> = ({ rtcClient }) => {

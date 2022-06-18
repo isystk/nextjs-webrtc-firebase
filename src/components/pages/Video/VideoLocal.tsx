@@ -2,10 +2,10 @@ import React, { VFC, useEffect, useRef } from 'react'
 
 import Button from '@material-ui/core/Button'
 import Video from './Video'
-import RtcClient from '@/services/RtcClient'
+import Main from '@/services/main'
 
 type Props = {
-  rtcClient: RtcClient
+  rtcClient: Main
 }
 
 const VideoLocal: VFC<Props> = ({ rtcClient }) => {

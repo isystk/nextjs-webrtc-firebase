@@ -1,4 +1,4 @@
-import RtcClient from '@/services/RtcClient'
+import Main from '@/services/main'
 import ShareWebRtc from '@/services/ShareWebRtc'
 
 type Member = {
@@ -8,13 +8,13 @@ type Members = {
   [key: string]: Member
 }
 export default class DisplayShare {
-  rtcClient: RtcClient
+  rtcClient: Main
 
   clientId?: string
   mediaStream: MediaStream | null
   members: Members
 
-  constructor(rtcClient: RtcClient) {
+  constructor(rtcClient: Main) {
     this.rtcClient = rtcClient
 
     this.clientId = undefined
@@ -82,7 +82,7 @@ export default class DisplayShare {
         shareVideoRef.srcObject = mediaStream
       }, 1000)
 
-      await this.rtcClient.setRtcClient()
+      await this.rtcClient.setAppRoot()
     } catch (error) {
       console.error(error)
     }
@@ -98,7 +98,7 @@ export default class DisplayShare {
       // TODO 画面共有の終了処理
     })
 
-    await this.rtcClient.setRtcClient()
+    await this.rtcClient.setAppRoot()
   }
 
   async addShare(shareClientId: string, clientId: string) {
@@ -114,6 +114,6 @@ export default class DisplayShare {
       }
       await this.members[shareClientId].webRtc?.startListening()
     }
-    await this.rtcClient.setRtcClient()
+    await this.rtcClient.setAppRoot()
   }
 }

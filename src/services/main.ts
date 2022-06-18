@@ -28,8 +28,8 @@ type Members = {
   [key: string]: Member
 }
 
-export default class RtcClient {
-  _setRtcClient: (rtcClient: RtcClient) => void
+export default class MainService {
+  _setAppRoot: (rtcClient: MainService) => void
   members: Members
   room: Room
   self: Self
@@ -38,8 +38,8 @@ export default class RtcClient {
   recorder: Recorder
   mediaDevice: MediaDevice
 
-  constructor(setRtcClient: (rtcClient: RtcClient) => void) {
-    this._setRtcClient = setRtcClient
+  constructor(setAppRoot: (appRoot: MainService) => void) {
+    this._setAppRoot = setAppRoot
     this.members = {}
     this.room = { roomId: undefined, name: '' }
     this.self = { clientId: undefined, name: '', fcmToken: '' }
@@ -50,8 +50,8 @@ export default class RtcClient {
     this.setFcmToken()
   }
 
-  async setRtcClient() {
-    await this._setRtcClient(this)
+  async setAppRoot() {
+    await this._setAppRoot(this)
   }
 
   async setFcmToken() {
@@ -64,7 +64,7 @@ export default class RtcClient {
 
   async setLocalPeerName(localPeerName: string) {
     this.self.name = localPeerName
-    await this.setRtcClient()
+    await this.setAppRoot()
   }
 
   async setRoomName(roomName: string) {
@@ -79,7 +79,7 @@ export default class RtcClient {
     }
     // TODO ここにawaitを付けると何故か動作しない
     getDatabase(this.room.roomId).update(this.room)
-    await this.setRtcClient()
+    await this.setAppRoot()
   }
 
   async setRoomId(roomId: string) {
@@ -91,14 +91,14 @@ export default class RtcClient {
         roomId,
         name,
       }
-      await this.setRtcClient()
+      await this.setAppRoot()
     })
   }
 
   // 映像のオン・オフを切り替える
   async toggleVideo() {
     this.self.videoOff = !this.self.videoOff
-    await this.setRtcClient()
+    await this.setAppRoot()
     if (Object.keys(this.members).length === 0) return
     Object.keys(this.members).forEach((key) => {
       this.members[key].webRtc?.toggleVideo()
@@ -108,7 +108,7 @@ export default class RtcClient {
   // 音声のオン・オフを切り替える
   async toggleAudio() {
     this.self.muted = !this.self.muted
-    await this.setRtcClient()
+    await this.setAppRoot()
     if (Object.keys(this.members).length === 0) return
     Object.keys(this.members).forEach((key) => {
       this.members[key].webRtc?.toggleAudio()
@@ -120,14 +120,14 @@ export default class RtcClient {
     await this.disconnect()
     await getAuth().signOut()
     this.self = { clientId: undefined, name: '' }
-    await this.setRtcClient()
+    await this.setAppRoot()
   }
 
   async disconnect() {
     console.log('disconnect')
     await this.databaseMembersRef(this.self.clientId).remove()
     this.room = { roomId: undefined, name: '' }
-    await this.setRtcClient()
+    await this.setAppRoot()
   }
 
   // ルームに参加する
@@ -158,7 +158,7 @@ export default class RtcClient {
         clientId: this.self.clientId,
       })
 
-      await this.setRtcClient()
+      await this.setAppRoot()
     } catch (error) {
       console.error(error)
     }
@@ -189,7 +189,7 @@ export default class RtcClient {
       [data.clientId]: data,
     }
     this.members = { ...this.members, ...newMember }
-    await this.setRtcClient()
+    await this.setAppRoot()
   }
 
   async removeMember(data: Member) {
@@ -199,7 +199,7 @@ export default class RtcClient {
       // delete this.members[data.clientId]
       this.members[data.clientId].status = 'offline'
     }
-    await this.setRtcClient()
+    await this.setAppRoot()
   }
 
   // シグナリングサーバーをリスンする処理

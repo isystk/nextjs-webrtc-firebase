@@ -5,7 +5,7 @@ import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import { makeStyles } from '@material-ui/core/styles'
 import Container from '@material-ui/core/Container'
-import RtcClient from '@/services/RtcClient'
+import Main from '@/services/main'
 import { useRouter } from 'next/router'
 
 const useStyles = makeStyles((theme) => ({
@@ -29,7 +29,7 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 type Props = {
-  rtcClient: RtcClient
+  rtcClient: Main
 }
 const SignIn: VFC<Props> = ({ rtcClient }) => {
   const label = '部屋の名前'
