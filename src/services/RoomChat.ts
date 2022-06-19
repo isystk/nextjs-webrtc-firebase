@@ -1,6 +1,4 @@
 import Main from '@/services/main'
-import { API } from '@/utilities/api'
-import { API_ENDPOINT } from '@/constants/api'
 
 export type Chat = {
   isOpen: boolean
@@ -45,31 +43,11 @@ export default class RoomChat {
     this.messages = [...this.messages, message]
     await this.rtcClient.databaseBroadcastRef.set(message)
 
-    // プッシュ通知を送信する
-    await this.sendFcm(message)
-
     await this.rtcClient.setAppRoot()
   }
 
   async receiveChat(message: ChatMessage) {
     this.messages = [...this.messages, message]
     await this.rtcClient.setAppRoot()
-  }
-
-  sendFcm(chat: ChatMessage) {
-    if (Object.keys(this.rtcClient.members).length === 0) return
-    Object.keys(this.rtcClient.members).forEach((key) => {
-      const member = this.rtcClient.members[key]
-      const token = member.fcmToken
-      const message = {
-        title: chat.text,
-        description: '',
-        thumbnailUrl: '',
-        path: '',
-      }
-
-      const response = API.post(`${API_ENDPOINT.SEND_FCM}`, { token, message })
-      console.log('response', response)
-    })
   }
 }

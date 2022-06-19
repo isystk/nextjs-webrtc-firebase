@@ -63,7 +63,7 @@ export default class ShareWebRtc {
       const sessionDescription = await this.createOffer()
       // 3-5. 作成したSDP(offer)を保存する
       if (sessionDescription) {
-          await this.setLocalDescription(sessionDescription)
+        await this.setLocalDescription(sessionDescription)
       }
       // 3-6. SDP(offer)を送信する
       const data = {
@@ -111,7 +111,7 @@ export default class ShareWebRtc {
   }
 
   // SDP(offer)を作成する
-  async createOffer(): Promise<RTCSessionDescriptionInit|null> {
+  async createOffer(): Promise<RTCSessionDescriptionInit | null> {
     try {
       if (this.rtcPeerConnection !== null) {
         return await this.rtcPeerConnection.createOffer()

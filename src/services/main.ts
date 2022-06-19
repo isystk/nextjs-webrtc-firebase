@@ -10,7 +10,6 @@ export type Self = {
   name: string
   videoOff?: boolean
   muted?: boolean
-  fcmToken?: string
 }
 export type Room = {
   roomId?: string
@@ -18,7 +17,6 @@ export type Room = {
 }
 export type Member = {
   clientId: string
-  fcmToken: string
   shareClientId?: string
   name: string
   webRtc: WebRtc | null
@@ -42,24 +40,15 @@ export default class MainService {
     this._setAppRoot = setAppRoot
     this.members = {}
     this.room = { roomId: undefined, name: '' }
-    this.self = { clientId: undefined, name: '', fcmToken: '' }
+    this.self = { clientId: undefined, name: '' }
     this.share = new DisplayShare(this)
     this.chat = new RoomChat(this)
     this.recorder = new Recorder(this)
     this.mediaDevice = new MediaDevice(this)
-    this.setFcmToken()
   }
 
   async setAppRoot() {
     await this._setAppRoot(this)
-  }
-
-  async setFcmToken() {
-    // await getMessagingToken().then((currentToken) => {
-    //   if (currentToken) {
-    //     this.self.fcmToken = currentToken
-    //   }
-    // })
   }
 
   async setLocalPeerName(localPeerName: string) {
@@ -143,7 +132,6 @@ export default class MainService {
       this.self = {
         clientId: key + '',
         name: this.self.name,
-        fcmToken: this.self.fcmToken,
       }
       await this.databaseMembersRef(this.self.clientId).update(this.self)
 
@@ -249,7 +237,6 @@ export default class MainService {
           await this.databaseJoinRef(shareClientId).set({
             type: 'accept',
             clientId: this.self.clientId,
-            fcmToken: this.self.fcmToken,
             shareClientId,
             name: this.self.name,
           })
