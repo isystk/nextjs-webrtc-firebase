@@ -5,13 +5,13 @@ import VolumeOffIcon from '@material-ui/icons/VolumeOff'
 import VolumeUpIcon from '@material-ui/icons/VolumeUp'
 import { OverridableComponent } from '@material-ui/core/OverridableComponent'
 import { SvgIconTypeMap } from '@material-ui/core'
-import RtcClient from '@/utilities/RtcClient'
+import Main from '@/services/main'
 
 type Props = {
   isLocal: boolean
   muted: OverridableComponent<SvgIconTypeMap>
   refVolumeButton: MutableRefObject<null>
-  rtcClient: RtcClient
+  rtcClient: Main
   setMuted: (value: ((prevState: boolean) => boolean) | boolean) => void
 }
 

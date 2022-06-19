@@ -1,6 +1,6 @@
 module.exports = {
-  // 必要に応じて EditorConfig や ESLint と競合が起きないように設定
-  semi: false,
-  arrowParens: 'always',
+  printWidth: 80,
+  tabWidth: 2,
   singleQuote: true,
+  semi: false,
 }

@@ -1,6 +1,6 @@
 import Grid from '@material-ui/core/Grid'
 import React, { useEffect, VFC } from 'react'
-import RtcClient from '@/utilities/RtcClient'
+import Main from '@/services/main'
 import VideoLocal from './VideoLocal'
 import VideoRemote from './VideoRemote'
 import { makeStyles } from '@material-ui/core/styles'
@@ -10,7 +10,7 @@ import MenuBtn from '@/components/pages/MenuBtn'
 import RoomChat from '@/components/widgets/RoomChat'
 import DisplayShare from '@/components/widgets/DisplayShare'
 import Recorder from '@/components/widgets/Recorder'
-import { URL } from '@/common/constants/url'
+import { URL } from '@/constants/url'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -24,7 +24,7 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 type Props = {
-  rtcClient: RtcClient
+  rtcClient: Main
 }
 
 const VideoArea: VFC<Props> = ({ rtcClient }) => {

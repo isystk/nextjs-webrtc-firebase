@@ -12,15 +12,15 @@ import {
   CardContent,
   Typography,
 } from '@material-ui/core'
-import RtcClient, { Member } from '@/utilities/RtcClient'
+import Main, { Member } from '@/services/main'
 import AudioAnalyser from './AudioAnalyser'
 import VolumeButton from './VolumeButton'
-import useDimensions from '@/store/useDimentions'
+import useDimensions from '@/stores/useDimentions'
 
 type Props = {
   isLocal: boolean
   member: Member
-  rtcClient: RtcClient
+  rtcClient: Main
   videoRef: MutableRefObject<null>
 }
 
@@ -36,7 +36,7 @@ const Video: VFC<Props> = ({ isLocal, member, rtcClient, videoRef }) => {
 
   useEffect(() => {
     window.setTimeout(() => {
-      rtcClient.setRtcClient()
+      rtcClient.setAppRoot()
     }, 500)
   }, [])
 

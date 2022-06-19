@@ -8,6 +8,7 @@ coverage
 # Internals
 .storybook
 .vscode
+.idea
 internals
 stories
 tools

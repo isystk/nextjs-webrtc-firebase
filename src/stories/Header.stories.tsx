@@ -1,25 +1,31 @@
 import React from 'react'
 import { MemoryRouter } from 'react-router'
 import { storiesOf } from '@storybook/react'
-import RtcClient from '@/utilities/RtcClient'
+import MainService from '@/services/main'
 import Header from '@/components/pages/Header'
 
 storiesOf('commons/Header', module)
   .addDecorator((getStory) => <MemoryRouter>{getStory()}</MemoryRouter>)
-  .addDecorator(story => {
-    document.body.classList.add('App');
-    return story();
+  .addDecorator((story) => {
+    document.body.classList.add('App')
+    return story()
   })
   .add('Logout', () => {
-    const rtcClient = {
+    const mainService = {
       room: {
         name: '',
       },
       self: {
         name: '',
       },
-    } as RtcClient
-    return <Header isMenuOpen={false} setMenuOpen={() => ({})} rtcClient={rtcClient} />
+    } as MainService
+    return (
+      <Header
+        isMenuOpen={false}
+        setMenuOpen={() => ({})}
+        rtcClient={mainService}
+      />
+    )
   })
   .add('Logined', () => {
     const rtcClient = {
@@ -29,6 +35,12 @@ storiesOf('commons/Header', module)
       self: {
         name: 'isystk',
       },
-    } as RtcClient
-    return <Header isMenuOpen={false} setMenuOpen={() => ({})} rtcClient={rtcClient} />
+    } as MainService
+    return (
+      <Header
+        isMenuOpen={false}
+        setMenuOpen={() => ({})}
+        rtcClient={rtcClient}
+      />
+    )
   })

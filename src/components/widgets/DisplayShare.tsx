@@ -1,10 +1,10 @@
 import React, { VFC, useRef, useEffect } from 'react'
 
-import RtcClient from '@/utilities/RtcClient'
+import Main from '@/services/main'
 import Modal from '@/components/widgets/Modal'
 
 type Props = {
-  rtcClient: RtcClient
+  rtcClient: Main
 }
 
 const DisplayShare: VFC<Props> = ({ rtcClient }) => {
@@ -14,7 +14,7 @@ const DisplayShare: VFC<Props> = ({ rtcClient }) => {
 
   // useEffect(() => {
   //     window.setTimeout(async () => {
-  //         await rtcClient.setRtcClient()
+  //         await rtcClient.setAppRoot()
   //     }, 500)
   //     if (currentVideoRef === null) return
   //     currentVideoRef.srcObject = mediaStream;

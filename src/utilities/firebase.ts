@@ -23,9 +23,12 @@ const config = {
 
 export const getApp = () => {
   if (!firebase.apps.length) {
+    console.log('config', config)
+
     firebase.initializeApp(config)
 
     if (isEmulator()) {
+      console.log('Use Emulator!!')
       firebase.auth().useEmulator('http://localhost:9099')
       firebase.firestore().useEmulator('localhost', 8080)
       firebase.functions().useEmulator('localhost', 5001)

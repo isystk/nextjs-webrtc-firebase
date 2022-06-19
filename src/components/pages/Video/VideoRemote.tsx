@@ -2,10 +2,10 @@ import React, { VFC, useRef } from 'react'
 
 import Button from '@material-ui/core/Button'
 import Video from './Video'
-import RtcClient, { Member } from '@/utilities/RtcClient'
+import Main, { Member } from '@/services/main'
 
 type Props = {
-  rtcClient: RtcClient
+  rtcClient: Main
   member: Member
 }
 

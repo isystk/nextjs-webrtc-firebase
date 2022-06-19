@@ -1,7 +1,7 @@
 import React, { VFC, useRef, useEffect, useState } from 'react'
 
 import Select from '@material-ui/core/Select'
-import RtcClient from '@/utilities/RtcClient'
+import Main from '@/services/main'
 import Modal from '@/components/widgets/Modal'
 import { CssBaseline, InputLabel, MenuItem } from '@material-ui/core'
 import Container from '@material-ui/core/Container'
@@ -24,7 +24,7 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 type Props = {
-  rtcClient: RtcClient
+  rtcClient: Main
 }
 
 const DeviceSetting: VFC<Props> = ({ rtcClient }) => {

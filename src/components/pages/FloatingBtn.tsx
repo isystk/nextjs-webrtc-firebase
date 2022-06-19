@@ -1,10 +1,10 @@
 import React, { VFC } from 'react'
 import { Fab } from '@material-ui/core'
 import AddIcon from 'material-ui/svg-icons/content/add'
-import RtcClient from '@/utilities/RtcClient'
+import Main from '@/services/main'
 
 type Props = {
-  rtcClient: RtcClient
+  rtcClient: Main
 }
 
 const FloatingBtn: VFC<Props> = ({ rtcClient }) => {

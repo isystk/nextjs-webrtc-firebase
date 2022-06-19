@@ -1,32 +1,29 @@
 const path = require('path')
 
 module.exports = {
-  "typescript" : { reactDocgen: false },
-  "webpackFinal": async (config) => {
+  typescript: { reactDocgen: false },
+  webpackFinal: async (config) => {
     // scss
     config.module.rules.push({
       test: /\.scss$/,
       use: ['style-loader', 'css-loader', 'sass-loader'],
-      include: path.resolve(__dirname, '../src/styles'),
-    });
+      include: path.resolve(__dirname, '../src/assets/sass'),
+    })
     // alias
     config.resolve.alias = {
       ...config.resolve.alias,
-      "@": path.resolve(__dirname, '../src'),
+      '@': path.resolve(__dirname, '../src'),
     }
     return config
   },
-  "stories": [
-    "../src/**/*.stories.mdx",
-    "../src/**/*.stories.@(js|jsx|ts|tsx)"
+  stories: ['../src/**/*.stories.mdx', '../src/**/*.stories.@(js|jsx|ts|tsx)'],
+  addons: [
+    '@storybook/addon-links',
+    '@storybook/addon-essentials',
+    '@storybook/addon-interactions',
   ],
-  "addons": [
-    "@storybook/addon-links",
-    "@storybook/addon-essentials",
-    "@storybook/addon-interactions"
-  ],
-  "framework": "@storybook/react",
-  "core": {
-    "builder": "@storybook/builder-webpack5"
-  }
+  framework: '@storybook/react',
+  core: {
+    builder: '@storybook/builder-webpack5',
+  },
 }

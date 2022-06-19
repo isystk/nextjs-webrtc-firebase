@@ -10,13 +10,13 @@ import {
 } from '@material-ui/core'
 import MenuIcon from '@material-ui/icons/Menu'
 import { useState } from 'react'
-import RtcClient from '../../utilities/RtcClient'
+import Main from '@/services/main'
 import { makeStyles } from '@material-ui/core/styles'
 
 type Props = {
   isMenuOpen: boolean
   setMenuOpen: Dispatch<SetStateAction<boolean>>
-  rtcClient: RtcClient
+  rtcClient: Main
 }
 
 const useStyles = makeStyles(() => ({
