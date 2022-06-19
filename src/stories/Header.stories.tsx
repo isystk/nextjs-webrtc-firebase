@@ -1,7 +1,7 @@
 import React from 'react'
 import { MemoryRouter } from 'react-router'
 import { storiesOf } from '@storybook/react'
-import RtcClient from '@/utilities/RtcClient'
+import MainService from '@/services/main'
 import Header from '@/components/pages/Header'
 
 storiesOf('commons/Header', module)
@@ -11,19 +11,19 @@ storiesOf('commons/Header', module)
     return story()
   })
   .add('Logout', () => {
-    const rtcClient = {
+    const mainService = {
       room: {
         name: '',
       },
       self: {
         name: '',
       },
-    } as RtcClient
+    } as MainService
     return (
       <Header
         isMenuOpen={false}
         setMenuOpen={() => ({})}
-        rtcClient={rtcClient}
+        rtcClient={mainService}
       />
     )
   })
@@ -35,7 +35,7 @@ storiesOf('commons/Header', module)
       self: {
         name: 'isystk',
       },
-    } as RtcClient
+    } as MainService
     return (
       <Header
         isMenuOpen={false}

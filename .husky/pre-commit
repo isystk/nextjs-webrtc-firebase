@@ -2,7 +2,7 @@
 . "$(dirname -- "$0")/_/husky.sh"
 
 # コミット前に実行するコマンド
-#yarn lint-staged
+yarn lint-staged
 # eslint & prettier
 yarn fix
 # jest

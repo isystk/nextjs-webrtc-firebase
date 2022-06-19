@@ -59,6 +59,8 @@
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-react": "^7.30.0",
     "firebase": "^9.8.3",
+    "formik": "^2.2.9",
+    "formik-material-ui": "^4.0.0-alpha.2",
     "husky": "^8.0.1",
     "jest": "^27.5.1",
     "jsonc-parser": "^3.0.0",
@@ -73,12 +75,14 @@
     "react-dom": "^18.2.0",
     "react-firebaseui": "^6.0.0",
     "react-redux": "^8.0.2",
+    "react-router": "^6.3.0",
     "react-test-renderer": "^18.2.0",
     "redux": "^4.2.0",
     "redux-devtools-extension": "^2.13.8",
     "sass-loader": "^13.0.0",
     "ts-jest": "^27.1.4",
-    "typescript": "4.7"
+    "typescript": "4.7",
+    "yup": "^0.32.11"
   },
   "license": "MIT",
   "dependencies": {}
